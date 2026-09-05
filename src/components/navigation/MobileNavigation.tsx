@@ -1,15 +1,21 @@
 import { NavLink } from "react-router-dom";
 import { mobileNavItems } from "./navConfig";
 import { cn } from "../../lib/utils";
+import { useAppMode } from "../../context/AppModeContext";
+import { loadRecoveryProfile } from "../../features/recovery/recoveryProfile";
+import { isAcuteRecovery } from "../../features/science/recoverySafety";
 
 export function MobileNavigation() {
+  const { mode } = useAppMode();
+  const acuteMode = mode === "user" && isAcuteRecovery(loadRecoveryProfile());
+  const items = acuteMode ? mobileNavItems.filter((item) => item.href === "/app" || item.href === "/app/check-in") : mobileNavItems;
   return (
     <nav
       data-focus-shell="mobile-nav"
       className="fixed inset-x-0 bottom-0 z-40 flex border-t border-[var(--color-border)] bg-[var(--color-surface)]/96 px-2 pb-[env(safe-area-inset-bottom)] pt-1 backdrop-blur lg:hidden"
       aria-label="Primary"
     >
-      {mobileNavItems.map(({ label, href, icon: Icon, end }) => (
+      {items.map(({ label, href, icon: Icon, end }) => (
         <NavLink
           key={href}
           to={href}

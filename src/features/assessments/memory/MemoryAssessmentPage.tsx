@@ -208,7 +208,7 @@ export function MemoryAssessmentPage() {
     <div className="mx-auto max-w-3xl space-y-5">
       <PageHeader
         title="Learning and Delayed Recall"
-        context="Learn one original 10-word list across three trials, then recall it again after a five-minute delay."
+        context="An experimental learning-and-recall trend task, separate from clinical neuropsychological testing."
       />
 
       {phase === "intro" && (

@@ -13,7 +13,7 @@ export function ReactionAssessmentPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
-      <PageHeader title="Reaction Time" context="A short, objective assessment of visual response speed." />
+      <PageHeader title="Reaction Time" context="An experimental browser task for within-person response-speed trends; not diagnosis or clearance." />
 
       <Panel title={panelTitle(engine.phase)}>
         {engine.phase === "instructions" && <ReactionInstructions onBegin={engine.begin} />}

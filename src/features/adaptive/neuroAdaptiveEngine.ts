@@ -193,8 +193,8 @@ export function planAdaptiveIntervention(
   const needsFocusedReadingLayout = needsTextSupport || visualProblems >= 3 || headache >= 4 || needsCognitiveSimplification;
   const needsStructure = combinedVisualStrain || needsCognitiveSimplification || visualProblems >= 3;
   const needsCalmMedia = needsVisualCalming || visualInstability;
-  // Reading-ruler mode is intentionally disabled in this demo build. Focus relies on spacing,
-  // typography, decluttering, plain-language support, and read-aloud instead.
+  // Reading Spotlight is intentionally manual-only. It can be useful for orientation, but
+  // camera or symptom signals never claim to know which paragraph a person is reading.
   const needsReadingSpotlight = false;
   const needsPausedMedia = motionDiscomfort >= 4 || headMovement || (strongLightSensitivity && visualInstability);
   const needsAudio = mentalFatigue >= 4 && (rereading || longPauses || visualInstability);

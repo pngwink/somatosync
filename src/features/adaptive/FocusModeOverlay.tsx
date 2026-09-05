@@ -7,7 +7,7 @@ import { readCurrentPageAloud, stopReadingAloud } from "./focusReadingTools";
 
 export function FocusModeOverlay() {
   const {
-    status, calibrationProgress, trackingQualityPercent, estimate, promptVisible, breakSeconds,
+    status, calibrationProgress, trackingQualityPercent, estimate, promptVisible, breakSeconds, error,
     latestFeedback, applyPromptAdaptation, beginPromptBreak, continueWithoutChange, resumeFromBreak,
     submitPromptFeedback, turnOffFocus, adaptationActive, adaptationReasons, adaptationChanges,
     adaptationRecommendBreak, adaptationSource, revertLastAdaptation, settings, setSettings,
@@ -131,7 +131,7 @@ export function FocusModeOverlay() {
     <div className="pointer-events-none fixed bottom-5 right-5 z-40 hidden w-64 sm:block">
       <Card className="pointer-events-auto p-3 shadow-[var(--shadow-low)]">
         <div className="flex items-center gap-2"><span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-positive)] opacity-40" /><span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-positive)]" /></span><p className="text-[16px] font-semibold">Focus Mode {status === "calibrating" ? "calibrating" : "on"}</p><ShieldCheck className="ml-auto h-3.5 w-3.5 text-[var(--color-positive)]" /></div>
-        {status === "calibrating" ? <><Progress value={calibrationProgress} className="mt-2" /><p className="mt-1 text-[16px] text-[var(--color-text-tertiary)]">Learning your comfortable session pattern · {calibrationProgress}%</p></> : <p className="mt-1 text-[16px] text-[var(--color-text-tertiary)]">{trackingQualityPercent < 65 ? "Face tracking is limited—adjust lighting or position" : estimate?.band === "elevated" ? `${estimate.reasons.length} behavior changes noticed—checking if they persist` : estimate?.band === "possible" ? "A few small changes noticed" : "No sustained strain pattern noticed"}</p>}
+        {status === "calibrating" ? <><Progress value={calibrationProgress} className="mt-2" /><p className="mt-1 text-[16px] text-[var(--color-text-tertiary)]">Learning your comfortable session pattern · {calibrationProgress}%</p></> : <p className="mt-1 text-[16px] text-[var(--color-text-tertiary)]">{error ? "Focus is on · camera monitoring is optional and currently off" : trackingQualityPercent < 65 ? "Camera tracking is limited—adjust lighting or position" : estimate?.band === "elevated" ? `${estimate.reasons.length} behavior changes noticed—checking if they persist` : estimate?.band === "possible" ? "A few small interaction changes noticed" : "No sustained interaction-difficulty pattern noticed"}</p>}
       </Card>
     </div>
   );

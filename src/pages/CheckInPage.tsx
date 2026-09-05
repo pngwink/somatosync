@@ -120,7 +120,7 @@ export function CheckInPage() {
               </div>
           </Card>
 
-          <section>
+          <section data-focus-secondary="true">
             <div className="mb-3 flex items-end justify-between gap-3">
               <div>
                 <h2 className="text-[17px] font-semibold text-[var(--color-text-primary)]">Optional tasks</h2>
@@ -142,7 +142,7 @@ export function CheckInPage() {
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
                               <h3 className="text-[17px] font-semibold text-[var(--color-text-primary)]">{definition.name}</h3>
-                              {definition.id === "balance" && <Badge tone="info">Camera proxy</Badge>}
+                              {definition.id === "balance" && <Badge tone="info">Experimental / trend only</Badge>}
                             </div>
                             <p className="mt-0.5 text-[16px] text-[var(--color-text-tertiary)]">{definition.estimatedDurationMinutes} min · {definition.suggestedCadence}</p>
                           </div>
@@ -187,7 +187,7 @@ export function CheckInPage() {
               <ChevronRight className="h-4 w-4 text-[var(--color-text-tertiary)]" />
             </Link>
             {latestPcss && guidance.length > 0 && (
-              <Link to="/app/recovery?tab=plan" className="flex flex-1 items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
+              <Link to="/app/recovery?tab=plan" data-focus-secondary="true" className="flex flex-1 items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
                 <span className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-[var(--color-caution-soft)] text-[var(--color-caution)]"><Sparkles className="h-5 w-5" /></span>
                 <div className="min-w-0 flex-1"><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{guidance[0].title}</p><p className="mt-0.5 line-clamp-1 text-[16px] text-[var(--color-text-secondary)]">{guidance[0].suggestions[0]}</p></div>
                 <ChevronRight className="h-4 w-4 text-[var(--color-text-tertiary)]" />

@@ -43,6 +43,7 @@ export interface SupportPattern {
   detail: string;
   helpfulCount: number;
   observedCount: number;
+  undoneCount?: number;
 }
 
 export interface RecoveryStoryItem {

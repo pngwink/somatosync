@@ -15,7 +15,7 @@ import type { ScheduleStatus } from "./scheduleTypes";
 const statusPresentation: Record<ScheduleStatus, { label: string; tone: "neutral" | "positive" | "caution" | "risk" | "info"; className: string }> = {
   completed: { label: "Completed", tone: "positive", className: "border-[var(--color-positive)] bg-[var(--color-positive-soft)]" },
   "due-today": { label: "Due today", tone: "caution", className: "border-[var(--color-caution)] bg-[var(--color-caution-soft)]" },
-  overdue: { label: "Overdue", tone: "risk", className: "border-[var(--color-risk)] bg-[var(--color-risk-soft)]" },
+  overdue: { label: "Missed optional check", tone: "neutral", className: "border-[var(--color-border)] bg-[var(--color-surface-sunken)]" },
   upcoming: { label: "Upcoming", tone: "info", className: "border-[var(--color-accent-soft-border)] bg-[var(--color-accent-soft)]" },
   "not-started": { label: "Before tracking", tone: "neutral", className: "border-[var(--color-border)] bg-[var(--color-surface-sunken)]" },
 };
@@ -33,12 +33,12 @@ export function RecoveryCalendarPage() {
     <div className="space-y-5">
       <PageHeader
         title="Recovery Calendar"
-        context="A spaced assessment plan that avoids asking you to complete every neurological task every day."
+        context="A spaced plan that avoids repeated checking and keeps optional experimental tasks infrequent."
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <SummaryCard label="Due today" value={dueTodayCount} detail="amber means scheduled for today" tone="caution" />
-        <SummaryCard label="Overdue" value={overdueCount} detail="red means overdue, not a medical emergency" tone="risk" />
+        <SummaryCard label="Missed optional checks" value={overdueCount} detail="No need to catch up all at once" tone="info" />
         <SummaryCard label="Current results" value={latestItems.length} detail="each domain stays separate" tone="info" />
       </div>
 
@@ -94,7 +94,7 @@ export function RecoveryCalendarPage() {
         <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t border-[var(--color-border)] pt-4 text-[16px]">
           <Badge tone="positive" showDot>Completed</Badge>
           <Badge tone="caution" showDot>Due today</Badge>
-          <Badge tone="risk" showDot>Overdue in schedule</Badge>
+          <Badge tone="neutral" showDot>Missed optional check</Badge>
           <Badge tone="info" showDot>Upcoming</Badge>
           <Badge tone="neutral" showDot>Before tracking began</Badge>
         </div>
@@ -138,13 +138,13 @@ export function RecoveryCalendarPage() {
         </Panel>
       )}
 
-      <Card className="border-[var(--color-risk)] bg-[var(--color-risk-soft)] p-4">
+      <Card className="border-[var(--color-risk)] bg-[var(--color-risk-soft)] p-4" data-focus-safety="true">
         <div className="flex items-start gap-3">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-risk)]" aria-hidden="true" />
           <div>
             <h2 className="text-[16px] font-semibold text-[var(--color-text-primary)]">Schedule priority is not medical urgency</h2>
             <p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
-              A red calendar item only means a planned check-in was missed. Emergency warning signs—such as repeated vomiting, worsening headache, seizure, inability to wake, slurred speech, weakness, or one pupil larger than the other—require immediate medical care.
+              Missing a planned check-in is not a medical emergency and does not need to be “made up” by repeated testing. Emergency warning signs—such as repeated vomiting, worsening headache, seizure, inability to wake, slurred speech, weakness, or one pupil larger than the other—require immediate medical care.
             </p>
             <a
               className="mt-2 inline-flex items-center gap-1 text-[16px] font-medium text-[var(--color-risk)] hover:underline"

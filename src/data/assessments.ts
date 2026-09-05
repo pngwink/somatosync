@@ -3,43 +3,43 @@ import type { AssessmentDefinition, AssessmentResult } from "../types";
 export const assessmentDefinitions: AssessmentDefinition[] = [
   {
     id: "reaction-time",
-    name: "Reaction Time",
+    name: "Reaction Time · Experimental trend",
     purpose:
-      "Measures repeated visual response speed for within-person trend tracking. Device, sleep, attention, and practice can affect results.",
+      "A browser-based response-speed task for within-person trends only. Device latency, sleep, attention, symptoms, and practice can affect results; it does not measure concussion severity or clearance.",
     estimatedDurationMinutes: 3,
     requiresDevice: null,
-    suggestedCadence: "Twice weekly",
+    suggestedCadence: "Optional weekly",
     cadenceNote: "Use similar lighting, device, and time of day when possible.",
   },
   {
     id: "balance",
-    name: "Camera Balance & Head Steadiness",
+    name: "Postural Movement · Experimental trend",
     purpose:
-      "Uses a short eyes-open camera recording to estimate lateral body movement and head steadiness, while a before/after symptom check records task tolerance separately.",
+      "Uses a short eyes-open camera recording to estimate visible postural movement and a head-steadiness proxy. Camera conditions can affect results; this is not BESS, mBESS, VOMS, diagnosis, or clearance.",
     estimatedDurationMinutes: 2,
     requiresDevice: "camera",
-    suggestedCadence: "Twice weekly",
+    suggestedCadence: "Optional weekly",
     cadenceNote: "Repeat only when standing feels safe and camera conditions are comparable.",
   },
   {
     id: "memory",
-    name: "Learning & Delayed Recall",
+    name: "Learning & Delayed Recall · Experimental trend",
     purpose:
-      "Three learning trials plus delayed free recall, paired with a brief before/after symptom check so memory performance and task tolerance stay separate.",
+      "An original browser task with three learning trials plus delayed free recall. Performance and task tolerance stay separate; it is not a clinician-administered neuropsychological test.",
     estimatedDurationMinutes: 7,
     requiresDevice: null,
-    suggestedCadence: "Twice weekly",
+    suggestedCadence: "Optional weekly",
     cadenceNote: "Three learning trials and delayed recall use rotating original lists; practice, fatigue, and attention still affect results.",
   },
   {
     id: "symptom-check-in",
-    name: "PCSS Symptom Scale",
+    name: "PCSS Symptom Scale · Recognized symptom instrument",
     purpose:
-      "Tracks 22 post-concussion symptoms on a 0–6 severity scale, with a total from 0 to 132 and separate symptom-domain totals.",
+      "Tracks 22 post-concussion symptoms on a 0–6 severity scale, with a total from 0 to 132. Symptom scores support monitoring and conversations; they do not diagnose concussion or determine recovery by themselves.",
     estimatedDurationMinutes: 4,
     requiresDevice: null,
-    suggestedCadence: "Daily or when symptoms change",
-    cadenceNote: "A standardized symptom inventory is the strongest routine self-report domain in this prototype.",
+    suggestedCadence: "At most once daily",
+    cadenceNote: "Use one purposeful check-in rather than repeatedly checking small fluctuations. Follow individualized clinical advice when it differs.",
   },
 ];
 
@@ -76,7 +76,7 @@ export const recentAssessmentResults: AssessmentResult[] = [
     type: "balance",
     date: "2026-07-26",
     value: 0.82,
-    unit: "% lateral sway",
+    unit: "% calibrated movement",
     startingValue: 1.46,
     percentFromStart: 44,
     status: "completed",

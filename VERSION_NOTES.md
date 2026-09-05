@@ -1,16 +1,18 @@
-# Version Notes — Version 6: Focus Accessibility Tools
+# Version Notes — Version 7: Science and Safety Refinement
 
-Building on Version 5, this version adds practical reading supports and makes cognitive-load reduction more concrete while preserving important information and user control.
+Building on Version 6, this version strengthens the recovery logic, safety boundaries, and function-first framing across SomatoSync.
 
 ## Changes in this version
 
-- Added Plain Language, a reversible local simplifier for a curated set of difficult UI and medical terms; controls, links, warnings, code, and form elements are excluded.
-- Expanded the earlier Read Aloud support into a sitewide Focus tool that uses the browser's local Speech Synthesis API for visible headings and body content.
-- Added true low-density decluttering: only helper text explicitly marked as secondary can be hidden, while navigation, controls, warnings, cards, metrics, and primary content remain visible.
-- Added the new reading-tool state to Focus settings/storage so these supports can be turned on and restored cleanly.
-- Simplified the Focus page into a clearer activation/setup/tools flow and collapsed secondary technical details by default.
-- Disabled automatic in-app reading-ruler behavior so Focus relies on spacing, typography, selective decluttering, Plain Language, and Read Aloud; Shield retains a user-controlled reading spotlight for external pages.
+- Added an Acute Mode for the first roughly 24–48 hours that keeps screen interaction intentionally minimal and emphasizes relative rest rather than pressure to complete every assessment.
+- Added shared recovery-safety logic for symptom-limited activity, including baseline symptoms, peak symptoms, and return-toward-baseline timing.
+- Reworked return-to-learning, daily-life, and sport pathways around gradual progression, sequential sport stages, and explicit professional-clearance boundaries for higher-risk activity.
+- Added driving/transportation guardrails so reaction-time or camera results cannot be interpreted as driving clearance.
+- Expanded deterministic Assistant safety routing for diagnosis, medical clearance, driving safety, and exact recovery-timeline requests.
+- Reframed recovery summaries around function and tolerance while keeping experimental reaction, memory, postural-movement, and interaction signals as supporting context only.
+- Expanded Focus into a cognitive-accessibility layer with manual density, text, motion, audio, and Reading Spotlight controls while preserving safety-marked information.
+- Added explicit preservation markers so Focus simplification cannot remove core disclaimers and safety content.
 
 ## Safety / scope
 
-These are reversible accessibility supports, not treatment or diagnostic features. The build preserves safety-critical and primary information while allowing the user to restore original wording or turn Focus off.
+SomatoSync remains a support prototype. It does not diagnose concussion, prescribe treatment, predict a personal recovery date, or medically clear school, work, driving, exercise, or sport.

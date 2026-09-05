@@ -271,7 +271,7 @@ export function VoiceCheckInPage() {
       {step === "review" && (
         <div className="space-y-4">
           {extraction.dangerSigns.length > 0 && (
-            <Card className="border-[var(--color-risk)]/40 bg-[var(--color-risk-soft)] p-5">
+            <Card className="border-[var(--color-risk)]/40 bg-[var(--color-risk-soft)] p-5" data-focus-safety="true">
               <div className="flex items-start gap-3">
                 <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-risk)]" />
                 <div>

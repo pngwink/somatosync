@@ -51,7 +51,10 @@ const DIAGNOSIS_PATTERNS = [
 const CLEARANCE_PATTERNS = [
   /am i (medically )?(ready|cleared|safe) (to|for)/i,
   /clear me/i,
-  /can i return to (play|sport|contact|competition)/i,
+  /can i return to (play|sport|contact|competition|driving|work|school)/i,
+  /am i safe to drive/i,
+  /can i drive (today|tomorrow|now|again)?/i,
+  /is my reaction time (good|fast) enough to drive/i,
   /tell me i can play/i,
 ];
 
@@ -140,6 +143,7 @@ export function guardResearchInput(question: string): InputGuardResult {
 const FORBIDDEN_OUTPUT_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
   { pattern: /you (definitely |clearly )?have (a )?concussion/i, reason: "The answer attempted to diagnose the user." },
   { pattern: /you are (medically )?(cleared|safe|ready) to/i, reason: "The answer attempted to grant medical clearance." },
+  { pattern: /(your reaction time|the camera result).{0,40}(means|shows|proves).{0,30}(safe to drive|safe to play|recovered|cleared)/i, reason: "The answer attempted to turn an experimental metric into a safety or clearance conclusion." },
   { pattern: /you will recover (in|within|by)/i, reason: "The answer attempted to predict a personal recovery timeline." },
   { pattern: /normal range|clinically normal/i, reason: "The answer presented an app threshold as a clinical normal range." },
   { pattern: /ignore (all|any|the) (previous|prior|above) instructions/i, reason: "The answer appears to expose or follow prompt-injection text." },

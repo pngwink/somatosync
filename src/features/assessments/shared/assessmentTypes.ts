@@ -1,7 +1,7 @@
 // Shared metadata for all objective assessment types (reaction time today;
 // balance, vision, and voice in the future). Each assessment feature's own
-// result type extends this so a future Recovery Readiness Engine can read
-// common fields without knowing about assessment-specific ones.
+// result type extends this so multidomain recovery summaries can read
+// common fields without turning them into a readiness or clearance score.
 //
 // Keep this file small -- only add fields here once at least two assessment
 // types actually need them. Premature sharing makes the first assessment

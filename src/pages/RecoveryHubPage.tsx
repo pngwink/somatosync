@@ -30,7 +30,8 @@ import { loadRecoveryProfile } from "../features/recovery/recoveryProfile";
 import { buildRecoveryOutlook, type RecoveryOutlook } from "../features/outlook/recoveryOutlook";
 import { buildRecoveryStory, buildSupportPatterns } from "../features/recovery-memory/recoveryMemoryEngine";
 import type { RecoveryStoryItem, SupportPattern } from "../features/recovery-memory/recoveryMemoryTypes";
-import { currentStage, loadProtocolProgress, type ProtocolPathway } from "../features/protocols/protocolEngine";
+import { currentStage, loadProtocolLogs, loadProtocolProgress, type ProtocolPathway } from "../features/protocols/protocolEngine";
+import { loadAdaptiveSessions } from "../features/adaptive/neuroAdaptiveStorage";
 
 const tabs = ["summary", "progress", "plan"] as const;
 type RecoveryTab = (typeof tabs)[number];
@@ -55,12 +56,12 @@ const demoBalanceSeries = [
 ];
 
 const demoPatterns: SupportPattern[] = [
-  { id: "readability", title: "Readability adjustments", detail: "3 of 4 recent follow-ups were followed by better reading tolerance.", helpfulCount: 3, observedCount: 4 },
-  { id: "lower-load", title: "Lower reading load", detail: "2 of 3 recent follow-ups were followed by better tolerance.", helpfulCount: 2, observedCount: 3 },
+  { id: "readability", title: "Readability adjustments", detail: "You reported easier reading after this support in 3 of 4 recent follow-ups.", helpfulCount: 3, observedCount: 4 },
+  { id: "lower-load", title: "Lower reading load", detail: "You reported easier tolerance after this support in 2 of 3 recent follow-ups.", helpfulCount: 2, observedCount: 3 },
 ];
 
 const demoStory: RecoveryStoryItem[] = [
-  { id: "demo-story-1", completedAt: "2026-07-28T18:20:00.000Z", title: "Reading environment adapted", detail: "Moving closer + squinting → readability adjustments → observed strain settled afterward", tone: "positive" },
+  { id: "demo-story-1", completedAt: "2026-07-28T18:20:00.000Z", title: "Reading environment adapted", detail: "Moving closer + squinting → readability adjustments → the later interaction pattern became easier", tone: "positive" },
   { id: "demo-story-2", completedAt: "2026-07-28T17:52:00.000Z", title: "Voice check-in", detail: "Light sensitivity 4/6 · Fatigue 3/6", tone: "neutral" },
   { id: "demo-story-3", completedAt: "2026-07-28T16:40:00.000Z", title: "Memory assessment", detail: "Delayed recall 7/10 · fatigue +1 during task", tone: "neutral" },
 ];
@@ -91,6 +92,21 @@ export function RecoveryHubPage() {
   const planPathway: ProtocolPathway = loadRecoveryProfile().focuses.includes("school") ? "learn" : loadRecoveryProfile().focuses.includes("sport") ? "play" : "daily-life";
   const planStage = currentStage(planPathway, loadProtocolProgress(planPathway));
   const measuredDomains = evidence.domains.filter((domain) => domain.sampleCount > 0);
+  const protocolLogs = mode === "demo" ? [] : loadProtocolLogs();
+  const adaptiveSessions = mode === "demo" ? [] : loadAdaptiveSessions();
+  const functionSnapshot = mode === "demo"
+    ? [
+        { label: "Learning", value: "3 classes tolerated", detail: "one planned break" },
+        { label: "Reading", value: "20 → 35 min", detail: "longer manageable block" },
+        { label: "Walking", value: "10 → 25 min", detail: "gradual activity return" },
+        { label: "Focus support", value: "Helpful in 4 sessions", detail: "reduced-density layout" },
+      ]
+    : [
+        { label: "Learning", value: `Step ${currentStage("learn", loadProtocolProgress("learn")).step}`, detail: currentStage("learn", loadProtocolProgress("learn")).title },
+        { label: "Daily life / work", value: `Step ${currentStage("daily-life", loadProtocolProgress("daily-life")).step}`, detail: currentStage("daily-life", loadProtocolProgress("daily-life")).title },
+        { label: "Physical activity", value: `Step ${currentStage("play", loadProtocolProgress("play")).step}`, detail: currentStage("play", loadProtocolProgress("play")).title },
+        { label: "Latest activity", value: protocolLogs[0] ? `${protocolLogs[0].durationMinutes} min` : "Not logged yet", detail: protocolLogs[0]?.activityLabel ?? (adaptiveSessions.length ? `${adaptiveSessions.length} Focus session${adaptiveSessions.length === 1 ? "" : "s"} recorded` : "Log what you successfully resumed") },
+      ];
 
   function changeTab(value: string) {
     const next = value as RecoveryTab;
@@ -124,10 +140,27 @@ export function RecoveryHubPage() {
             />
           ) : (
             <>
+              <section aria-labelledby="function-first" className="space-y-3">
+                <div>
+                  <p className="text-[16px] font-bold uppercase tracking-[0.14em] text-[var(--color-accent)]">This week</p>
+                  <h2 id="function-first" className="mt-1 text-[24px] font-bold tracking-tight text-[var(--color-text-primary)]">Function first</h2>
+                  <p data-focus-secondary="true" className="mt-1 text-[16px] leading-7 text-[var(--color-text-secondary)]">Progress is shown as what you can tolerate and resume—not a single recovery percentage.</p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {functionSnapshot.map((item) => (
+                    <Card key={item.label} className="p-4">
+                      <p className="text-[16px] font-bold uppercase tracking-[0.1em] text-[var(--color-text-tertiary)]">{item.label}</p>
+                      <p className="mt-2 text-[20px] font-semibold text-[var(--color-text-primary)]">{item.value}</p>
+                      <p data-focus-secondary="true" className="mt-1 text-[16px] leading-6 text-[var(--color-text-secondary)]">{item.detail}</p>
+                    </Card>
+                  ))}
+                </div>
+              </section>
+
               <Card className="overflow-hidden border-0 bg-[var(--color-positive-soft)] p-0">
                 <div className="p-6 sm:p-8">
                   <div className="max-w-[720px]">
-                    <p className="text-[16px] font-bold uppercase tracking-[0.16em] text-[var(--color-positive)]">Right now</p>
+                    <p className="text-[16px] font-bold uppercase tracking-[0.16em] text-[var(--color-positive)]">Supporting recovery picture</p>
                     <h2 className="mt-3 text-[32px] font-bold tracking-[-0.025em] text-[var(--color-text-primary)] sm:text-[36px]">{evidence.overallLabel}</h2>
                     <p className="mt-3 text-[17px] leading-8 text-[var(--color-text-secondary)]">{evidence.overallDetail}</p>
                   </div>
@@ -211,8 +244,14 @@ export function RecoveryHubPage() {
             <NewUserEmptyState title="No progress history yet" primaryHref="/app/check-in" primaryLabel="Start check-in" />
           ) : (
             <>
+              <Panel title="Functional progress" description="What you are tolerating and resuming matters more than tiny day-to-day symptom changes.">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {functionSnapshot.map((item) => <div key={item.label} className="rounded-[14px] bg-[var(--color-surface-sunken)] p-4"><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{item.label}</p><p className="mt-1 text-[18px] font-semibold text-[var(--color-accent)]">{item.value}</p><p data-focus-secondary="true" className="mt-1 text-[16px] text-[var(--color-text-secondary)]">{item.detail}</p></div>)}
+                </div>
+              </Panel>
+
               {pcssSeries.length > 0 && (
-                <Panel title="Symptoms over time" description="Your main symptom trend.">
+                <Panel title="Symptoms over time" description="Supporting context—not a recovery percentage or clearance measure.">
                   <MetricLineChart data={pcssSeries} unit="of 132" reference={pcssSeries[0].value} referenceLabel="Starting assessment" height={250} />
                 </Panel>
               )}
@@ -223,9 +262,9 @@ export function RecoveryHubPage() {
                   <Button variant="ghost" asChild><Link to="/app/recovery/progress-details">See all trends<ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
                 </div>
                 <div className="grid gap-4 md:grid-cols-3">
-                  {reactionSeries.length > 0 && <MetricPreview tone="accent" title="Reaction time" start={`${Math.round(reactionSeries[0].value)} ms`} latest={`${Math.round(reactionSeries.at(-1)?.value ?? 0)} ms`} note="Tracked separately from symptoms" />}
-                  {memorySeries.length > 0 && <MetricPreview tone="positive" title="Delayed recall" start={`${memorySeries[0].value}/10`} latest={`${memorySeries.at(-1)?.value ?? 0}/10`} note="Performance + task tolerance stay separate" />}
-                  {balanceSeries.length > 0 && <MetricPreview tone="info" title="Camera movement" start={`${balanceSeries[0].value.toFixed(2)}%`} latest={`${(balanceSeries.at(-1)?.value ?? 0).toFixed(2)}%`} note="Movement is not treated as a clearance score" />}
+                  {reactionSeries.length > 0 && <MetricPreview tone="accent" title="Reaction time · experimental" start={`${Math.round(reactionSeries[0].value)} ms`} latest={`${Math.round(reactionSeries.at(-1)?.value ?? 0)} ms`} note="Tracked separately from symptoms" />}
+                  {memorySeries.length > 0 && <MetricPreview tone="positive" title="Delayed recall · experimental" start={`${memorySeries[0].value}/10`} latest={`${memorySeries.at(-1)?.value ?? 0}/10`} note="Performance + task tolerance stay separate" />}
+                  {balanceSeries.length > 0 && <MetricPreview tone="info" title="Postural movement · experimental" start={`${balanceSeries[0].value.toFixed(2)}%`} latest={`${(balanceSeries.at(-1)?.value ?? 0).toFixed(2)}%`} note="Movement is not treated as a clearance score" />}
                 </div>
               </div>
 
@@ -309,8 +348,8 @@ function RecoveryActionCard({ tone, icon: Icon, eyebrow, title, description, hre
 
 function demoEvidence(): RecoveryEvidenceSummary {
   return {
-    overallLabel: "Several domains are improving",
-    overallDetail: "Several tracked areas are improving. Light sensitivity and fatigue still affect longer screen use.",
+    overallLabel: "Function and several tracked domains are changing",
+    overallDetail: "The sample user is tolerating more school, reading, and walking while light sensitivity and fatigue still affect longer screen use. Experimental task trends remain supporting context.",
     overallTone: "positive",
     improvingCount: 5,
     worseningCount: 0,
@@ -318,11 +357,11 @@ function demoEvidence(): RecoveryEvidenceSummary {
     generatedAt: new Date().toISOString(),
     domains: [
       { id: "symptoms", label: "Reported symptoms", direction: "improving", headline: "Symptom burden is trending lower", detail: "PCSS severity changed from 62 to 18 across the demo timeline.", tone: "positive", sampleCount: 7 },
-      { id: "reaction", label: "Reaction time", direction: "improving", headline: "Reaction time is faster", detail: "Median reaction time changed from 402 ms to 299 ms.", tone: "positive", sampleCount: 5 },
-      { id: "memory", label: "Learning & recall", direction: "improving", headline: "Delayed recall increased", detail: "Delayed recall changed from 4 to 7 of 10 words. The latest demo task also records fatigue +1, so performance and task tolerance stay separate.", tone: "positive", sampleCount: 4 },
-      { id: "balance", label: "Camera balance", direction: "improving", headline: "Recorded movement decreased", detail: "Lateral movement changed from 1.46% to 0.82% of frame width. The latest demo task also records dizziness +1, so less movement is not treated as automatic symptom improvement.", tone: "positive", sampleCount: 5 },
+      { id: "reaction", label: "Reaction time · experimental", direction: "improving", headline: "Reaction time is faster", detail: "Median reaction time changed from 402 ms to 299 ms.", tone: "positive", sampleCount: 5 },
+      { id: "memory", label: "Learning & recall · experimental", direction: "improving", headline: "Delayed recall increased", detail: "Delayed recall changed from 4 to 7 of 10 words. The latest demo task also records fatigue +1, so performance and task tolerance stay separate.", tone: "positive", sampleCount: 4 },
+      { id: "balance", label: "Postural movement · experimental", direction: "improving", headline: "Recorded movement decreased", detail: "Lateral movement changed from 1.46% to 0.82% of frame width. The latest demo task also records dizziness +1, so less movement is not treated as automatic symptom improvement.", tone: "positive", sampleCount: 5 },
       { id: "activity", label: "Activity tolerance", direction: "similar", headline: "Most recent activities were tolerated with pacing", detail: "The sample record includes one tolerated aerobic session and one mild, brief school-related symptom increase.", tone: "info", sampleCount: 2 },
-      { id: "focus", label: "Cognitive pacing", direction: "improving", headline: "Confirmed strain patterns decreased", detail: "Reduced-stimulation display and planned breaks were the most helpful sample adaptations.", tone: "positive", sampleCount: 4 },
+      { id: "focus", label: "Focus interaction patterns · experimental", direction: "improving", headline: "Fewer interaction-difficulty prompts were confirmed", detail: "The sample user reported that reduced density and planned breaks made several sessions easier. This is an association, not evidence that the setting treated concussion.", tone: "positive", sampleCount: 4 },
     ],
   };
 }

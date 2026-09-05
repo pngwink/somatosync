@@ -18,6 +18,9 @@ import { currentPatient } from "../data/patient";
 import { useAppMode } from "../context/AppModeContext";
 import { buildRecoveryEvidenceSummary } from "../features/recovery/evidenceSummary";
 import { getMostRecentPcssResult } from "../features/assessments/pcss/pcssStorage";
+import { loadRecoveryProfile } from "../features/recovery/recoveryProfile";
+import { isAcuteRecovery } from "../features/science/recoverySafety";
+import { AcuteRecoveryHome } from "../features/acute/AcuteRecoveryHome";
 
 export function OverviewPage() {
   const { mode, userName } = useAppMode();
@@ -27,8 +30,11 @@ export function OverviewPage() {
   const firstName = isDemo ? currentPatient.name.split(" ")[0] : userName.split(" ")[0];
   const hasData = isDemo || evidence.measuredCount > 0;
   const today = new Date();
+  const recoveryProfile = loadRecoveryProfile();
+  const acuteMode = mode === "user" && isAcuteRecovery(recoveryProfile, today);
 
 
+  if (acuteMode) return <AcuteRecoveryHome firstName={firstName} />;
 
   return (
     <div className="space-y-9">
@@ -67,14 +73,19 @@ export function OverviewPage() {
           <Card className="p-6 sm:p-7">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="max-w-[68ch]">
-                <div className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-[var(--color-accent)]" /><p className="text-[18px] font-semibold text-[var(--color-text-primary)]">{isDemo ? "Several areas are improving" : evidence.overallLabel}</p></div>
-                <p className="mt-2 text-[16px] leading-7 text-[var(--color-text-secondary)]">
+                <div className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-[var(--color-accent)]" /><p className="text-[18px] font-semibold text-[var(--color-text-primary)]">{isDemo ? "More daily activity is being tolerated" : evidence.overallLabel}</p></div>
+                <p data-focus-detailed="true" className="mt-2 text-[16px] leading-7 text-[var(--color-text-secondary)]">
                   {isDemo
-                    ? "Several areas are improving. Light sensitivity and fatigue still show up during longer screen sessions."
+                    ? "Maya is tolerating more school, reading, and walking. Light sensitivity and fatigue still show up during longer screen sessions."
                     : evidence.overallDetail}
                 </p>
+                <ul className="focus-simplified-only mt-3 space-y-1.5 text-[16px] leading-7 text-[var(--color-text-secondary)]">
+                  <li>• Focus on what you can tolerate and resume.</li>
+                  <li>• Symptoms remain supporting context.</li>
+                  <li>• Experimental tasks never define readiness.</li>
+                </ul>
               </div>
-              <Badge tone={isDemo ? "positive" : evidence.overallTone} showDot>{isDemo ? "Improving pattern" : `${evidence.measuredCount} areas tracked`}</Badge>
+              <Badge tone={isDemo ? "info" : evidence.overallTone} showDot>{isDemo ? "Function-first view" : `${evidence.measuredCount} areas tracked`}</Badge>
             </div>
           </Card>
         </section>
@@ -84,8 +95,8 @@ export function OverviewPage() {
         <h2 id="continue-heading" className="mb-3 text-[20px] font-semibold text-[var(--color-text-primary)]">Continue</h2>
         <Card className="divide-y divide-[var(--color-border)] overflow-hidden">
           <ActionRow icon={BrainCog} title="Focus" detail="Adaptive interface support" href="/app/neuro-adaptive" />
-          <ActionRow icon={MessagesSquare} title="Assistant" detail="Evidence-backed answers" href="/app/research" />
-          <ActionRow icon={FileText} title="Reports" detail="Shareable recovery summary" href="/app/reports" />
+          <ActionRow icon={MessagesSquare} title="Assistant" detail="Evidence-backed answers" href="/app/research" secondary />
+          <ActionRow icon={FileText} title="Reports" detail="Shareable recovery summary" href="/app/reports" secondary />
         </Card>
       </section>
 
@@ -98,9 +109,9 @@ export function OverviewPage() {
   );
 }
 
-function ActionRow({ icon: Icon, title, detail, href }: { icon: typeof BrainCog; title: string; detail: string; href: string }) {
+function ActionRow({ icon: Icon, title, detail, href, secondary = false }: { icon: typeof BrainCog; title: string; detail: string; href: string; secondary?: boolean }) {
   return (
-    <Link to={href} className="group flex items-center gap-4 px-5 py-5 transition-colors hover:bg-[var(--color-surface-sunken)] sm:px-6">
+    <Link to={href} data-focus-secondary={secondary ? "true" : undefined} className="group flex items-center gap-4 px-5 py-5 transition-colors hover:bg-[var(--color-surface-sunken)] sm:px-6">
       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-[var(--color-accent-soft)] text-[var(--color-accent)]"><Icon className="h-5 w-5" /></span>
       <div className="min-w-0 flex-1"><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{title}</p><p className="mt-0.5 text-[16px] leading-6 text-[var(--color-text-secondary)]">{detail}</p></div>
       <ChevronRight className="h-5 w-5 shrink-0 text-[var(--color-text-tertiary)] transition-transform group-hover:translate-x-0.5" />

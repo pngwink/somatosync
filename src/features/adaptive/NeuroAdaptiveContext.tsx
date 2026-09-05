@@ -25,7 +25,7 @@ const VISUAL_WINDOW_MS = 5_000;
 const INTERACTION_WINDOW_MS = 20_000;
 const QUALITY_WINDOW_MS = 10_000;
 const SAMPLE_INTERVAL_MS = 250;
-const PROMPT_COOLDOWN_MS = 60_000;
+const PROMPT_COOLDOWN_MS = 90_000;
 const ROUTE_GRACE_MS = 4_000;
 const ACTIVE_START_GRACE_MS = 1_500;
 const TAB_RESUME_GRACE_MS = 3_000;
@@ -232,11 +232,14 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  // Visual-anchor isolation: keep one paragraph/list block clear while dimming the rest of
-  // the reading viewport. The overlay never intercepts clicks, so navigation stays accessible.
+  // Reading Spotlight is a manual accessibility aid. It uses pointer/focus/viewport context
+  // rather than claiming eye tracking. Safety content always stays above the dimming overlay.
   useEffect(() => {
     const OVERLAY_ID = "somatosync-focus-reading-spotlight";
     const ACTIVE_ATTR = "data-focus-anchor-current";
+    const SAFETY_SELECTOR = '[data-focus-preserve-text="true"], [data-focus-safety="true"], [role="alert"], [aria-live="assertive"]';
+    let preferredTarget: HTMLElement | null = null;
+
     const clear = () => {
       document.getElementById(OVERLAY_ID)?.remove();
       document.querySelectorAll(`[${ACTIVE_ATTR}]`).forEach((node) => node.removeAttribute(ACTIVE_ATTR));
@@ -257,8 +260,8 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
       Object.assign(pane.style, {
         position: "fixed",
         pointerEvents: "none",
-        background: settings.photophobiaMode ? "rgba(10,18,20,.34)" : "rgba(16,25,27,.24)",
-        transition: "top .08s linear,left .08s linear,width .08s linear,height .08s linear",
+        background: settings.photophobiaMode ? "rgba(10,18,20,.32)" : "rgba(16,25,27,.22)",
+        transition: "top .2s ease-out,left .2s ease-out,width .2s ease-out,height .2s ease-out",
       });
       overlay.appendChild(pane);
       return pane;
@@ -266,30 +269,41 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
     document.body.appendChild(overlay);
 
     let raf = 0;
+    const eligibleBlock = (node: Element | null): HTMLElement | null => {
+      if (!(node instanceof HTMLElement)) return null;
+      const block = node.closest<HTMLElement>(".app-content p, .app-content li, .app-content blockquote, .app-content [data-focus-reading-block=\"true\"]");
+      if (!block || block.closest(SAFETY_SELECTOR)) return null;
+      if ((block.textContent?.trim().length ?? 0) < 20) return null;
+      return block;
+    };
+
     const update = () => {
       raf = 0;
-      const blocks = Array.from(document.querySelectorAll<HTMLElement>(".app-content p, .app-content li, .app-content blockquote"))
-        .filter((node) => (node.textContent?.trim().length ?? 0) >= 28)
+      const blocks = Array.from(document.querySelectorAll<HTMLElement>(".app-content p, .app-content li, .app-content blockquote, .app-content [data-focus-reading-block=\"true\"]"))
+        .filter((node) => !node.closest(SAFETY_SELECTOR))
+        .filter((node) => (node.textContent?.trim().length ?? 0) >= 20)
         .filter((node) => {
           const rect = node.getBoundingClientRect();
           return rect.bottom > 72 && rect.top < window.innerHeight - 40;
         });
-      if (!blocks.length) return;
+      if (!blocks.length) {
+        clear();
+        return;
+      }
       const center = window.innerHeight * 0.48;
-      const target = blocks.reduce((best, node) => {
+      const visiblePreferred = preferredTarget && blocks.includes(preferredTarget) ? preferredTarget : null;
+      const target = visiblePreferred ?? blocks.reduce((best, node) => {
         const rect = node.getBoundingClientRect();
         const distance = Math.abs((rect.top + rect.bottom) / 2 - center);
         return distance < best.distance ? { node, distance } : best;
       }, { node: blocks[0], distance: Number.POSITIVE_INFINITY }).node;
 
-      document.querySelectorAll(`[${ACTIVE_ATTR}]`).forEach((node) => {
-        if (node !== target) node.removeAttribute(ACTIVE_ATTR);
-      });
+      document.querySelectorAll(`[${ACTIVE_ATTR}]`).forEach((node) => { if (node !== target) node.removeAttribute(ACTIVE_ATTR); });
       target.setAttribute(ACTIVE_ATTR, "true");
       const rect = target.getBoundingClientRect();
-      const contentRect = document.querySelector<HTMLElement>(".app-content")?.getBoundingClientRect() ?? { left: 0, right: window.innerWidth, top: 0, bottom: window.innerHeight, width: window.innerWidth };
+      const contentRect = document.querySelector<HTMLElement>(".app-content")?.getBoundingClientRect() ?? { left: 0, right: window.innerWidth, top: 0, bottom: window.innerHeight };
       const padX = 14;
-      const padY = 10;
+      const padY = 12;
       const surfaceLeft = Math.max(0, contentRect.left);
       const surfaceRight = Math.min(window.innerWidth, contentRect.right);
       const surfaceTop = Math.max(0, contentRect.top);
@@ -305,13 +319,25 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
       Object.assign(rightPane.style, { left: `${right}px`, top: `${top}px`, width: `${Math.max(0, surfaceRight - right)}px`, height: `${Math.max(0, bottom - top)}px` });
     };
     const schedule = () => { if (!raf) raf = requestAnimationFrame(update); };
+    const onPointerMove = (event: PointerEvent) => {
+      const next = eligibleBlock(document.elementFromPoint(event.clientX, event.clientY));
+      if (next) { preferredTarget = next; schedule(); }
+    };
+    const onFocusIn = (event: FocusEvent) => {
+      const next = eligibleBlock(event.target as Element | null);
+      if (next) { preferredTarget = next; schedule(); }
+    };
     update();
     window.addEventListener("scroll", schedule, true);
     window.addEventListener("resize", schedule);
+    document.addEventListener("pointermove", onPointerMove, { passive: true });
+    document.addEventListener("focusin", onFocusIn);
     return () => {
       if (raf) cancelAnimationFrame(raf);
       window.removeEventListener("scroll", schedule, true);
       window.removeEventListener("resize", schedule);
+      document.removeEventListener("pointermove", onPointerMove);
+      document.removeEventListener("focusin", onFocusIn);
       clear();
     };
   }, [settings.enabled, settings.photophobiaMode, settings.readingSpotlight]);
@@ -579,6 +605,10 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
         pauseMedia: seedPlan.pauseMedia,
         updatedAt: new Date().toISOString(),
       });
+    } else {
+      // Focus remains useful without a camera. Manual accessibility tools and the standard
+      // Focus layer can run even when no symptom-specific seed is currently suggested.
+      setSettings({ ...startingSettings, enabled: true, updatedAt: new Date().toISOString() });
     }
     try {
       if (!navigator.mediaDevices?.getUserMedia) throw new Error("This browser does not provide camera access.");
@@ -612,13 +642,18 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
     } catch (caught) {
       streamRef.current?.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
-      setError(caught instanceof Error ? caught.message : "Focus Mode could not start.");
-      setStatus("error");
+      // Camera sensing is optional. Keep the symptom/manual Focus layer active rather than
+      // failing the entire accessibility experience when permission is denied or unavailable.
+      const reason = caught instanceof Error ? caught.message : "Camera monitoring is unavailable.";
+      setError(`${reason} Symptom-based and manual Focus supports remain available.`);
+      setStatus("active");
     }
   }, [processMonitorFrame, setSettings, setStatus, settings, stopMonitoring]);
 
   useEffect(() => {
-    if (status === "active" && animationRef.current == null) animationRef.current = requestAnimationFrame(processMonitorFrame);
+    if (status === "active" && animationRef.current == null && landmarkerRef.current && streamRef.current) {
+      animationRef.current = requestAnimationFrame(processMonitorFrame);
+    }
   }, [processMonitorFrame, status]);
 
   useEffect(() => {

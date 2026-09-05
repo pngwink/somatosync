@@ -14,7 +14,7 @@ export function Disclaimer({ variant = "inline", children, className }: Disclaim
   const text = children ?? DEFAULT_TEXT;
   if (variant === "inline") {
     return (
-      <p className={cn("flex items-start gap-1.5 text-[16px] leading-snug text-[var(--color-text-tertiary)]", className)}>
+      <p data-focus-preserve-text="true" className={cn("flex items-start gap-1.5 text-[16px] leading-snug text-[var(--color-text-tertiary)]", className)}>
         <Info className="mt-[2px] h-3.5 w-3.5 shrink-0" aria-hidden="true" />
         <span>{text}</span>
       </p>
@@ -27,6 +27,7 @@ export function Disclaimer({ variant = "inline", children, className }: Disclaim
         className
       )}
       role="note"
+      data-focus-preserve-text="true"
     >
       <Info className="mt-[1px] h-4 w-4 shrink-0 text-[var(--color-info)]" aria-hidden="true" />
       <span>{text}</span>

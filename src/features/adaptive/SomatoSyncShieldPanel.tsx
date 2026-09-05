@@ -51,7 +51,7 @@ export function SomatoSyncShieldPanel() {
       <details className="mt-5 rounded-[14px] border border-[var(--color-border)] px-4 py-3">
         <summary className="cursor-pointer text-[16px] font-semibold text-[var(--color-accent)]">Shield details</summary>
         <div className="mt-3 space-y-3 text-[16px] leading-6 text-[var(--color-text-secondary)]">
-          <p>Shield can change typography, reading width, low-luminance colors, media intensity, motion, obvious promotional clutter, and a reading ruler based on the supports currently matched to you. Navigation and sidebars stay available. A new website is never transformed until you approve it, unless you explicitly choose “Always use on this site.”</p>
+          <p>Shield can change typography, reading width, low-luminance colors, media intensity, motion, obvious promotional clutter, and optional reading-focus support based on your current Focus setup. Navigation and sidebars stay available. A new website is never transformed until you approve it, unless you explicitly choose “Always use on this site.”</p>
           {!connected && <p>The ZIP includes <strong className="text-[var(--color-text-primary)]">somatosync-shield-extension</strong>. Load that folder as an unpacked Chrome extension, then reopen SomatoSync.</p>}
         </div>
       </details>

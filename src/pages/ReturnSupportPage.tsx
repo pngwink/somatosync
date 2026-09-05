@@ -38,7 +38,7 @@ import {
   protocolStages,
   saveProtocolLog,
   saveProtocolProgress,
-  type ActivityResponse,
+  nextProtocolStage,
   type ProtocolActivityLog,
   type ProtocolPathway,
   type ProtocolProgress,
@@ -56,6 +56,7 @@ import {
 } from "../features/recovery/recoveryProfile";
 import { buildRecoveryOutlook, type RecoveryOutlook } from "../features/outlook/recoveryOutlook";
 import { AiRecoveryExplanationPanel } from "../features/recovery/AiRecoveryExplanationPanel";
+import { hoursSince, SPORT_STAGE_MIN_HOURS, type ActivityReturnWindow } from "../features/science/recoverySafety";
 
 const pathwayLabels: Record<ProtocolPathway, string> = {
   "daily-life": "Daily life / work",
@@ -72,11 +73,12 @@ const focusLabels: Record<RecoveryFocus, string> = {
 
 const riskOptions: Array<{ key: keyof RecoveryRiskContext; label: string }> = [
   { key: "priorConcussions", label: "Prior concussion history" },
-  { key: "migraineOrHeadacheHistory", label: "Migraine or headache history" },
-  { key: "sleepDifficulty", label: "Sleep difficulty" },
+  { key: "headacheHistory", label: "Migraine or headache history" },
+  { key: "sleepHistory", label: "Sleep difficulty history" },
   { key: "mentalHealthHistory", label: "Mental-health history" },
+  { key: "learningAttentionNeeds", label: "Learning or attention needs" },
   { key: "neckInjury", label: "Neck pain or neck injury" },
-  { key: "highInitialSymptomBurden", label: "High early symptom burden" },
+  { key: "lossOfConsciousness", label: "Loss of consciousness with this injury" },
 ];
 
 export function ReturnSupportPage() {
@@ -103,6 +105,10 @@ export function ReturnSupportPage() {
   }, [pathway]);
 
   const stage = currentStage(pathway, progress);
+  const nextStage = nextProtocolStage(pathway, progress);
+  const stageHours = hoursSince(progress.stageStartedAt);
+  const learningStage = currentStage("learn", loadProtocolProgress("learn"));
+  const fullReturnToLearn = learningStage.step >= 5;
   const latestCoach = logs[0] ? coachMessageFor(logs[0]) : null;
 
   function changeStage(stageId: string) {
@@ -114,13 +120,13 @@ export function ReturnSupportPage() {
     show({ title: "Current step updated", description: selected?.title, tone: "success" });
   }
 
-  function recordActivity(input: { activityLabel: string; durationMinutes: number; response: ActivityResponse; notes: string }) {
+  function recordActivity(input: { activityLabel: string; durationMinutes: number; baselineSymptoms: number; peakSymptoms: number; returnWindow: ActivityReturnWindow; notes: string }) {
     const log = saveProtocolLog({ pathway, stageId: stage.id, ...input });
     setLogs((current) => [log, ...current]);
     setActivityOpen(false);
     setVersion((value) => value + 1);
     const coach = coachMessageFor(log);
-    show({ title: coach.label, description: coach.nextAction, tone: coach.tone === "risk" ? "error" : "success" });
+    show({ title: coach.label, description: coach.nextAction, tone: coach.tone === "caution" || coach.tone === "risk" ? "error" : "success" });
   }
 
   return (
@@ -151,14 +157,29 @@ export function ReturnSupportPage() {
           <div className="max-w-[760px]">
             <p className="text-[16px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent)]">{pathwayLabels[pathway]} · Step {stage.step}</p>
             <h2 className="mt-3 text-[28px] font-semibold tracking-[-0.025em] text-[var(--color-text-primary)]">{stage.title}</h2>
-            <p className="mt-3 line-clamp-2 text-[17px] leading-8 text-[var(--color-text-secondary)]">{stage.description}</p>
+            <div data-focus-detailed="true"><p className="mt-3 line-clamp-2 text-[17px] leading-8 text-[var(--color-text-secondary)]">{stage.description}</p></div>
+            <div className="focus-simplified-only mt-3">
+              <ul className="space-y-1.5 text-[16px] leading-7 text-[var(--color-text-secondary)]">
+                <li>• Stay with the current manageable step.</li>
+                <li>• Log what you actually tolerated.</li>
+                <li>• Progress gradually; SomatoSync never grants clearance.</li>
+              </ul>
+            </div>
+            <p data-focus-secondary="true" className="mt-3 text-[16px] font-medium text-[var(--color-text-tertiary)]">In this step: {stageHours == null ? "time not recorded" : stageHours < 1 ? "<1 hr" : stageHours < 24 ? `${Math.floor(stageHours)} hr` : `${Math.floor(stageHours / 24)} day${Math.floor(stageHours / 24) === 1 ? "" : "s"}`}. Sport stages generally take at least about 24 hours each; time alone never grants clearance.</p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
             <Button onClick={() => setActivityOpen(true)}><Plus />Log an activity</Button>
-            <Button variant="secondary" onClick={() => setStageOpen(true)}><Route />Change step</Button>
+            <Button variant="secondary" onClick={() => setStageOpen(true)}><Route />{nextStage ? "Review next step" : "Review current step"}</Button>
           </div>
         </div>
       </Card>
+
+      {pathway === "play" && stage.step >= 4 && !fullReturnToLearn && (
+        <Card className="border-[var(--color-caution)] bg-[var(--color-caution-soft)] p-5" data-focus-preserve-text="true">
+          <h2 className="text-[18px] font-semibold text-[var(--color-text-primary)]">School recovery comes first</h2>
+          <p className="mt-2 text-[16px] leading-7 text-[var(--color-text-secondary)]">Return-to-learning and return-to-sport can progress in parallel, but full return to learning should be completed before unrestricted return to sport. SomatoSync does not determine medical clearance.</p>
+        </Card>
+      )}
 
       {latestCoach && (
         <Card className={`border-0 p-5 sm:p-6 ${latestCoach.tone === "caution" ? "bg-[var(--color-caution-soft)]" : latestCoach.tone === "positive" ? "bg-[var(--color-positive-soft)]" : "bg-[var(--color-info-soft)]"}`}>
@@ -167,7 +188,7 @@ export function ReturnSupportPage() {
             <div>
               <p className="text-[16px] font-bold uppercase tracking-[0.13em] text-[var(--color-text-tertiary)]">Latest activity response</p>
               <h3 className="mt-2 text-[19px] font-semibold text-[var(--color-text-primary)]">{latestCoach.label}</h3>
-              
+              <p className="mt-2 text-[16px] leading-7 text-[var(--color-text-secondary)]">{latestCoach.detail}</p>
               <p className="mt-2 text-[16px] font-semibold leading-7 text-[var(--color-text-primary)]">{latestCoach.nextAction}</p>
             </div>
           </div>
@@ -203,6 +224,29 @@ export function ReturnSupportPage() {
         </Card>
       )}
 
+      {pathway === "daily-life" && (
+        <details className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-4">
+          <summary className="cursor-pointer text-[16px] font-semibold text-[var(--color-text-primary)]">Driving & transportation</summary>
+          <div className="mt-3 space-y-3 text-[16px] leading-7 text-[var(--color-text-secondary)]" data-focus-preserve-text="true">
+            <p>Before driving, consider whether dizziness, slowed reactions, concentration difficulty, visual sensitivity, or significant fatigue are still affecting you.</p>
+            <ul className="space-y-1.5">
+              <li>• Are you getting dizzy or visually overwhelmed?</li>
+              <li>• Is concentration or reaction noticeably harder than usual?</li>
+              <li>• Is fatigue making it hard to stay alert?</li>
+            </ul>
+            <p>Use reaction-time results only as within-person trend information; SomatoSync never uses them to declare someone safe to drive. Discuss return to driving with an appropriate healthcare professional when symptoms could affect safe driving.</p>
+          </div>
+        </details>
+      )}
+
+      {outlook.signals.some((signal) => signal.tone === "risk" || signal.tone === "caution") && (
+        <Card className="border-0 bg-[var(--color-caution-soft)] p-5" data-focus-preserve-text="true">
+          <p className="text-[16px] font-bold uppercase tracking-[0.12em] text-[var(--color-caution)]">Follow-up worth discussing</p>
+          <h2 className="mt-1 text-[19px] font-semibold text-[var(--color-text-primary)]">{outlook.signals.find((signal) => signal.tone === "risk" || signal.tone === "caution")?.title}</h2>
+          <p className="mt-2 text-[16px] leading-7 text-[var(--color-text-secondary)]">{outlook.signals.find((signal) => signal.tone === "risk" || signal.tone === "caution")?.detail}</p>
+        </Card>
+      )}
+
       <details className="group rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-4 sm:px-6">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-1">
           <div><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">More recovery detail</p><p className="mt-0.5 text-[16px] text-[var(--color-text-secondary)]">Sources and deeper guidance</p></div>
@@ -229,7 +273,7 @@ export function ReturnSupportPage() {
 
       <Disclaimer variant="block">This plan supports tracking and care-team conversations. It does not automatically advance recovery stages, grant clearance, or replace individualized medical guidance.</Disclaimer>
 
-      <StageDialog open={stageOpen} onOpenChange={setStageOpen} pathway={pathway} currentStageId={stage.id} onSelect={changeStage} />
+      <StageDialog open={stageOpen} onOpenChange={setStageOpen} pathway={pathway} progress={progress} fullReturnToLearn={fullReturnToLearn} onSelect={changeStage} />
       <ActivityDialog open={activityOpen} onOpenChange={setActivityOpen} stageTitle={stage.title} onSave={recordActivity} />
       <RecoveryContextDialog key={version} open={contextOpen} onOpenChange={setContextOpen} profile={profile} isDemo={mode === "demo"} onSaved={() => { setVersion((value) => value + 1); setContextOpen(false); }} />
     </div>
@@ -240,71 +284,174 @@ function ActivityRow({ log }: { log: ProtocolActivityLog }) {
   const message = coachMessageFor(log);
   return (
     <div className="flex flex-col gap-2 py-3.5 first:pt-0 last:pb-0 sm:flex-row sm:items-start sm:justify-between">
-      <div><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{log.activityLabel}</p><p className="mt-1 text-[16px] text-[var(--color-text-secondary)]">{log.durationMinutes} min · {new Date(log.completedAt).toLocaleDateString()}</p>{log.notes && <p className="mt-1 text-[16px] text-[var(--color-text-tertiary)]">{log.notes}</p>}</div>
+      <div><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{log.activityLabel}</p><p className="mt-1 text-[16px] text-[var(--color-text-secondary)]">{log.durationMinutes} min · {new Date(log.completedAt).toLocaleDateString()}</p>{log.baselineSymptoms != null && log.peakSymptoms != null && log.returnWindow && <p className="mt-1 text-[16px] text-[var(--color-text-secondary)]">{message.detail}</p>}{log.notes && <p data-focus-secondary="true" className="mt-1 text-[16px] text-[var(--color-text-tertiary)]">{log.notes}</p>}</div>
       <Badge tone={message.tone} showDot>{message.label}</Badge>
     </div>
   );
 }
 
-function StageDialog({ open, onOpenChange, pathway, currentStageId, onSelect }: { open: boolean; onOpenChange: (value: boolean) => void; pathway: ProtocolPathway; currentStageId: string; onSelect: (id: string) => void }) {
+function StageDialog({
+  open,
+  onOpenChange,
+  pathway,
+  progress,
+  fullReturnToLearn,
+  onSelect,
+}: {
+  open: boolean;
+  onOpenChange: (value: boolean) => void;
+  pathway: ProtocolPathway;
+  progress: ProtocolProgress;
+  fullReturnToLearn: boolean;
+  onSelect: (id: string) => void;
+}) {
   const { show } = useToast();
   const [medicalConfirmed, setMedicalConfirmed] = useState(false);
+  const current = currentStage(pathway, progress);
+  const next = nextProtocolStage(pathway, progress);
+  const stageHours = hoursSince(progress.stageStartedAt);
+  const under24 = pathway === "play" && stageHours != null && stageHours < SPORT_STAGE_MIN_HOURS;
+  const unrestrictedBlocked = pathway === "play" && next?.step === 6 && !fullReturnToLearn;
 
-  function choose(id: string) {
-    const selected = protocolStages[pathway].find((item) => item.id === id);
-    if (!selected) return;
-    if (selected.requiresMedicalAuthorization && !medicalConfirmed) {
-      show({ title: "Authorization confirmation needed", description: "Confirm care-team authorization before selecting an at-risk sport step.", tone: "error" });
+  useEffect(() => {
+    setMedicalConfirmed(false);
+  }, [open, pathway, progress.currentStageId]);
+
+  function advance() {
+    if (!next) return;
+    if (under24) {
+      show({
+        title: "Stay in this stage a little longer",
+        description: "Return-to-sport stages generally take at least about 24 hours each. Time is only one criterion and does not provide clearance.",
+        tone: "error",
+      });
       return;
     }
-    onSelect(id);
+    if (unrestrictedBlocked) {
+      show({
+        title: "Return-to-learning first",
+        description: "Full return to learning should be completed before unrestricted return to sport.",
+        tone: "error",
+      });
+      return;
+    }
+    if (next.requiresMedicalAuthorization && !medicalConfirmed) {
+      show({
+        title: "Healthcare-professional authorization needed",
+        description: "Confirm the required authorization before progressing into this later sport stage.",
+        tone: "error",
+      });
+      return;
+    }
+    onSelect(next.id);
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[86vh] max-w-xl overflow-y-auto">
-        <DialogTitle>Change current {pathwayLabels[pathway].toLowerCase()} step</DialogTitle>
-        <DialogDescription>Choose your current step.</DialogDescription>
-        <div className="mt-5 space-y-3">
-          {protocolStages[pathway].map((item) => {
-            const active = item.id === currentStageId;
-            return (
-              <button key={item.id} type="button" onClick={() => choose(item.id)} className={`w-full rounded-[16px] border p-4 text-left ${active ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)]" : "border-[var(--color-border)] hover:border-[var(--color-border-strong)]"}`}>
-                <div className="flex items-start justify-between gap-3"><div><p className="text-[16px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-tertiary)]">Step {item.step}</p><p className="mt-1 text-[16px] font-semibold text-[var(--color-text-primary)]">{item.title}</p></div>{active && <Badge tone="accent">Current</Badge>}</div>
-              </button>
-            );
-          })}
+      <DialogContent className="max-w-xl">
+        <DialogTitle>{pathwayLabels[pathway]} progression</DialogTitle>
+        <DialogDescription>SomatoSync only allows sequential progression. A later stage cannot be selected directly.</DialogDescription>
+
+        <div className="mt-5 rounded-[16px] border border-[var(--color-accent)] bg-[var(--color-accent-soft)] p-4">
+          <p className="text-[16px] font-bold uppercase tracking-[0.12em] text-[var(--color-accent)]">Current · Step {current.step}</p>
+          <p className="mt-1 text-[18px] font-semibold text-[var(--color-text-primary)]">{current.title}</p>
+          <p className="mt-2 text-[16px] leading-7 text-[var(--color-text-secondary)]">{current.description}</p>
         </div>
-        {pathway === "play" && (
-          <label className="mt-4 flex items-start gap-3 rounded-[14px] bg-[var(--color-caution-soft)] p-4 text-[16px] leading-6 text-[var(--color-text-secondary)]"><input type="checkbox" className="mt-1" checked={medicalConfirmed} onChange={(event) => setMedicalConfirmed(event.target.checked)} /><span>I am only selecting an at-risk sport step because the required healthcare professional has authorized that progression.</span></label>
+
+        {next ? (
+          <div className="mt-4 rounded-[16px] border border-[var(--color-border)] p-4">
+            <p className="text-[16px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-tertiary)]">Next · Step {next.step}</p>
+            <p className="mt-1 text-[17px] font-semibold text-[var(--color-text-primary)]">{next.title}</p>
+            <p className="mt-2 text-[16px] leading-7 text-[var(--color-text-secondary)]">{next.description}</p>
+          </div>
+        ) : (
+          <div className="mt-4 rounded-[16px] bg-[var(--color-surface-sunken)] p-4 text-[16px] leading-7 text-[var(--color-text-secondary)]">You are at the final step in this pathway. SomatoSync still does not provide medical clearance.</div>
         )}
+
+        {pathway === "play" && (
+          <div className="mt-4 space-y-3" data-focus-preserve-text="true">
+            <p className="text-[16px] leading-7 text-[var(--color-text-secondary)]">Each return-to-sport step generally takes at least about 24 hours. Progress also depends on symptoms, function, examination findings, and clinical judgment.</p>
+            {unrestrictedBlocked && <div className="rounded-[14px] bg-[var(--color-caution-soft)] p-3 text-[16px] leading-6 text-[var(--color-text-primary)]"><strong>School recovery comes first.</strong> Full return to learning is not yet recorded, so unrestricted sport is not available here.</div>}
+            {next?.requiresMedicalAuthorization && (
+              <label className="flex items-start gap-3 rounded-[14px] bg-[var(--color-caution-soft)] p-4 text-[16px] leading-6 text-[var(--color-text-secondary)]">
+                <input type="checkbox" className="mt-1" checked={medicalConfirmed} onChange={(event) => setMedicalConfirmed(event.target.checked)} />
+                <span>I have the required authorization from a qualified healthcare professional to progress into this later sport stage.</span>
+              </label>
+            )}
+          </div>
+        )}
+
+        <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button variant="secondary" onClick={() => onOpenChange(false)}>Continue current step</Button>
+          {next && <Button onClick={advance}>Move to Step {next.step}</Button>}
+        </div>
       </DialogContent>
     </Dialog>
   );
 }
 
-function ActivityDialog({ open, onOpenChange, stageTitle, onSave }: { open: boolean; onOpenChange: (value: boolean) => void; stageTitle: string; onSave: (input: { activityLabel: string; durationMinutes: number; response: ActivityResponse; notes: string }) => void }) {
+function ActivityDialog({
+  open,
+  onOpenChange,
+  stageTitle,
+  onSave,
+}: {
+  open: boolean;
+  onOpenChange: (value: boolean) => void;
+  stageTitle: string;
+  onSave: (input: { activityLabel: string; durationMinutes: number; baselineSymptoms: number; peakSymptoms: number; returnWindow: ActivityReturnWindow; notes: string }) => void;
+}) {
   const [activityLabel, setActivityLabel] = useState("");
   const [durationMinutes, setDurationMinutes] = useState(15);
-  const [response, setResponse] = useState<ActivityResponse>("tolerated");
+  const [baselineSymptoms, setBaselineSymptoms] = useState(0);
+  const [peakSymptoms, setPeakSymptoms] = useState(0);
+  const [returnWindow, setReturnWindow] = useState<ActivityReturnWindow>("lt-15");
   const [notes, setNotes] = useState("");
 
   function save() {
     if (!activityLabel.trim()) return;
-    onSave({ activityLabel, durationMinutes, response, notes });
-    setActivityLabel(""); setDurationMinutes(15); setResponse("tolerated"); setNotes("");
+    onSave({ activityLabel, durationMinutes, baselineSymptoms, peakSymptoms, returnWindow, notes });
+    setActivityLabel("");
+    setDurationMinutes(15);
+    setBaselineSymptoms(0);
+    setPeakSymptoms(0);
+    setReturnWindow("lt-15");
+    setNotes("");
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogTitle>Log an activity</DialogTitle>
-        <DialogDescription>Current step: {stageTitle}. Record the activity and how symptoms responded.</DialogDescription>
+      <DialogContent className="max-h-[88vh] max-w-lg overflow-y-auto">
+        <DialogTitle>Log activity tolerance</DialogTitle>
+        <DialogDescription>Current step: {stageTitle}. Record the actual values SomatoSync uses; this is educational tracking, not diagnosis.</DialogDescription>
         <div className="mt-5 space-y-4">
           <div className="space-y-1.5"><Label htmlFor="activity-name">What did you try?</Label><Input id="activity-name" value={activityLabel} onChange={(event) => setActivityLabel(event.target.value)} placeholder="Example: two classes or a 15-minute walk" /></div>
           <div className="space-y-1.5"><Label htmlFor="activity-duration">Duration</Label><div className="flex items-center gap-2"><Input id="activity-duration" type="number" min={1} max={480} value={durationMinutes} onChange={(event) => setDurationMinutes(Number(event.target.value) || 1)} /><span className="text-[16px] text-[var(--color-text-secondary)]">minutes</span></div></div>
-          <div className="space-y-1.5"><Label>How did symptoms respond?</Label><Select value={response} onValueChange={(value) => setResponse(value as ActivityResponse)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="tolerated">No meaningful increase</SelectItem><SelectItem value="mild-brief">Mild and brief increase</SelectItem><SelectItem value="significant-prolonged">Significant or prolonged increase</SelectItem></SelectContent></Select></div>
-          <div className="space-y-1.5"><Label htmlFor="activity-notes">Optional note</Label><Textarea id="activity-notes" rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="What changed, and how long did it last?" /></div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5"><Label htmlFor="symptoms-before">Symptoms before · 0–10</Label><Input id="symptoms-before" type="number" min={0} max={10} value={baselineSymptoms} onChange={(event) => { const nextValue = Math.max(0, Math.min(10, Number(event.target.value) || 0)); setBaselineSymptoms(nextValue); setPeakSymptoms((previous) => Math.max(previous, nextValue)); }} /></div>
+            <div className="space-y-1.5"><Label htmlFor="symptoms-peak">Highest symptoms · 0–10</Label><Input id="symptoms-peak" type="number" min={0} max={10} value={peakSymptoms} onChange={(event) => setPeakSymptoms(Math.max(baselineSymptoms, Math.min(10, Number(event.target.value) || 0)))} /></div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>How long until symptoms returned close to baseline?</Label>
+            <Select value={returnWindow} onValueChange={(value) => setReturnWindow(value as ActivityReturnWindow)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="lt-15">Less than 15 minutes</SelectItem>
+                <SelectItem value="15-30">15–30 minutes</SelectItem>
+                <SelectItem value="30-60">30–60 minutes</SelectItem>
+                <SelectItem value="gt-60">More than 60 minutes</SelectItem>
+                <SelectItem value="not-yet">Not yet</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="rounded-[14px] bg-[var(--color-info-soft)] p-4 text-[16px] leading-7 text-[var(--color-text-secondary)]" data-focus-preserve-text="true">
+            <strong className="text-[var(--color-text-primary)]">Educational context:</strong> concussion guidance often operationalizes “mild” as no more than a 2-point increase on a 0–10 scale and “brief” as returning toward baseline within about one hour. A mild, brief increase does not automatically mean damage or reinjury.
+          </div>
+
+          <div className="space-y-1.5"><Label htmlFor="activity-notes">Optional note</Label><Textarea id="activity-notes" rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="What helped or made the activity harder?" /></div>
           <Button className="w-full" onClick={save} disabled={!activityLabel.trim()}>Save activity</Button>
         </div>
       </DialogContent>
@@ -364,8 +511,8 @@ function createDemoPcssResult(): PcssAssessmentResult {
 
 function createDemoEvidenceSummary(): RecoveryEvidenceSummary {
   return {
-    overallLabel: "Several domains are improving",
-    overallDetail: "Maya’s sample symptoms, reaction time, delayed recall, and camera-measured movement improved across repeated entries. Each domain remains visible and none grants clearance.",
+    overallLabel: "Several tracked domains changed favorably",
+    overallDetail: "Maya’s sample record contains favorable changes in symptoms and several experimental trends. They remain separate and do not define recovery or clearance.",
     overallTone: "positive",
     improvingCount: 4,
     worseningCount: 0,
@@ -373,9 +520,9 @@ function createDemoEvidenceSummary(): RecoveryEvidenceSummary {
     generatedAt: "2026-07-28T07:00:00.000Z",
     domains: [
       { id: "symptoms", label: "Reported symptoms", direction: "improving", headline: "Symptom burden is trending lower", detail: "PCSS severity changed from 62 to 18 across Maya’s sample entries.", tone: "positive", sampleCount: 5 },
-      { id: "reaction", label: "Reaction time", direction: "improving", headline: "Reaction time is faster than the starting session", detail: "Median reaction time changed from 402 ms to 299 ms across sample sessions.", tone: "positive", sampleCount: 5 },
-      { id: "memory", label: "Learning & recall", direction: "improving", headline: "Delayed recall increased", detail: "Delayed recall changed from 4 to 7 of 10 words across sample sessions.", tone: "positive", sampleCount: 3 },
-      { id: "balance", label: "Camera balance", direction: "improving", headline: "Recorded lateral movement decreased", detail: "Lateral movement changed from 1.46% to 0.82% of frame width under comparable demo conditions.", tone: "positive", sampleCount: 3 },
+      { id: "reaction", label: "Reaction time · experimental", direction: "improving", headline: "Reaction time is faster than the starting session", detail: "Median reaction time changed from 402 ms to 299 ms across sample sessions.", tone: "positive", sampleCount: 5 },
+      { id: "memory", label: "Learning & recall · experimental", direction: "improving", headline: "Delayed recall increased", detail: "Delayed recall changed from 4 to 7 of 10 words across sample sessions.", tone: "positive", sampleCount: 3 },
+      { id: "balance", label: "Postural movement · experimental", direction: "improving", headline: "Recorded lateral movement decreased", detail: "Lateral movement changed from 1.46% to 0.82% of frame width under comparable demo conditions.", tone: "positive", sampleCount: 3 },
     ],
   };
 }

@@ -6,13 +6,17 @@ import { primaryNavItems, secondaryNavItems, type NavItem } from "./navConfig";
 import { cn } from "../../lib/utils";
 import { currentPatient } from "../../data/patient";
 import { useAppMode } from "../../context/AppModeContext";
+import { loadRecoveryProfile } from "../../features/recovery/recoveryProfile";
+import { isAcuteRecovery } from "../../features/science/recoverySafety";
 
 export function Sidebar() {
   const { mode, userName } = useAppMode();
   const location = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
-  const hasActiveSecondary = secondaryNavItems.some((item) => location.pathname.startsWith(item.href));
-  const showMoreItems = moreOpen || hasActiveSecondary;
+  const acuteMode = mode === "user" && isAcuteRecovery(loadRecoveryProfile());
+  const visiblePrimary = acuteMode ? primaryNavItems.filter((item) => item.href === "/app" || item.href === "/app/check-in") : primaryNavItems;
+  const hasActiveSecondary = !acuteMode && secondaryNavItems.some((item) => location.pathname.startsWith(item.href));
+  const showMoreItems = !acuteMode && (moreOpen || hasActiveSecondary);
   const displayName = mode === "demo" ? currentPatient.name : userName;
   const initials = displayName
     .split(" ")
@@ -28,11 +32,11 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 space-y-1 px-4 py-4" aria-label="Primary">
-        {primaryNavItems.map((item) => (
+        {visiblePrimary.map((item) => (
           <NavItemLink key={item.href} {...item} />
         ))}
 
-        <div className="pt-2">
+        {!acuteMode && <div className="pt-2">
           <button
             type="button"
             onClick={() => setMoreOpen((value) => !value)}
@@ -50,7 +54,7 @@ export function Sidebar() {
               ))}
             </div>
           )}
-        </div>
+        </div>}
       </nav>
 
       <div className="border-t border-[var(--color-border)] p-3">

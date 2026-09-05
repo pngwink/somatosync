@@ -96,7 +96,7 @@ export function buildRecoveryEvidenceSummary(): RecoveryEvidenceSummary {
     const direction = changeDirection(percent, 7);
     domains.push({
       id: "reaction",
-      label: "Reaction time",
+      label: "Reaction time · experimental",
       direction,
       headline:
         direction === "improving" ? "Reaction time is faster than the starting session" :
@@ -112,7 +112,7 @@ export function buildRecoveryEvidenceSummary(): RecoveryEvidenceSummary {
   } else {
     domains.push({
       id: "reaction",
-      label: "Reaction time",
+      label: "Reaction time · experimental",
       direction: "unavailable",
       headline: "No reaction-time assessment yet",
       detail: "Complete a reaction task to begin this domain.",
@@ -129,7 +129,7 @@ export function buildRecoveryEvidenceSummary(): RecoveryEvidenceSummary {
     const direction = changeDirection(percent, 10);
     domains.push({
       id: "memory",
-      label: "Learning & recall",
+      label: "Learning & recall · experimental",
       direction,
       headline:
         direction === "improving" ? "Delayed recall increased" :
@@ -145,7 +145,7 @@ export function buildRecoveryEvidenceSummary(): RecoveryEvidenceSummary {
   } else {
     domains.push({
       id: "memory",
-      label: "Learning & recall",
+      label: "Learning & recall · experimental",
       direction: "unavailable",
       headline: "No memory task yet",
       detail: "Complete a learning-and-delayed-recall task to begin this domain.",
@@ -163,13 +163,13 @@ export function buildRecoveryEvidenceSummary(): RecoveryEvidenceSummary {
     const direction = changeDirection(percent, 12);
     domains.push({
       id: "balance",
-      label: "Camera balance",
+      label: "Postural movement · experimental",
       direction,
       headline:
         direction === "improving" ? "Recorded lateral movement decreased" :
         direction === "worsening" ? "Recorded lateral movement increased" :
         direction === "similar" ? "Recorded lateral movement is broadly similar" :
-        "First balance starting point recorded",
+        "First postural-movement recording available",
       detail: oldest && latest && oldest.id !== latest.id
         ? `Lateral movement changed from ${oldest.lateralRmsPercent.toFixed(2)}% to ${latest.lateralRmsPercent.toFixed(2)}% of frame width across ${balance.length} comparable recordings.`
         : `Latest movement band is ${latest?.movementBand ?? "unavailable"}. Compare only recordings made under similar camera and stance conditions.`,
@@ -179,10 +179,10 @@ export function buildRecoveryEvidenceSummary(): RecoveryEvidenceSummary {
   } else {
     domains.push({
       id: "balance",
-      label: "Camera balance",
+      label: "Postural movement · experimental",
       direction: "unavailable",
-      headline: "No usable balance recording yet",
-      detail: "Complete a well-lit camera balance session to begin this domain.",
+      headline: "No usable postural-movement recording yet",
+      detail: "Complete an optional well-lit postural-movement recording to begin this experimental trend.",
       tone: "neutral",
       sampleCount: 0,
     });
@@ -242,12 +242,12 @@ export function buildRecoveryEvidenceSummary(): RecoveryEvidenceSummary {
     const mostUsed = [...adaptationCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "No adaptation recorded";
     domains.push({
       id: "focus",
-      label: "Cognitive pacing",
+      label: "Focus interaction patterns · experimental",
       direction,
       headline:
-        direction === "improving" ? "Session strain patterns decreased" :
-        direction === "worsening" ? "Session strain patterns increased" :
-        direction === "similar" ? "Session strain patterns are broadly similar" :
+        direction === "improving" ? "Fewer interaction-difficulty patterns were recorded" :
+        direction === "worsening" ? "More interaction-difficulty patterns were recorded" :
+        direction === "similar" ? "Interaction-difficulty patterns were broadly similar" :
         "First Focus Mode session recorded",
       detail: `${focusSessions.length} Focus Mode sessions include ${confirmed} user-confirmed alerts. Most-used support: ${mostUsed}. These are non-diagnostic session patterns.`,
       tone: toneFor(direction),
@@ -256,7 +256,7 @@ export function buildRecoveryEvidenceSummary(): RecoveryEvidenceSummary {
   } else {
     domains.push({
       id: "focus",
-      label: "Cognitive pacing",
+      label: "Focus interaction patterns · experimental",
       direction: "unavailable",
       headline: "No Focus Mode session yet",
       detail: "Focus Mode can record aggregate pacing signals and which accessibility adaptations the user found useful.",
@@ -269,22 +269,22 @@ export function buildRecoveryEvidenceSummary(): RecoveryEvidenceSummary {
   const improvingCount = measured.filter((domain) => domain.direction === "improving").length;
   const worseningCount = measured.filter((domain) => domain.direction === "worsening").length;
 
-  let overallLabel = "More information needed";
-  let overallDetail = "Complete assessments across multiple domains before interpreting an overall pattern.";
+  let overallLabel = "Tracked domains stay separate";
+  let overallDetail = "SomatoSync does not combine symptoms, function, or experimental tasks into a recovery or readiness score.";
   let overallTone: ResultTone = "neutral";
 
   if (measured.length >= 2) {
     if (worseningCount >= 2) {
-      overallLabel = "Multiple domains need attention";
-      overallDetail = `${worseningCount} measured domains moved in an unfavorable direction. This is a follow-up signal, not a diagnosis or recovery prediction.`;
+      overallLabel = "Several tracked domains changed";
+      overallDetail = `${worseningCount} tracked domains moved in a less favorable direction. Experimental task changes are context only; this is a follow-up signal, not a diagnosis or recovery prediction.`;
       overallTone = "caution";
     } else if (improvingCount >= 2 && worseningCount === 0) {
-      overallLabel = "Several domains are improving";
-      overallDetail = `${improvingCount} measured domains improved and none showed a clear decline. Continue tracking because recovery can vary by task and day.`;
+      overallLabel = "Several tracked domains changed favorably";
+      overallDetail = `${improvingCount} tracked domains changed in a favorable direction. This does not mean a percentage recovered or medical readiness, and experimental trends remain supporting context only.`;
       overallTone = "positive";
     } else {
-      overallLabel = "Mixed or stable recovery evidence";
-      overallDetail = "The measured domains do not all move together. SomatoSync keeps them separate so one result cannot hide another.";
+      overallLabel = "Mixed or stable tracked domains";
+      overallDetail = "The domains do not all move together. SomatoSync keeps symptoms, function, and experimental trends separate so one result cannot define recovery.";
       overallTone = "info";
     }
   }

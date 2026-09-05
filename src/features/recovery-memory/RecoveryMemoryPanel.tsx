@@ -15,12 +15,12 @@ const demoPatterns: SupportPattern[] = [
 ];
 
 const demoStory: RecoveryStoryItem[] = [
-  { id: "demo-1", completedAt: "2026-07-28T18:20:00.000Z", title: "Reading environment adapted", detail: "Moving closer + squinting → readability adjustments → observed strain settled afterward", contexts: ["School or homework", "Screens or reading"], tone: "positive" },
+  { id: "demo-1", completedAt: "2026-07-28T18:20:00.000Z", title: "Reading environment adapted", detail: "Moving closer + squinting → readability adjustments → the later interaction pattern became easier", contexts: ["School or homework", "Screens or reading"], tone: "positive" },
   { id: "demo-2", completedAt: "2026-07-28T17:52:00.000Z", title: "Voice check-in", detail: "Light sensitivity 4/6 · Fatigue 3/6", contexts: ["School or homework"], tone: "neutral" },
-  { id: "demo-3", completedAt: "2026-07-28T16:40:00.000Z", title: "Memory assessment", detail: "Delayed recall: 7 of 10 · Task tolerance: fatigue +1, headache unchanged.", tone: "neutral" },
-  { id: "demo-4", completedAt: "2026-07-28T09:00:00.000Z", title: "Reaction assessment", detail: "Median reaction time: 299 ms.", tone: "neutral" },
+  { id: "demo-3", completedAt: "2026-07-28T16:40:00.000Z", title: "Memory trend · experimental", detail: "Delayed recall: 7 of 10 · Task tolerance: fatigue +1, headache unchanged.", tone: "neutral" },
+  { id: "demo-4", completedAt: "2026-07-28T09:00:00.000Z", title: "Reaction trend · experimental", detail: "Median reaction time: 299 ms.", tone: "neutral" },
   { id: "demo-5", completedAt: "2026-07-27T17:35:00.000Z", title: "Support feedback", detail: "Teacher / school reported 2 of 2 provided supports seemed helpful.", tone: "positive" },
-  { id: "demo-6", completedAt: "2026-07-26T16:10:00.000Z", title: "Postural-movement assessment", detail: "Recorded movement: 0.82% of frame width · Task tolerance: dizziness +1, headache unchanged.", tone: "neutral" },
+  { id: "demo-6", completedAt: "2026-07-26T16:10:00.000Z", title: "Postural movement · experimental", detail: "Recorded movement: 0.82% of frame width · Task tolerance: dizziness +1, headache unchanged.", tone: "neutral" },
 ];
 
 export function RecoveryMemoryPanel() {
@@ -56,7 +56,7 @@ export function RecoveryMemoryPanel() {
       <section aria-labelledby="help-patterns-heading">
         <div className="flex items-start gap-3">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-[var(--color-positive-soft)] text-[var(--color-positive)]"><Sparkles className="h-5 w-5" /></span>
-          <div><h2 id="help-patterns-heading" className="text-[20px] font-semibold text-[var(--color-text-primary)]">What seems to help</h2><p className="mt-1 max-w-[62ch] text-[16px] leading-7 text-[var(--color-text-secondary)]">Repeated links between a support and better tolerance appear here.</p></div>
+          <div><h2 id="help-patterns-heading" className="text-[20px] font-semibold text-[var(--color-text-primary)]">What seems to help</h2><p className="mt-1 max-w-[62ch] text-[16px] leading-7 text-[var(--color-text-secondary)]">Recent associations between supports and easier sessions or reported helpfulness appear here.</p></div>
         </div>
 
         {patterns.length > 0 ? (
@@ -71,7 +71,7 @@ export function RecoveryMemoryPanel() {
         ) : (
           <div className="mt-5 rounded-[16px] bg-[var(--color-surface-sunken)] p-5"><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">Still learning your response patterns</p><p className="mt-1 text-[16px] leading-6 text-[var(--color-text-secondary)]">Adaptive-reading follow-ups and shared-support feedback can gradually build this view.</p></div>
         )}
-        <p className="mt-3 text-[16px] leading-6 text-[var(--color-text-tertiary)]">Observed associations only—not proof that a support caused medical improvement.</p>
+        <p className="mt-3 text-[16px] leading-6 text-[var(--color-text-tertiary)]">Associations only—not proof that a support treated concussion. Settings that are undone or stop being useful should remain optional rather than accumulating permanently.</p>
       </section>
 
       <section aria-labelledby="recovery-story-heading" className="mt-7 border-t border-[var(--color-border)] pt-7">

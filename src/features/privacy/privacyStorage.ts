@@ -71,7 +71,7 @@ export function categoryFromKey(key: string): string {
 
   const knownPatterns: Array<{ test: RegExp; label: string }> = [
     { test: /^assessments\.reaction/i, label: "Reaction assessments" },
-    { test: /^assessments\.balance/i, label: "Balance assessments" },
+    { test: /^assessments\.balance/i, label: "Postural movement assessments" },
     { test: /^assessments\.memory/i, label: "Memory assessments" },
     { test: /^assessments/i, label: "Assessment data" },
     { test: /^symptom/i, label: "Symptom history" },

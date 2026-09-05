@@ -256,7 +256,7 @@ export function BalanceAssessmentPage() {
   if (phase === "preCheck") {
     return (
       <div className="mx-auto max-w-2xl space-y-5">
-        <PageHeader title="Before the balance recording" context="A brief symptom check separates how you perform from how the task feels." />
+        <PageHeader title="Before the postural-movement recording" context="A brief symptom check separates how you perform from how the task feels." />
         <Card className="p-6">
           <TaskToleranceCheck
             mode="pre"
@@ -272,7 +272,7 @@ export function BalanceAssessmentPage() {
   if (phase === "postCheck" && pendingResult) {
     return (
       <div className="mx-auto max-w-2xl space-y-5">
-        <PageHeader title="How did the balance task affect you?" context="Record the symptom response before viewing the movement result." />
+        <PageHeader title="How did the postural-movement task affect you?" context="Record the symptom response before viewing the movement result." />
         <Card className="p-6">
           <TaskToleranceCheck
             mode="post"
@@ -288,7 +288,7 @@ export function BalanceAssessmentPage() {
   if (phase === "result" && result) {
     return (
       <div className="mx-auto max-w-3xl space-y-5">
-        <PageHeader title="Balance recording complete" context="On-device ML pose landmarks translated into postural-movement and head-steadiness proxies." />
+        <PageHeader title="Postural movement recording complete" context="On-device pose estimation translated into experimental movement summaries for within-person comparison." />
         <Card className="p-6">
           <div className="flex items-start gap-3">
             <CheckCircle2 className="mt-0.5 h-8 w-8 shrink-0 text-[var(--color-positive)]" aria-hidden="true" />
@@ -346,8 +346,8 @@ export function BalanceAssessmentPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-5">
       <PageHeader
-        title="Camera balance assessment"
-        context="A short eyes-open camera recording that summarizes visible postural movement."
+        title="Experimental postural movement tracking"
+        context="A trend-only camera measurement of visible movement under similar conditions."
       />
 
       <div className="grid gap-5 lg:grid-cols-[1.3fr_0.7fr]">

@@ -160,6 +160,31 @@ html.neuro-low-density .app-content [data-focus-secondary="true"] {
 html.neuro-low-density main section,
 html.neuro-low-density main article { scroll-margin-top: 3rem; }
 
+/* Focus content disclosure: components may provide a short task-first version and keep the
+   complete version available under More details. Safety content is never hidden. */
+.focus-simplified-only { display: none; }
+html.neuro-low-density .focus-simplified-only { display: block; }
+html.neuro-low-density .app-content [data-focus-detailed="true"] { display: none !important; }
+html.neuro-low-density .app-content [data-focus-preserve-text="true"],
+html.neuro-low-density .app-content [data-focus-safety="true"],
+html.neuro-low-density .app-content [role="alert"] {
+  opacity: 1 !important;
+}
+
+/* Reading Spotlight must never obscure urgent guidance, warnings, or assertive status content. */
+html.neuro-reading-spotlight .app-content [data-focus-preserve-text="true"],
+html.neuro-reading-spotlight .app-content [data-focus-safety="true"],
+html.neuro-reading-spotlight .app-content [role="alert"],
+html.neuro-reading-spotlight .app-content [aria-live="assertive"] {
+  position: relative;
+  z-index: 25;
+  opacity: 1 !important;
+}
+html.neuro-reading-spotlight [data-focus-anchor-current="true"] {
+  position: relative;
+  z-index: 25;
+}
+
 .app-content { font-size: 16px; line-height: 1.62; }
 @media (min-width: 1280px) { .app-content { font-size: 16.25px; } }
 
@@ -215,3 +240,14 @@ html.neuro-low-density .app-content [data-focus-reading-surface="true"] > * {
 .app-content p, .app-content li { line-height: 1.62; }
 .app-content .reading-measure { max-width: 70ch; }
 .app-content .section-stack > * + * { margin-top: 2rem; }
+
+/* Focus Mode interaction targets: fewer, easier-to-hit controls without changing normal mode. */
+html.neuro-adaptive-active .app-content button,
+html.neuro-adaptive-active .app-content a[role="button"] {
+  min-height: 44px;
+}
+html.neuro-low-density .app-content details > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}

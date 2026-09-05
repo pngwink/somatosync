@@ -8,7 +8,7 @@ This version expands Focus Mode accessibility tools while leaving the Check-In a
 - **Plain Language:** a reversible local text simplifier swaps a curated set of difficult UI/medical terms for easier wording. It does not rewrite buttons, links, warnings, code, or form controls.
 - **Read Aloud:** uses the browser's local Speech Synthesis API with a slower speaking rate and reads only visible page headings/body content.
 - **Cleaner Focus page:** one activation card, one compact setup/tools card, and Shield/history/scientific details collapsed by default.
-- **Automatic in-app reading ruler disabled:** Focus does not automatically activate line-focus in this build; Shield still offers a user-controlled reading spotlight for external pages.
+- **Reading Spotlight:** available as an optional manual support; it is not automatically activated from symptom or camera signals.
 
 ## Demo path
 

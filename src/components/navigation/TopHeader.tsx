@@ -21,6 +21,8 @@ import { useUserPreferences } from "../../context/UserPreferencesContext";
 import { buildTwoWeekSchedule, toLocalDateKey } from "../../features/schedule/scheduleEngine";
 import { FocusModeControl } from "../../features/adaptive/FocusModeControl";
 import { DangerSignsDialog } from "../../features/safety/DangerSignsDialog";
+import { loadRecoveryProfile } from "../../features/recovery/recoveryProfile";
+import { isAcuteRecovery } from "../../features/science/recoverySafety";
 
 const allNavItems = [...primaryNavItems, ...secondaryNavItems];
 
@@ -35,6 +37,9 @@ export function TopHeader() {
   const todayKey = toLocalDateKey(new Date());
   const todayTasks = buildTwoWeekSchedule(appMode, new Date()).find((day) => day.dateKey === todayKey)?.tasks ?? [];
   const reminderTasks = todayTasks.filter((task) => task.status === "due-today");
+  const acuteMode = appMode === "user" && isAcuteRecovery(loadRecoveryProfile());
+  const visiblePrimaryNav = acuteMode ? primaryNavItems.filter((item) => item.href === "/app" || item.href === "/app/check-in") : primaryNavItems;
+  const visibleSecondaryNav = acuteMode ? [] : secondaryNavItems;
   const displayName = appMode === "demo" ? currentPatient.name : userName;
   const initials = displayName
     .split(" ")
@@ -68,8 +73,8 @@ export function TopHeader() {
 
         <div className="flex items-center gap-2">
           <DangerSignsDialog compact={false} />
-          <FocusModeControl />
-          {notificationsEnabled && (
+          {!acuteMode && <FocusModeControl />}
+          {!acuteMode && notificationsEnabled && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -170,7 +175,7 @@ export function TopHeader() {
               </button>
             </div>
             <nav className="flex flex-col gap-0.5" aria-label="Primary">
-              {primaryNavItems.map((item) => (
+              {visiblePrimaryNav.map((item) => (
                 <NavLink
                   key={item.href}
                   to={item.href}
@@ -187,8 +192,8 @@ export function TopHeader() {
                   {item.label}
                 </NavLink>
               ))}
-              <p className="mb-1 mt-4 px-2.5 text-[16px] font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">More</p>
-              {secondaryNavItems.map((item) => (
+              {!acuteMode && <p className="mb-1 mt-4 px-2.5 text-[16px] font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">More</p>}
+              {visibleSecondaryNav.map((item) => (
                 <NavLink
                   key={item.href}
                   to={item.href}

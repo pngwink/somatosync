@@ -7,6 +7,8 @@ describe("research safety", () => {
     expect(guardResearchInput("I had a seizure and cannot stay awake").intent).toBe("emergency");
     expect(guardResearchInput("Do I have a concussion?").intent).toBe("diagnosis-request");
     expect(guardResearchInput("Am I cleared to play?").intent).toBe("clearance-request");
+    expect(guardResearchInput("Am I safe to drive today?").intent).toBe("clearance-request");
+    expect(guardResearchInput("Is my reaction time good enough to drive?").intent).toBe("clearance-request");
     expect(guardResearchInput("Exactly how many days until I recover?").intent).toBe("timeline-request");
   });
 
@@ -26,5 +28,12 @@ describe("research safety", () => {
       "Why do screens hurt?"
     );
     expect(verification.passed).toBe(false);
+
+    const drivingVerification = verifyGeneratedResearchAnswer(
+      "Your reaction time shows you are safe to drive.",
+      [topic!],
+      "Can I drive?"
+    );
+    expect(drivingVerification.passed).toBe(false);
   });
 });

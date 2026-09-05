@@ -86,7 +86,7 @@ const labels: Record<AssessmentType, string> = {
   "symptom-check-in": "PCSS symptoms",
   "reaction-time": "Reaction time",
   memory: "Learning & recall",
-  balance: "Camera balance",
+  balance: "Postural movement",
 };
 
 const hrefs: Record<AssessmentType, string> = {

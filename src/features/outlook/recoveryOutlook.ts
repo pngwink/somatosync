@@ -85,6 +85,46 @@ export function buildRecoveryOutlook(profile: RecoveryProfile, now = new Date())
     }
   }
 
+  if (latestPcss && days != null && days >= 10) {
+    const dizzinessBalance = Math.max(latestPcss.ratings.dizziness, latestPcss.ratings.balanceProblems);
+    const headache = latestPcss.ratings.headache;
+    if ((dizzinessBalance >= 3 || headache >= 3) && profile.riskContext.neckInjury) {
+      signals.push({
+        id: "persistent-cervicovestibular-pattern",
+        title: "Persistent dizziness, headache, or neck symptoms are worth discussing",
+        detail: "When dizziness, balance difficulty, headache, and neck symptoms persist, concussion guidance supports discussing targeted vestibular or cervicovestibular evaluation with an appropriate healthcare professional. SomatoSync is identifying a symptom pattern, not diagnosing vestibular, cervical, or migraine disease.",
+        tone: "caution",
+        sourceIds: ["amsterdam-2022", "ontario-prolonged", "peds-guideline"],
+      });
+    } else if (dizzinessBalance >= 3 && days >= 28) {
+      signals.push({
+        id: "persistent-dizziness-pattern",
+        title: "Dizziness or balance difficulty is still prominent",
+        detail: "Persistent dizziness or balance difficulty can have several causes. Consider discussing a targeted vestibular or cervicovestibular assessment with a qualified healthcare professional rather than assuming a diagnosis from app data.",
+        tone: "caution",
+        sourceIds: ["amsterdam-2022", "ontario-prolonged"],
+      });
+    }
+    if (days >= 28 && latestPcss.ratings.visualProblems >= 3) {
+      signals.push({
+        id: "persistent-visual-pattern",
+        title: "Visual symptoms remain prominent",
+        detail: "Persistent visual symptoms or difficulty in visually busy environments are reasonable to bring to a clinician for targeted assessment. SomatoSync does not diagnose vision, vestibular, or oculomotor disorders.",
+        tone: "caution",
+        sourceIds: ["amsterdam-2022", "ontario-prolonged"],
+      });
+    }
+    if (days >= 28 && headache >= 3 && !profile.riskContext.neckInjury) {
+      signals.push({
+        id: "persistent-headache-pattern",
+        title: "Headache remains prominent",
+        detail: "Persistent headache is worth discussing with an appropriate healthcare professional, especially when it continues to limit school, work, physical activity, or daily life. The app does not label a headache subtype or diagnose migraine.",
+        tone: "caution",
+        sourceIds: ["amsterdam-2022", "ontario-prolonged"],
+      });
+    }
+  }
+
   if (latestPcss) {
     const sleepLoad = latestPcss.categoryTotals.sleep;
     if (sleepLoad >= 6) {
@@ -109,8 +149,8 @@ export function buildRecoveryOutlook(profile: RecoveryProfile, now = new Date())
   if (multidomainWorsening >= 2) {
     signals.push({
       id: "multidomain-decline",
-      title: "More than one measured domain declined",
-      detail: `At least two measured domains crossed the app’s within-person change rules (reaction 8%, memory 10%, balance 12%). These are transparent prototype thresholds, not validated prognostic cutoffs, but a repeated multidomain pattern is reasonable to share during follow-up.`,
+      title: "More than one experimental trend moved in a less favorable direction",
+      detail: `At least two experimental trend tools crossed the app’s transparent within-person change rules (reaction 8%, memory 10%, postural movement 12%). These are prototype thresholds, not clinical or prognostic cutoffs. Treat the pattern only as context to share if daily function is also becoming harder.`,
       tone: "caution",
       sourceIds: ["amsterdam-2022", "ontario-prolonged"],
     });
@@ -164,7 +204,7 @@ export function buildRecoveryOutlook(profile: RecoveryProfile, now = new Date())
     summary = "The record contains patterns worth discussing or rechecking.";
     summaryTone = "caution";
   } else if (evidence.improvingCount >= 2 && evidence.worseningCount === 0) {
-    summary = "Several domains are improving, but no exact timeline can be inferred.";
+    summary = "Several tracked domains changed favorably, but this does not define recovery or an exact timeline.";
     summaryTone = "positive";
   }
 

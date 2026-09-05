@@ -130,7 +130,7 @@ export function ProgressPage() {
           </Panel>
         )}
         {userBalanceSeries.length > 0 && (
-          <Panel title="Camera-measured lateral movement" description="Experimental RMS movement as a percentage of the camera frame; compare only similar recording conditions.">
+          <Panel title="Postural movement · experimental" description="Camera-derived movement trend only; compare only recordings made under similar conditions.">
             {latestBalanceRow && <LatestMeaning result={latestBalanceRow} />}
             {latestUserBalance && (
               <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-[var(--radius-sm)] bg-[var(--color-surface-sunken)] px-3.5 py-3">
@@ -159,7 +159,7 @@ export function ProgressPage() {
     <div className="space-y-5">
       <PageHeader
         title="Detailed Progress"
-        context="Maya’s sample symptoms, cognition, and balance are displayed as separate trends."
+        context="Maya’s sample symptoms, function, and experimental task trends stay separate."
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="secondary" size="sm" asChild><Link to="/app/recovery?tab=progress">Back to Recovery</Link></Button>
@@ -179,9 +179,9 @@ export function ProgressPage() {
       />
 
       <Panel title="Multidomain evidence" description="No Recovery Index or readiness percentage is used.">
-        <Badge tone="positive" showDot>Several domains are improving</Badge>
+        <Badge tone="info" showDot>Several tracked domains changed favorably</Badge>
         <p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
-          Maya’s symptom burden, reaction time, delayed recall, and recorded lateral movement improved from the first sample sessions. Light sensitivity and fatigue still affect activity planning.
+          Maya’s sample symptom burden decreased, while several experimental task measures also changed favorably. Those experimental trends are supporting context only; light sensitivity, fatigue, and daily function still guide activity planning.
         </p>
       </Panel>
 
@@ -189,18 +189,18 @@ export function ProgressPage() {
         <MetricLineChart data={filtered(demoPcssSeries)} unit="of 132" reference={62} referenceLabel="First assessment" height={230} />
       </Panel>
 
-      <Panel title="Cognitive and balance trends" description="Each domain remains separate because no single test determines recovery.">
+      <Panel title="Experimental task trends" description="Reaction, recall, and camera-derived movement are within-person trends only and do not determine recovery.">
         <div className="grid gap-6 lg:grid-cols-2">
           <div>
-            <h3 className="mb-2 text-[16px] font-medium text-[var(--color-text-secondary)]">Reaction time — lower is faster</h3>
+            <h3 className="mb-2 text-[16px] font-medium text-[var(--color-text-secondary)]">Reaction time · experimental — lower is faster</h3>
             <MetricLineChart data={filtered(demoReactionSeries)} unit="ms" reference={402} referenceLabel="First assessment" />
           </div>
           <div>
-            <h3 className="mb-2 text-[16px] font-medium text-[var(--color-text-secondary)]">Delayed word recall — higher is more recalled</h3>
+            <h3 className="mb-2 text-[16px] font-medium text-[var(--color-text-secondary)]">Delayed recall · experimental — higher is more recalled</h3>
             <MetricLineChart data={filtered(demoMemorySeries)} unit="of 10" reference={4} referenceLabel="First assessment" domain={[0, 10]} />
           </div>
           <div>
-            <h3 className="mb-2 text-[16px] font-medium text-[var(--color-text-secondary)]">Camera lateral movement — lower is less recorded movement</h3>
+            <h3 className="mb-2 text-[16px] font-medium text-[var(--color-text-secondary)]">Postural movement · experimental — lower is less recorded movement</h3>
             <MetricLineChart data={filtered(demoBalanceSeries)} unit="% frame" reference={1.46} referenceLabel="First recording" />
           </div>
           <div>

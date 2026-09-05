@@ -67,22 +67,23 @@ export function finishAdaptiveResponse(id: string, before: number | null, after:
 
 function supportBuckets(changes: string[]) {
   const buckets: string[] = [];
-  if (changes.some((item) => item === "Larger text" || item === "More line spacing" || item === "Focused reading width")) buckets.push("Readability adjustments");
-  if (changes.includes("Softer contrast")) buckets.push("Softer visuals");
-  if (changes.includes("Reduced motion")) buckets.push("Reduced motion");
-  if (changes.some((item) => item === "Less secondary detail" || item === "Read-aloud support")) buckets.push("Lower reading load");
-  return buckets.length > 0 ? buckets : [changes[0] ?? "Adaptive support"];
+  if (changes.some((item) => ["Larger text", "Larger reading typography", "Readable text sizing", "More line spacing", "More reading spacing", "Focused reading width", "Reading lane"].includes(item))) buckets.push("Readability adjustments");
+  if (changes.some((item) => ["Softer contrast", "Reduced-luminance palette", "Low-luminance sensory theme", "Calmer media"].includes(item))) buckets.push("Calmer visuals");
+  if (changes.some((item) => ["Reduced motion", "Motion reduced", "Stable viewport", "Moving media paused"].includes(item))) buckets.push("Reduced motion");
+  if (changes.some((item) => ["Less secondary detail", "Simplified information hierarchy", "Stronger visual hierarchy", "Read-aloud support"].includes(item))) buckets.push("Lower information load");
+  return [...new Set(buckets.length > 0 ? buckets : [changes[0] ?? "Adaptive support"])];
 }
 
 export function buildSupportPatterns(): SupportPattern[] {
-  const buckets = new Map<string, { helpful: number; observed: number }>();
+  const buckets = new Map<string, { helpful: number; observed: number; undone: number }>();
   for (const event of loadRecoveryMemoryEvents()) {
     if (event.kind === "adaptive-response") {
-      if (event.outcome === "pending" || event.outcome === "reverted" || event.outcome === "not-enough-data") continue;
+      if (event.outcome === "pending" || event.outcome === "not-enough-data") continue;
       for (const bucket of supportBuckets(event.changes)) {
-        const current = buckets.get(bucket) ?? { helpful: 0, observed: 0 };
+        const current = buckets.get(bucket) ?? { helpful: 0, observed: 0, undone: 0 };
         current.observed += 1;
         if (event.outcome === "appeared-helpful") current.helpful += 1;
+        if (event.outcome === "reverted") current.undone += 1;
         buckets.set(bucket, current);
       }
       continue;
@@ -91,29 +92,35 @@ export function buildSupportPatterns(): SupportPattern[] {
       for (const response of event.responses) {
         if (!response.provided || response.response === "not-sure" || response.response == null) continue;
         const bucket = response.patternTitle || response.title;
-        const current = buckets.get(bucket) ?? { helpful: 0, observed: 0 };
+        const current = buckets.get(bucket) ?? { helpful: 0, observed: 0, undone: 0 };
         current.observed += 1;
         if (response.response === "helped") current.helpful += 1;
+        if (response.response === "worse") current.undone += 1;
         buckets.set(bucket, current);
       }
     }
   }
 
   return [...buckets.entries()]
-    .sort((a, b) => b[1].helpful - a[1].helpful || b[1].observed - a[1].observed)
+    .sort((a, b) => b[1].helpful - a[1].helpful || a[1].undone - b[1].undone || b[1].observed - a[1].observed)
     .slice(0, 3)
     .map(([title, stats]) => ({
       id: title.toLowerCase().replace(/\s+/g, "-"),
       title,
       helpfulCount: stats.helpful,
       observedCount: stats.observed,
+      undoneCount: stats.undone,
       detail: stats.observed === 1
         ? stats.helpful === 1
-          ? "One recent follow-up or support report was followed by better tolerance."
-          : "SomatoSync has one follow-up so far and is still learning the pattern."
+          ? "In one recent follow-up, this support was followed by an easier interaction pattern or was reported helpful."
+          : stats.undone === 1
+            ? "This support was undone or reported unhelpful in the recent follow-up, so SomatoSync will not treat it as a preferred setting."
+            : "SomatoSync has one follow-up so far and is still learning whether this support is useful."
         : stats.helpful > 0
-          ? `${stats.helpful} of ${stats.observed} recent follow-ups or support reports were followed by better tolerance.`
-          : `${stats.observed} recent follow-ups have not shown a consistent change yet.`,
+          ? `${stats.helpful} of ${stats.observed} recent follow-ups were followed by an easier interaction pattern or were reported helpful.${stats.undone ? ` It was undone or reported worse ${stats.undone} time${stats.undone === 1 ? "" : "s"}.` : ""}`
+          : stats.undone > 0
+            ? `${stats.undone} of ${stats.observed} recent follow-ups were undone or reported worse; keep this support optional rather than accumulating it automatically.`
+            : `${stats.observed} recent follow-ups have not shown a consistent association yet.`,
     }));
 }
 
@@ -128,12 +135,12 @@ function topSymptoms(result: ReturnType<typeof loadPcssHistory>[number]) {
 }
 
 function responseDetail(event: AdaptiveResponseEvent) {
-  const trigger = event.triggerReasons.slice(0, 2).join(" + ") || "Sustained reading-strain pattern";
+  const trigger = event.triggerReasons.slice(0, 2).join(" + ") || "Sustained interaction-difficulty pattern";
   const support = supportBuckets(event.changes).slice(0, 2).join(" + ");
   const response = event.outcome === "appeared-helpful"
-    ? "observed strain settled afterward"
+    ? "the later interaction pattern became easier"
     : event.outcome === "strain-increased"
-      ? "strain remained elevated afterward"
+      ? "the later interaction pattern remained harder"
       : event.outcome === "reverted"
         ? "support was undone before follow-up"
         : event.outcome === "pending"
@@ -172,7 +179,7 @@ export function buildRecoveryStory(): RecoveryStoryItem[] {
         contexts: event.contexts,
         tone: event.outcome === "appeared-helpful" ? "positive" : event.outcome === "strain-increased" ? "caution" : "neutral",
       });
-    } else {
+    } else if (event.kind === "context-note") {
       items.push({ id: event.id, completedAt: event.completedAt, title: "Context added", detail: event.note || event.contexts.join(" · "), contexts: event.contexts, tone: "neutral" });
     }
   }
@@ -202,13 +209,13 @@ export function buildRecoveryStory(): RecoveryStoryItem[] {
   }
 
   for (const result of loadReactionHistory().slice(0, 2)) {
-    items.push({ id: result.id, completedAt: result.completedAt, title: "Reaction assessment", detail: result.medianMs == null ? "Session completed without enough valid trials for a median." : `Median reaction time: ${Math.round(result.medianMs)} ms.`, tone: "neutral" });
+    items.push({ id: result.id, completedAt: result.completedAt, title: "Reaction trend · experimental", detail: result.medianMs == null ? "Session completed without enough valid trials for a median." : `Median reaction time: ${Math.round(result.medianMs)} ms.`, tone: "neutral" });
   }
   for (const result of loadMemoryHistory().slice(0, 2)) {
-    items.push({ id: result.id, completedAt: result.completedAt, title: "Memory assessment", detail: `Delayed recall: ${result.delayedCorrect} of 10 words${toleranceDetail(result.preTolerance, result.postTolerance, ["headache", "concentrationDifficulty", "fatigue"])}.`, tone: "neutral" });
+    items.push({ id: result.id, completedAt: result.completedAt, title: "Memory trend · experimental", detail: `Delayed recall: ${result.delayedCorrect} of 10 words${toleranceDetail(result.preTolerance, result.postTolerance, ["headache", "concentrationDifficulty", "fatigue"])}.`, tone: "neutral" });
   }
   for (const result of loadBalanceHistory().slice(0, 2)) {
-    items.push({ id: result.id, completedAt: result.completedAt, title: "Postural-movement assessment", detail: `Recorded movement: ${result.lateralRmsPercent.toFixed(2)}% of frame width${toleranceDetail(result.preTolerance, result.postTolerance, ["headache", "dizziness", "fatigue"])}.`, tone: "neutral" });
+    items.push({ id: result.id, completedAt: result.completedAt, title: "Postural movement · experimental", detail: `Recorded movement: ${result.lateralRmsPercent.toFixed(2)}% of frame width${toleranceDetail(result.preTolerance, result.postTolerance, ["headache", "dizziness", "fatigue"])}.`, tone: "neutral" });
   }
   for (const session of loadAdaptiveSessions().filter((item) => item.source === "guided-session").slice(0, 2)) {
     const supports = session.adaptationsApplied.length > 0 ? [...new Set(session.adaptationsApplied)].slice(0, 3).join(" · ") : "No display support was applied.";
