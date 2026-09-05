@@ -24,6 +24,9 @@ export const DEFAULT_ADAPTIVE_SETTINGS: NeuroAdaptiveSettings = {
   calmMedia: false,
   stabilizeViewport: false,
   emphasizeStructure: false,
+  photophobiaMode: false,
+  readingSpotlight: false,
+  pauseMedia: false,
   autoAdapt: false,
   updatedAt: new Date(0).toISOString(),
 };

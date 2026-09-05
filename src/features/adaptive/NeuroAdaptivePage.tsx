@@ -220,6 +220,9 @@ export function NeuroAdaptivePage() {
       calmMedia: startingPlan.calmMedia,
       stabilizeViewport: startingPlan.stabilizeViewport,
       emphasizeStructure: startingPlan.emphasizeStructure,
+      photophobiaMode: startingPlan.photophobiaMode,
+      readingSpotlight: startingPlan.readingSpotlight,
+      pauseMedia: startingPlan.pauseMedia,
       updatedAt: new Date().toISOString(),
     });
     adaptationsRef.current.push(...startingPlan.changes);
@@ -393,6 +396,9 @@ export function NeuroAdaptivePage() {
       calmMedia: plan.calmMedia,
       stabilizeViewport: plan.stabilizeViewport,
       emphasizeStructure: plan.emphasizeStructure,
+      photophobiaMode: plan.photophobiaMode,
+      readingSpotlight: plan.readingSpotlight,
+      pauseMedia: plan.pauseMedia,
       updatedAt: new Date().toISOString(),
     });
     adaptationsRef.current.push(...plan.changes);

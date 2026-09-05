@@ -19,7 +19,6 @@
     if (data.type === "SOMATOSYNC_SHIELD_PROFILE" && data.payload?.kind === "somatosync-shield-profile") {
       chrome.storage.local.set({
         somatosyncShieldProfile: data.payload,
-        somatosyncShieldEnabled: true,
         somatosyncShieldLastSync: new Date().toISOString()
       }, () => announce("SOMATOSYNC_SHIELD_SAVED"));
     }

@@ -26,6 +26,7 @@ export function profileSettings(profile: AdaptiveProfile) {
       textScale: 1.12, lineSpacing: 1.32, reduceMotion: true, softContrast: true,
       textToSpeechPreferred: true, reduceDensity: true, focusReadingLayout: true,
       calmMedia: true, stabilizeViewport: true, emphasizeStructure: true,
+      photophobiaMode: false, readingSpotlight: true, pauseMedia: true,
     };
   }
   if (profile === "reduced-stimulation") {
@@ -33,12 +34,14 @@ export function profileSettings(profile: AdaptiveProfile) {
       textScale: 1.08, lineSpacing: 1.22, reduceMotion: true, softContrast: true,
       textToSpeechPreferred: false, reduceDensity: true, focusReadingLayout: true,
       calmMedia: true, stabilizeViewport: false, emphasizeStructure: true,
+      photophobiaMode: false, readingSpotlight: false, pauseMedia: false,
     };
   }
   return {
     textScale: 1, lineSpacing: 1, reduceMotion: false, softContrast: false,
     textToSpeechPreferred: false, reduceDensity: false, focusReadingLayout: false,
     calmMedia: false, stabilizeViewport: false, emphasizeStructure: false,
+    photophobiaMode: false, readingSpotlight: false, pauseMedia: false,
   };
 }
 
@@ -174,33 +177,41 @@ export function planAdaptiveIntervention(
   const headache = checkIn.headache ?? 0;
   const visualProblems = checkIn.visualProblems ?? 0;
 
-  // Different signals create different support modes. The camera is never treated
-  // as diagnostic evidence; it only refines reversible presentation changes.
+  // Presentation support is symptom-informed but never diagnostic. Different patterns
+  // deliberately create visibly different support modes instead of one generic zoom.
   const combinedVisualStrain = closeViewing && squintOrTension;
-  const needsTextSupport = closeViewing || squintOrTension || visualProblems >= 4;
-  const needsVisualCalming = lightSensitivity >= 3 || (blinkChange && (squintOrTension || headache >= 3 || visualProblems >= 2));
+  const severePhotophobia = lightSensitivity >= 4 || (lightSensitivity >= 3 && blinkChange && squintOrTension);
+  const severeVisualDifficulty = visualProblems >= 4 || combinedVisualStrain;
+  const needsTextSupport = closeViewing || squintOrTension || visualProblems >= 3 || headache >= 4;
+  const needsVisualCalming = lightSensitivity >= 2 || (blinkChange && (squintOrTension || headache >= 3 || visualProblems >= 2));
   const needsMotionReduction = motionDiscomfort >= 3 || visualInstability;
   const needsViewportStability = motionDiscomfort >= 3 || headMovement || (gazeChange && blinkChange);
   const needsCognitiveSimplification = mentalFatigue >= 3 || rereading || longPauses;
   const needsFocusedReadingLayout = needsTextSupport || visualProblems >= 3 || headache >= 4 || needsCognitiveSimplification;
   const needsStructure = combinedVisualStrain || needsCognitiveSimplification || visualProblems >= 3;
   const needsCalmMedia = needsVisualCalming || visualInstability;
+  const needsReadingSpotlight = mentalFatigue >= 4 || rereading || (combinedVisualStrain && (visualProblems >= 3 || mentalFatigue >= 3));
+  const needsPausedMedia = motionDiscomfort >= 4 || headMovement || (severePhotophobia && needsCalmMedia);
   const needsAudio = mentalFatigue >= 4 && (rereading || longPauses || visualInstability);
 
   const changes: string[] = [];
-  if (needsVisualCalming) changes.push("Low-glare palette");
+  if (severePhotophobia) changes.push("Photophobia dark mode");
+  else if (needsVisualCalming) changes.push("Low-glare palette");
   if (needsCalmMedia) changes.push("Calmer media");
-  if (needsTextSupport) changes.push(combinedVisualStrain ? "Reading text enlarged" : "Readable text sizing");
+  if (needsPausedMedia) changes.push("Moving media paused");
+  if (needsTextSupport) changes.push(severeVisualDifficulty ? "Heavy reading typography" : "Readable text sizing");
   if (needsTextSupport || rereading || headache >= 4) changes.push("More reading spacing");
   if (needsFocusedReadingLayout) changes.push(combinedVisualStrain ? "Reading lane" : "Focused reading width");
-  if (needsCognitiveSimplification) changes.push("Secondary content reduced");
+  if (needsReadingSpotlight) changes.push("Reading spotlight");
+  if (needsCognitiveSimplification) changes.push("Secondary content de-emphasized");
   if (needsStructure) changes.push("Stronger visual hierarchy");
-  if (needsMotionReduction) changes.push("Motion reduced");
+  if (needsMotionReduction) changes.push("Motion frozen");
   if (needsViewportStability) changes.push("Stable viewport");
   if (needsAudio) changes.push("Read-aloud support");
 
   const reasons: string[] = [];
-  if (lightSensitivity >= 3) reasons.push("Current symptoms include light sensitivity");
+  if (lightSensitivity >= 4) reasons.push("Current symptoms include severe light sensitivity");
+  else if (lightSensitivity >= 2) reasons.push("Current symptoms include light sensitivity");
   if (visualProblems >= 3) reasons.push("Current symptoms include visual difficulty");
   if (headache >= 4) reasons.push("Current symptoms include a higher headache rating");
   if (motionDiscomfort >= 3) reasons.push("Current symptoms include dizziness, balance, nausea, or visual-motion discomfort");
@@ -208,11 +219,13 @@ export function planAdaptiveIntervention(
   for (const reason of estimate?.reasons.slice(0, 3) ?? []) reasons.push(reason.label);
 
   const profile: AdaptiveProfile = needsAudio ? "audio-first" : changes.length ? "reduced-stimulation" : "standard";
+  const textScale = severeVisualDifficulty ? 1.42 : needsTextSupport ? 1.24 : headache >= 4 ? 1.12 : 1;
+  const lineSpacing = severeVisualDifficulty ? 1.48 : needsTextSupport || rereading || headache >= 4 ? 1.3 : 1;
+
   return {
     profile,
-    // Typography changes are intentionally reading-surface changes, not browser zoom.
-    textScale: needsTextSupport ? (combinedVisualStrain ? 1.18 : 1.1) : (headache >= 4 ? 1.06 : 1),
-    lineSpacing: needsTextSupport || rereading || headache >= 4 ? (combinedVisualStrain ? 1.28 : 1.18) : 1,
+    textScale,
+    lineSpacing,
     reduceMotion: needsMotionReduction,
     softContrast: needsVisualCalming,
     textToSpeechPreferred: needsAudio,
@@ -221,8 +234,11 @@ export function planAdaptiveIntervention(
     calmMedia: needsCalmMedia,
     stabilizeViewport: needsViewportStability,
     emphasizeStructure: needsStructure,
+    photophobiaMode: severePhotophobia,
+    readingSpotlight: needsReadingSpotlight,
+    pauseMedia: needsPausedMedia,
     changes: [...new Set(changes)],
-    reasons: [...new Set(reasons)].slice(0, 6),
+    reasons: [...new Set(reasons)].slice(0, 7),
     recommendBreak: longPauses || mentalFatigue >= 4 || (estimate?.reasons.length ?? 0) >= 4,
   };
 }

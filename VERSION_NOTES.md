@@ -1,17 +1,16 @@
-# Version Notes — Version 2: Focus Hybrid Refinement
+# Version Notes — Shield Safety and Consent Validation
 
-Building on Version 1, this version makes Focus Mode more tightly connect confirmed symptom context, task response, live interaction signals, and user-controlled personalization.
+This snapshot builds on the Focus hybrid refinement with additional validation and guardrails for Focus Mode and SomatoSync Shield, especially when accommodations are applied to external webpages.
 
-## Changes from Version 1
+## Changes from the previous snapshot
 
-- Added a unified symptom context so Focus can use the latest confirmed symptom record regardless of whether it came from manual or voice check-in.
-- Allowed recent post-task symptom ratings to refresh only the specific symptoms measured by those tasks; task performance scores do not directly drive interface changes.
-- Site-wide Focus now begins with a symptom-matched starting setup before optional camera inference begins.
-- Sustained MediaPipe signals refine the starting setup instead of replacing it.
-- Strengthened distinct adaptation paths for light sensitivity, close viewing/squinting, motion-related difficulty, and cognitive fatigue.
-- Refined the Focus interface so symptom-seeded changes, live refinements, and user controls are easier to distinguish.
-- Applied a broad copy/readability pass across the application while preserving technical detail through progressive disclosure.
+- Strengthened origin-scoped consent so a new external site is not transformed without an explicit user action unless that origin has a current “Always use on this site” permission.
+- Prevented newly synced profiles from silently replacing a one-time-approved page setup.
+- Preserved general navigation and sidebars while limiting cleanup to clearly secondary or promotional content.
+- Confined Reading Spotlight to the reading surface so navigation remains accessible outside the focused region.
+- Kept symptom-specific adaptation behavior separate: visual sensitivity can calm media and contrast, close viewing can change typography and reading width, and motion-related difficulty can reduce movement without forcing unrelated text changes.
+- Added static validation for TypeScript/TSX syntax and Shield extension JavaScript, along with checks against whole-page zoom and overly broad content hiding.
 
 ## Safety and control
 
-Adaptations remain reversible and user-controlled. Camera-derived interaction signals are treated as nonspecific accessibility cues, not diagnostic biomarkers.
+Focus and Shield remain accessibility supports rather than diagnostic systems. External-site adaptation is consent-based, visible, and reversible.

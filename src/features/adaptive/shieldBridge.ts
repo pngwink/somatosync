@@ -17,6 +17,9 @@ export interface SomatoSyncShieldProfile {
   calmMedia: boolean;
   stabilizeViewport: boolean;
   emphasizeStructure: boolean;
+  photophobiaMode: boolean;
+  readingSpotlight: boolean;
+  pauseMedia: boolean;
   symptomContext: AdaptiveCheckIn | null;
   learnedSupports: string[];
   recommendedChanges: string[];
@@ -30,6 +33,9 @@ export interface SomatoSyncShieldProfile {
     calmMedia: boolean;
     stabilizeViewport: boolean;
     emphasizeStructure: boolean;
+    photophobiaMode: boolean;
+    readingSpotlight: boolean;
+    pauseMedia: boolean;
   } | null;
 }
 
@@ -50,6 +56,9 @@ export function createShieldProfile(settings: NeuroAdaptiveSettings): SomatoSync
     calmMedia: settings.calmMedia,
     stabilizeViewport: settings.stabilizeViewport,
     emphasizeStructure: settings.emphasizeStructure,
+    photophobiaMode: settings.photophobiaMode,
+    readingSpotlight: settings.readingSpotlight,
+    pauseMedia: settings.pauseMedia,
     symptomContext: getCurrentAdaptiveCheckIn(),
     learnedSupports: preflight?.learnedFrom ?? buildSupportPatterns()
       .filter((pattern) => pattern.helpfulCount > 0)
@@ -66,6 +75,9 @@ export function createShieldProfile(settings: NeuroAdaptiveSettings): SomatoSync
       calmMedia: preflight.settings.calmMedia,
       stabilizeViewport: preflight.settings.stabilizeViewport,
       emphasizeStructure: preflight.settings.emphasizeStructure,
+      photophobiaMode: preflight.settings.photophobiaMode,
+      readingSpotlight: preflight.settings.readingSpotlight,
+      pauseMedia: preflight.settings.pauseMedia,
     } : null,
   };
 }

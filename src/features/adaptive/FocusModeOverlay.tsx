@@ -10,7 +10,7 @@ export function FocusModeOverlay() {
   const {
     status, calibrationProgress, trackingQualityPercent, estimate, promptVisible, breakSeconds,
     latestFeedback, applyPromptAdaptation, beginPromptBreak, continueWithoutChange, resumeFromBreak,
-    submitPromptFeedback, stopMonitoring, adaptationActive, adaptationReasons, adaptationChanges, adaptationRecommendBreak, adaptationSource, revertLastAdaptation, settings,
+    submitPromptFeedback, stopMonitoring, adaptationActive, adaptationReasons, adaptationChanges, adaptationRecommendBreak, adaptationSource, revertLastAdaptation, settings, setSettings,
   } = useNeuroAdaptive();
 
 
@@ -110,13 +110,17 @@ export function FocusModeOverlay() {
               <p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
                 {adaptationSource === "symptoms"
                   ? "SomatoSync used the latest confirmed symptom record to choose a starting accessibility setup. Live signals can refine it further."
-                  : settings.stabilizeViewport
-                    ? "Head or gaze instability triggered a steadier viewport with motion and sticky movement reduced."
-                    : settings.softContrast && settings.calmMedia
-                      ? "Visual-strain signals triggered a distinct low-glare palette and substantially calmer media."
-                      : settings.reduceDensity && settings.focusReadingLayout
-                        ? "Cognitive-load signals reduced secondary content and isolated a clearer reading lane."
-                        : "Reading typography, spacing, and hierarchy were adjusted without zooming the entire application."}
+                  : settings.photophobiaMode
+                    ? "Severe light-sensitivity support switched the app to a black-and-amber anti-glare view, suppressed bright media, and preserved navigation."
+                    : settings.readingSpotlight
+                      ? "Sustained visual or cognitive strain isolated the current reading block while strengthening typography, spacing, and hierarchy."
+                      : settings.stabilizeViewport
+                        ? "Head or gaze instability froze motion and steadied the viewport without removing the app's navigation."
+                        : settings.softContrast && settings.calmMedia
+                          ? "Visual-strain signals triggered a distinct low-glare palette and substantially calmer media."
+                          : settings.reduceDensity && settings.focusReadingLayout
+                            ? "Cognitive-load signals de-emphasized secondary content and isolated a clearer reading lane without hiding information."
+                            : "Reading typography, spacing, and hierarchy were adjusted without zooming the entire application."}
               </p>
             </div>
           </div>
@@ -137,6 +141,7 @@ export function FocusModeOverlay() {
           {adaptationRecommendBreak && <p className="mt-3 text-[16px] font-medium text-[var(--color-caution)]">A short screen break may also help this pattern.</p>}
           <div className="mt-4 flex flex-wrap gap-2">
             <Button size="sm" onClick={undoAdaptation}>Undo changes</Button>
+            {settings.readingSpotlight && <Button size="sm" variant="secondary" onClick={() => setSettings({ ...settings, readingSpotlight: false, updatedAt: new Date().toISOString() })}><Eye />Show full page</Button>}
             {(settings.reduceDensity || settings.focusReadingLayout) && <Button size="sm" variant="secondary" onClick={condensePage}><FileText />Condense page</Button>}
             {settings.textToSpeechPreferred && <Button size="sm" variant="secondary" onClick={readPageAloud}><Volume2 />Read page aloud</Button>}
             {status === "active" && <Button size="sm" variant="secondary" onClick={beginPromptBreak}><Pause />Take a break</Button>}

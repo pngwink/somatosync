@@ -1,14 +1,18 @@
 (() => {
   if (document.querySelector('meta[name="somatosync-app"][content="recovery-layer-v1"]')) return;
 
-  const STYLE_ID = "somatosync-shield-style";
+  const STYLE_ID = "somatosync-shield-style-v3";
   const BANNER_ID = "somatosync-shield-preflight";
   const DOCK_ID = "somatosync-shield-dock";
+  const SPOTLIGHT_ID = "somatosync-shield-reading-spotlight";
   const READING_SURFACE_ATTR = "data-somatosync-shield-reading-surface";
   const GUIDE_ATTR = "data-somatosync-shield-guide-current";
   const STATIC_ATTR = "data-somatosync-shield-static";
   const PAUSED_ATTR = "data-somatosync-shield-paused";
-  const HOST = location.hostname;
+  const WAS_PLAYING_ATTR = "data-somatosync-shield-was-playing";
+  const CONSENT_VERSION = 2;
+  const SITE_KEY = location.origin;
+  const SITE_LABEL = location.hostname || location.origin;
 
   let currentProfile = null;
   let pageApplied = false;
@@ -38,21 +42,29 @@
     if (!profile) return null;
     const source = recommended && profile.recommended ? profile.recommended : profile;
     const symptoms = symptomsFrom(profile);
-    const visualCalming = Boolean(source.softContrast) || symptoms.lightSensitivity >= 3;
+    const severePhotophobia = Boolean(source.photophobiaMode) || symptoms.lightSensitivity >= 4;
+    const visualCalming = severePhotophobia || Boolean(source.softContrast) || symptoms.lightSensitivity >= 2;
+    const severeVisualDifficulty = symptoms.visualProblems >= 4 || safeNumber(source.textScale, 1, 1, 1.5) >= 1.35;
     const cognitiveSupport = Boolean(source.reduceDensity) || symptoms.mentalFatigue >= 3;
-    const motionSupport = Boolean(source.reduceMotion) || symptoms.visualMotionDiscomfort >= 3;
+    const motionSupport = Boolean(source.reduceMotion) || Boolean(source.stabilizeViewport) || symptoms.visualMotionDiscomfort >= 3;
+    const readingSpotlight = Boolean(source.readingSpotlight) || symptoms.mentalFatigue >= 4;
+    const pauseMedia = Boolean(source.pauseMedia) || symptoms.visualMotionDiscomfort >= 4 || severePhotophobia;
+    const symptomTextFloor = symptoms.visualProblems >= 4 ? 1.42 : symptoms.visualProblems >= 3 || symptoms.headache >= 4 ? 1.24 : 1;
 
     return {
-      textScale: safeNumber(source.textScale, 1, 1, 1.35),
-      lineSpacing: safeNumber(source.lineSpacing, 1, 1, 1.4),
-      focusReadingLayout: Boolean(source.focusReadingLayout) || cognitiveSupport,
-      reduceMotion: motionSupport || Boolean(source.stabilizeViewport),
-      simplifyChrome: cognitiveSupport || Boolean(source.emphasizeStructure),
-      warmPalette: visualCalming,
-      strongerCalming: symptoms.lightSensitivity >= 4,
+      textScale: Math.max(symptomTextFloor, safeNumber(source.textScale, 1, 1, 1.5)),
+      lineSpacing: Math.max(severeVisualDifficulty ? 1.42 : 1, safeNumber(source.lineSpacing, 1, 1, 1.55)),
+      focusReadingLayout: Boolean(source.focusReadingLayout) || cognitiveSupport || symptoms.visualProblems >= 3,
+      reduceMotion: motionSupport,
+      simplifyChrome: cognitiveSupport,
+      warmPalette: visualCalming && !severePhotophobia,
+      photophobiaMode: severePhotophobia,
+      strongerCalming: symptoms.lightSensitivity >= 3,
       calmMedia: visualCalming || Boolean(source.calmMedia),
-      readingGuide: cognitiveSupport || Boolean(source.emphasizeStructure),
-      legibleTypeface: safeNumber(source.textScale, 1, 1, 1.35) > 1.02 || Boolean(source.focusReadingLayout),
+      readingGuide: readingSpotlight || cognitiveSupport || Boolean(source.emphasizeStructure),
+      readingSpotlight,
+      pauseMedia,
+      legibleTypeface: severeVisualDifficulty || safeNumber(source.textScale, 1, 1, 1.5) > 1.05 || Boolean(source.focusReadingLayout),
       symptoms,
     };
   }
@@ -60,53 +72,85 @@
   function visibleChanges(settings) {
     if (!settings) return [];
     const changes = [];
-    if (settings.textScale > 1.02) changes.push("larger text");
-    if (settings.lineSpacing > 1.03) changes.push("more spacing");
-    if (settings.focusReadingLayout) changes.push("focused reading width");
-    if (settings.warmPalette) changes.push("calmer colors");
-    if (settings.calmMedia) changes.push("softer images");
-    if (settings.reduceMotion) changes.push("reduced motion");
-    if (settings.simplifyChrome) changes.push("less page clutter");
-    if (settings.readingGuide) changes.push("reading guide");
+    if (settings.photophobiaMode) changes.push("black + amber anti-glare");
+    else if (settings.warmPalette) changes.push("low-glare colors");
+    if (settings.textScale >= 1.2) changes.push("heavy typography");
+    else if (settings.textScale > 1.02) changes.push("larger text");
+    if (settings.lineSpacing > 1.06) changes.push("more spacing");
+    if (settings.focusReadingLayout) changes.push("focused article width");
+    if (settings.calmMedia) changes.push("dimmed media");
+    if (settings.pauseMedia) changes.push("paused moving media");
+    if (settings.reduceMotion) changes.push("motion frozen");
+    if (settings.simplifyChrome) changes.push("distractions reduced");
+    if (settings.readingSpotlight) changes.push("reading spotlight");
+    else if (settings.readingGuide) changes.push("reading guide");
     return changes;
   }
 
   function reasonText(settings) {
     if (!settings) return "Based on your SomatoSync reading setup.";
     const reasons = [];
-    if (settings.symptoms.lightSensitivity >= 3) reasons.push("light sensitivity");
+    if (settings.symptoms.lightSensitivity >= 4) reasons.push("severe light sensitivity");
+    else if (settings.symptoms.lightSensitivity >= 2) reasons.push("light sensitivity");
+    if (settings.symptoms.visualProblems >= 3) reasons.push("visual difficulty");
     if (settings.symptoms.visualMotionDiscomfort >= 3) reasons.push("visual or motion discomfort");
     if (settings.symptoms.mentalFatigue >= 3) reasons.push("mental fatigue");
     if (!reasons.length) return "Based on supports that helped in recent SomatoSync sessions.";
     return `Matched to ${reasons.join(", ")}.`;
   }
 
-  function removeBanner() {
-    document.getElementById(BANNER_ID)?.remove();
-  }
-
-  function removeDock() {
-    document.getElementById(DOCK_ID)?.remove();
-  }
+  function removeBanner() { document.getElementById(BANNER_ID)?.remove(); }
+  function removeDock() { document.getElementById(DOCK_ID)?.remove(); }
+  function removeSpotlight() { document.getElementById(SPOTLIGHT_ID)?.remove(); }
 
   function readingSurface() {
-    const selectors = ["article", "main article", "#mw-content-text", "main", "[role='main']", "#content"];
-    for (const selector of selectors) {
+    const strong = ["article", "main article", "#mw-content-text", "[role='article']"];
+    for (const selector of strong) {
       const candidate = document.querySelector(selector);
-      if (candidate && (candidate.innerText?.replace(/\s+/g, " ").trim().length || 0) >= 500) return candidate;
+      if (candidate && (candidate.innerText?.replace(/\s+/g, " ").trim().length || 0) >= 350) return candidate;
+    }
+    const broad = ["main", "[role='main']", "#content"];
+    for (const selector of broad) {
+      const candidate = document.querySelector(selector);
+      if (candidate && (candidate.innerText?.replace(/\s+/g, " ").trim().length || 0) >= 700) return candidate;
     }
     return document.body;
   }
 
   function clearReadingGuide() {
     if (guideListening) {
-      window.removeEventListener("scroll", scheduleGuideUpdate);
+      window.removeEventListener("scroll", scheduleGuideUpdate, true);
       window.removeEventListener("resize", scheduleGuideUpdate);
       guideListening = false;
     }
     if (guideRaf) cancelAnimationFrame(guideRaf);
     guideRaf = 0;
+    removeSpotlight();
     document.querySelectorAll(`[${GUIDE_ATTR}]`).forEach((element) => element.removeAttribute(GUIDE_ATTR));
+  }
+
+  function ensureSpotlight() {
+    if (!activeSettings?.readingSpotlight) {
+      removeSpotlight();
+      return null;
+    }
+    let overlay = document.getElementById(SPOTLIGHT_ID);
+    if (overlay) return overlay;
+    overlay = document.createElement("div");
+    overlay.id = SPOTLIGHT_ID;
+    overlay.setAttribute("aria-hidden", "true");
+    Object.assign(overlay.style, { position: "fixed", inset: "0", pointerEvents: "none", zIndex: "2147482000" });
+    for (const name of ["top", "bottom", "left", "right"]) {
+      const pane = document.createElement("div");
+      pane.dataset.pane = name;
+      Object.assign(pane.style, {
+        position: "fixed", pointerEvents: "none",
+        background: activeSettings.photophobiaMode ? "rgba(0,0,0,.88)" : "rgba(8,12,14,.68)",
+      });
+      overlay.appendChild(pane);
+    }
+    document.body.appendChild(overlay);
+    return overlay;
   }
 
   function updateReadingGuide() {
@@ -114,7 +158,7 @@
     const surface = document.querySelector(`[${READING_SURFACE_ATTR}]`);
     if (!surface || !activeSettings?.readingGuide) return;
     const center = window.innerHeight * 0.48;
-    const blocks = [...surface.querySelectorAll("p, li, blockquote")]
+    const blocks = [...surface.querySelectorAll("p, li, blockquote, dd")]
       .filter((element) => (element.textContent || "").trim().length >= 45)
       .filter((element) => {
         const rect = element.getBoundingClientRect();
@@ -125,115 +169,169 @@
     for (const block of blocks) {
       const rect = block.getBoundingClientRect();
       const distance = Math.abs((rect.top + rect.bottom) / 2 - center);
-      if (distance < bestDistance) {
-        bestDistance = distance;
-        best = block;
-      }
+      if (distance < bestDistance) { bestDistance = distance; best = block; }
     }
     document.querySelectorAll(`[${GUIDE_ATTR}]`).forEach((element) => {
       if (element !== best) element.removeAttribute(GUIDE_ATTR);
     });
     best?.setAttribute(GUIDE_ATTR, "true");
+
+    const overlay = ensureSpotlight();
+    if (!overlay || !best) return;
+    const panes = ["top", "bottom", "left", "right"].map((name) => overlay.querySelector(`[data-pane="${name}"]`));
+    if (panes.some((pane) => !pane)) return;
+    const rect = best.getBoundingClientRect();
+    const surfaceRect = surface.getBoundingClientRect();
+    const padX = 14;
+    const padY = 10;
+    const surfaceLeft = Math.max(0, surfaceRect.left);
+    const surfaceRight = Math.min(window.innerWidth, surfaceRect.right);
+    const surfaceTop = Math.max(0, surfaceRect.top);
+    const surfaceBottom = Math.min(window.innerHeight, surfaceRect.bottom);
+    const left = Math.max(surfaceLeft, rect.left - padX);
+    const right = Math.min(surfaceRight, rect.right + padX);
+    const top = Math.max(surfaceTop, rect.top - padY);
+    const bottom = Math.min(surfaceBottom, rect.bottom + padY);
+    Object.assign(panes[0].style, { left: `${surfaceLeft}px`, top: `${surfaceTop}px`, width: `${Math.max(0, surfaceRight - surfaceLeft)}px`, height: `${Math.max(0, top - surfaceTop)}px` });
+    Object.assign(panes[1].style, { left: `${surfaceLeft}px`, top: `${bottom}px`, width: `${Math.max(0, surfaceRight - surfaceLeft)}px`, height: `${Math.max(0, surfaceBottom - bottom)}px` });
+    Object.assign(panes[2].style, { left: `${surfaceLeft}px`, top: `${top}px`, width: `${Math.max(0, left - surfaceLeft)}px`, height: `${Math.max(0, bottom - top)}px` });
+    Object.assign(panes[3].style, { left: `${right}px`, top: `${top}px`, width: `${Math.max(0, surfaceRight - right)}px`, height: `${Math.max(0, bottom - top)}px` });
   }
 
-  function scheduleGuideUpdate() {
-    if (!guideRaf) guideRaf = requestAnimationFrame(updateReadingGuide);
-  }
+  function scheduleGuideUpdate() { if (!guideRaf) guideRaf = requestAnimationFrame(updateReadingGuide); }
 
   function startReadingGuide() {
     clearReadingGuide();
     if (!activeSettings?.readingGuide) return;
     guideListening = true;
-    window.addEventListener("scroll", scheduleGuideUpdate, { passive: true });
-    window.addEventListener("resize", scheduleGuideUpdate, { passive: true });
+    window.addEventListener("scroll", scheduleGuideUpdate, true);
+    window.addEventListener("resize", scheduleGuideUpdate);
     scheduleGuideUpdate();
+  }
+
+  function isCriticalChrome(element) {
+    return Boolean(element.closest("header,nav,[role='navigation'],[role='banner'],[role='search'],aside,[role='complementary']") || element.matches("header,nav,[role='navigation'],[role='banner'],[role='search'],aside,[role='complementary']"));
   }
 
   function markMovingChrome(settings) {
     document.querySelectorAll(`[${STATIC_ATTR}]`).forEach((element) => element.removeAttribute(STATIC_ATTR));
     if (!settings.reduceMotion) return;
     const surface = document.querySelector(`[${READING_SURFACE_ATTR}]`);
-    const elements = [...document.body.querySelectorAll("body *")].slice(0, 1200);
+    const elements = [...document.body.querySelectorAll("body *")].slice(0, 1500);
     for (const element of elements) {
-      if (element.id === DOCK_ID || element.id === BANNER_ID || element.closest(`#${DOCK_ID}, #${BANNER_ID}`)) continue;
+      if (element.id === DOCK_ID || element.id === BANNER_ID || element.id === SPOTLIGHT_ID || element.closest(`#${DOCK_ID},#${BANNER_ID},#${SPOTLIGHT_ID}`)) continue;
+      if (isCriticalChrome(element)) continue;
       const position = getComputedStyle(element).position;
-      if ((position === "fixed" || position === "sticky") && (!surface || !surface.contains(element))) {
+      const interactive = element.matches("button,a,input,select,textarea") || Boolean(element.querySelector("button,a,input,select,textarea"));
+      if ((position === "fixed" || position === "sticky") && !interactive && (!surface || !surface.contains(element))) {
         element.setAttribute(STATIC_ATTR, "true");
       }
     }
-    document.querySelectorAll("video[autoplay]").forEach((video) => {
+  }
+
+  function applyMediaPolicy(settings) {
+    document.querySelectorAll(`[${PAUSED_ATTR}]`).forEach((element) => {
+      if (!(element instanceof HTMLVideoElement)) return;
+      if (element.getAttribute(WAS_PLAYING_ATTR) === "true") {
+        try { element.play?.().catch?.(() => undefined); } catch { /* leave paused if blocked */ }
+      }
+      element.removeAttribute(PAUSED_ATTR);
+      element.removeAttribute(WAS_PLAYING_ATTR);
+    });
+    if (!settings.pauseMedia) return;
+    document.querySelectorAll("video").forEach((video) => {
       try {
-        if (!video.paused) {
-          video.setAttribute(PAUSED_ATTR, "true");
-          video.pause();
-        }
-      } catch { /* ignore media that cannot be paused */ }
+        if (!video.paused) video.setAttribute(WAS_PLAYING_ATTR, "true");
+        video.setAttribute(PAUSED_ATTR, "true");
+        video.pause();
+      } catch { /* inaccessible media stays unchanged */ }
     });
   }
 
   function pageStyle(settings) {
-    const lineHeight = Math.max(1.55, 1.5 * settings.lineSpacing).toFixed(2);
-    const warmBackground = settings.strongerCalming ? "#ded1bf" : "#ebe0d2";
-    const warmSurface = settings.strongerCalming ? "#eee4d7" : "#f6eee5";
-    const mediaBrightness = settings.strongerCalming ? "0.78" : "0.87";
+    const lineHeight = Math.max(1.6, 1.42 * settings.lineSpacing).toFixed(2);
     const textScalePercent = Math.round(settings.textScale * 100);
     const rules = [
-      `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] p, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] li, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] blockquote, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] dd, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] td, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] th { font-size:${textScalePercent}% !important; line-height:${lineHeight} !important; letter-spacing:0.006em !important; }`,
-      `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] p { margin-block:0 1.05em !important; }`,
-      `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h1, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h2, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h3 { line-height:1.28 !important; margin-top:1.55em !important; margin-bottom:.6em !important; }`,
+      `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] { background-image:none !important; }`,
+      `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] p,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] li,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] blockquote,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] dd { font-size:${textScalePercent}% !important; line-height:${lineHeight} !important; letter-spacing:.012em !important; word-spacing:.035em !important; }`,
+      `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] p { margin-block:0 1.18em !important; }`,
+      `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h1,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h2,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h3 { line-height:1.16 !important; margin-top:1.65em !important; margin-bottom:.65em !important; letter-spacing:-.012em !important; }`,
     ];
 
     if (settings.legibleTypeface) {
-      rules.push(`html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}], html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] * { font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif !important; }`);
+      rules.push(`html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}],html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] * { font-family:Arial,Verdana,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif !important; }`);
     }
 
     if (settings.focusReadingLayout) {
       rules.push(
-        `html[data-somatosync-shield="on"] body { background:#edf0ee !important; }`,
-        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] { box-sizing:border-box !important; width:min(760px,calc(100vw - 32px)) !important; max-width:760px !important; margin-left:auto !important; margin-right:auto !important; padding:clamp(22px,4vw,42px) !important; border:1px solid rgba(87,101,96,.22) !important; border-radius:22px !important; background:#fbfcfb !important; box-shadow:0 16px 50px rgba(30,43,39,.12),0 0 0 100vmax rgba(50,65,60,.055) !important; }`
+        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] { box-sizing:border-box !important; width:min(100%,780px) !important; max-width:780px !important; margin-left:auto !important; margin-right:auto !important; padding:clamp(24px,4vw,48px) !important; border:2px solid rgba(98,105,101,.24) !important; border-radius:20px !important; box-shadow:0 18px 58px rgba(20,29,26,.16) !important; }`
       );
     }
 
-    if (settings.warmPalette) {
+    if (settings.photophobiaMode) {
       rules.push(
-        `html[data-somatosync-shield="on"] body { background:${warmBackground} !important; color:#302d29 !important; }`,
-        `html[data-somatosync-shield="on"]::before { content:"" !important; position:fixed !important; inset:0 !important; pointer-events:none !important; z-index:2147483000 !important; background:${settings.strongerCalming ? "rgba(198,170,118,.12)" : "rgba(211,184,135,.07)"} !important; }`,
-        `html[data-somatosync-shield="on"] header, html[data-somatosync-shield="on"] nav, html[data-somatosync-shield="on"] aside, html[data-somatosync-shield="on"] footer, html[data-somatosync-shield="on"] [role="banner"], html[data-somatosync-shield="on"] [role="navigation"] { filter:saturate(.72) brightness(.94) contrast(.95) !important; }`,
-        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] { background:${warmSurface} !important; color:#302d29 !important; border-color:#c9b9a5 !important; box-shadow:0 16px 50px rgba(66,49,33,.14),0 0 0 100vmax rgba(105,82,52,.08) !important; }`,
-        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] p, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] li, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] dd, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] blockquote { color:#314047 !important; }`,
-        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h1, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h2, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h3, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h4 { color:#22323a !important; }`,
-        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] a { color:#315f72 !important; text-decoration-thickness:1px !important; text-underline-offset:2px !important; }`,
-        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] pre, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] code, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] blockquote, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] table { background:#eae4da !important; border-color:#d2c9bb !important; }`,
-        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] [class*="card" i], html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] [class*="panel" i], html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] [class*="box" i], html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] [class*="banner" i] { background:#eee8dd !important; border-color:#d4ccbf !important; box-shadow:none !important; }`
+        `html[data-somatosync-shield="on"],html[data-somatosync-shield="on"] body { background:#000 !important; color:#f4d98b !important; background-image:none !important; }`,
+        `html[data-somatosync-shield="on"] body *:not(img):not(video):not(svg):not(canvas) { background-image:none !important; }`,
+        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] { background:#080704 !important; color:#f4d98b !important; border-color:#6d592b !important; box-shadow:0 18px 54px rgba(0,0,0,.42) !important; }`,
+        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] p,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] li,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] dd,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] blockquote { color:#e7ca7d !important; }`,
+        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h1,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h2,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h3,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h4 { color:#ffe39a !important; }`,
+        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] a { color:#f0bd5a !important; text-decoration-thickness:2px !important; text-underline-offset:3px !important; }`,
+        `html[data-somatosync-shield="on"] header,html[data-somatosync-shield="on"] nav,html[data-somatosync-shield="on"] aside,html[data-somatosync-shield="on"] footer,html[data-somatosync-shield="on"] [role="navigation"],html[data-somatosync-shield="on"] [role="complementary"] { background-color:#050503 !important; color:#d7bd78 !important; border-color:#3c321c !important; }`
+      );
+    } else if (settings.warmPalette) {
+      rules.push(
+        `html[data-somatosync-shield="on"] body { background:#cdbd9f !important; color:#212421 !important; background-image:none !important; }`,
+        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] { background:#eee3cb !important; color:#242723 !important; border-color:#a18f72 !important; box-shadow:0 16px 50px rgba(66,49,33,.18) !important; }`,
+        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] p,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] li { color:#303a35 !important; }`
       );
     }
 
     if (settings.calmMedia) {
-      rules.push(`html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] img, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] video, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] svg:not(svg[aria-hidden="true"]) { filter:saturate(.72) brightness(${mediaBrightness}) contrast(.94) !important; opacity:.94 !important; }`);
+      const brightness = settings.photophobiaMode ? ".42" : settings.strongerCalming ? ".58" : ".7";
+      rules.push(`html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] img,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] video,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] svg:not(svg[aria-hidden="true"]) { filter:grayscale(.28) saturate(.28) brightness(${brightness}) contrast(.88) !important; opacity:.72 !important; }`);
+    }
+
+    if (settings.pauseMedia) {
+      rules.push(`html[data-somatosync-shield="on"] video[${PAUSED_ATTR}] { filter:grayscale(.85) brightness(.35) contrast(.82) !important; opacity:.38 !important; }`);
     }
 
     if (settings.reduceMotion) {
       rules.push(
-        `html[data-somatosync-shield="on"] *, html[data-somatosync-shield="on"] *::before, html[data-somatosync-shield="on"] *::after { animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important; }`,
+        `html[data-somatosync-shield="on"] *,html[data-somatosync-shield="on"] *::before,html[data-somatosync-shield="on"] *::after { animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; transition-delay:0ms !important; scroll-behavior:auto !important; }`,
         `html[data-somatosync-shield="on"] [${STATIC_ATTR}] { position:static !important; transform:none !important; }`
       );
     }
 
     if (settings.simplifyChrome) {
-      rules.push(`html[data-somatosync-shield="on"] nav, html[data-somatosync-shield="on"] aside, html[data-somatosync-shield="on"] footer, html[data-somatosync-shield="on"] [role="navigation"], html[data-somatosync-shield="on"] [role="complementary"], html[data-somatosync-shield="on"] [class*="sidebar" i], html[data-somatosync-shield="on"] [id*="sidebar" i], html[data-somatosync-shield="on"] [class*="recommend" i], html[data-somatosync-shield="on"] [aria-label*="related" i], html[data-somatosync-shield="on"] [class*="advert" i], html[data-somatosync-shield="on"] [id*="advert" i], html[data-somatosync-shield="on"] [class*="promo" i], html[data-somatosync-shield="on"] [class*="social" i], html[data-somatosync-shield="on"] [class*="floating" i], html[data-somatosync-shield="on"] [class*="sticky" i] { display:none !important; }`);
-      if (HOST.endsWith("wikipedia.org")) {
-        rules.push(`html[data-somatosync-shield="on"] .vector-header-container, html[data-somatosync-shield="on"] .vector-column-start, html[data-somatosync-shield="on"] .vector-column-end, html[data-somatosync-shield="on"] .vector-page-toolbar, html[data-somatosync-shield="on"] .mw-editsection, html[data-somatosync-shield="on"] .navbox, html[data-somatosync-shield="on"] .catlinks, html[data-somatosync-shield="on"] .mw-footer-container { display:none !important; }`);
-      }
+      // Never hide generic navigation or sidebars. Only clearly non-essential promotional/recommendation chrome is removed.
+      rules.push(
+        `html[data-somatosync-shield="on"] [class*="advert" i],html[data-somatosync-shield="on"] [id*="advert" i],html[data-somatosync-shield="on"] [aria-label*="advert" i],html[data-somatosync-shield="on"] [class*="promo" i],html[data-somatosync-shield="on"] [class*="recommend" i],html[data-somatosync-shield="on"] [aria-label*="related" i],html[data-somatosync-shield="on"] [class*="social-share" i] { display:none !important; }`,
+        `html[data-somatosync-shield="on"] aside,html[data-somatosync-shield="on"] [role="complementary"],html[data-somatosync-shield="on"] [class*="sidebar" i],html[data-somatosync-shield="on"] [id*="sidebar" i] { opacity:.58 !important; filter:saturate(.35) contrast(.9) !important; transition:opacity .1s linear,filter .1s linear !important; }`,
+        `html[data-somatosync-shield="on"] aside:hover,html[data-somatosync-shield="on"] aside:focus-within,html[data-somatosync-shield="on"] [role="complementary"]:hover,html[data-somatosync-shield="on"] [role="complementary"]:focus-within,html[data-somatosync-shield="on"] [class*="sidebar" i]:hover,html[data-somatosync-shield="on"] [class*="sidebar" i]:focus-within { opacity:1 !important; filter:none !important; }`
+      );
     }
 
     if (settings.readingGuide) {
       rules.push(
-        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] p, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] li, html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] blockquote { transition:opacity .12s ease,background-color .12s ease,border-color .12s ease !important; }`,
-        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] [${GUIDE_ATTR}="true"] { opacity:1 !important; background:rgba(139,157,145,.13) !important; border-left:3px solid #728e8a !important; border-radius:7px !important; padding-left:.75em !important; padding-right:.45em !important; }`
+        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] [${GUIDE_ATTR}="true"] { position:relative !important; z-index:2147482100 !important; opacity:1 !important; background:${settings.photophobiaMode ? "#171307" : "rgba(117,145,135,.2)"} !important; border-left:5px solid ${settings.photophobiaMode ? "#e1b952" : "#4c7770"} !important; border-radius:9px !important; padding:.5em .8em !important; box-shadow:0 0 0 1px ${settings.photophobiaMode ? "#4e3d12" : "rgba(76,119,112,.28)"} !important; }`
       );
     }
 
     return rules.join("\n");
+  }
+
+  function normalizeSettingsForSurface(settings, surface) {
+    if (surface !== document.body) return { ...settings };
+    // A non-reading page must never have its whole body scaled/reflowed.
+    return {
+      ...settings,
+      textScale: 1,
+      lineSpacing: 1,
+      focusReadingLayout: false,
+      readingGuide: false,
+      readingSpotlight: false,
+      simplifyChrome: false,
+    };
   }
 
   function applySettingsToPage(settings) {
@@ -241,15 +339,9 @@
     document.querySelectorAll(`[${READING_SURFACE_ATTR}]`).forEach((element) => element.removeAttribute(READING_SURFACE_ATTR));
     document.querySelectorAll(`[${STATIC_ATTR}]`).forEach((element) => element.removeAttribute(STATIC_ATTR));
     clearReadingGuide();
-    if (!settings.reduceMotion) {
-      document.querySelectorAll(`[${PAUSED_ATTR}]`).forEach((element) => {
-        element.removeAttribute(PAUSED_ATTR);
-        try { element.play?.().catch?.(() => undefined); } catch { /* keep media paused if playback is blocked */ }
-      });
-    }
 
-    activeSettings = { ...settings };
     const surface = readingSurface();
+    activeSettings = normalizeSettingsForSurface(settings, surface);
     surface?.setAttribute(READING_SURFACE_ATTR, "true");
 
     const style = document.createElement("style");
@@ -258,6 +350,7 @@
     document.head.appendChild(style);
     document.documentElement.setAttribute("data-somatosync-shield", "on");
     markMovingChrome(activeSettings);
+    applyMediaPolicy(activeSettings);
     startReadingGuide();
     pageApplied = true;
   }
@@ -268,8 +361,13 @@
     document.querySelectorAll(`[${READING_SURFACE_ATTR}]`).forEach((element) => element.removeAttribute(READING_SURFACE_ATTR));
     document.querySelectorAll(`[${STATIC_ATTR}]`).forEach((element) => element.removeAttribute(STATIC_ATTR));
     document.querySelectorAll(`[${PAUSED_ATTR}]`).forEach((element) => {
+      if (!(element instanceof HTMLVideoElement)) return;
+      const shouldResume = element.getAttribute(WAS_PLAYING_ATTR) === "true";
       element.removeAttribute(PAUSED_ATTR);
-      try { element.play?.().catch?.(() => undefined); } catch { /* keep media paused if playback is blocked */ }
+      element.removeAttribute(WAS_PLAYING_ATTR);
+      if (shouldResume) {
+        try { element.play?.().catch?.(() => undefined); } catch { /* leave paused if blocked */ }
+      }
     });
     clearReadingGuide();
     removeDock();
@@ -279,26 +377,27 @@
   }
 
   function readSitePrefs(callback) {
-    chrome.storage.local.get({ somatosyncShieldSitePrefs: {} }, (stored) => {
-      callback(stored.somatosyncShieldSitePrefs || {});
-    });
+    chrome.storage.local.get({ somatosyncShieldSitePrefs: {} }, (stored) => callback(stored.somatosyncShieldSitePrefs || {}));
   }
 
-  function setAlwaysForSite(always) {
+  function writeSitePref(patch) {
     readSitePrefs((prefs) => {
       chrome.storage.local.set({
         somatosyncShieldSitePrefs: {
           ...prefs,
-          [HOST]: { ...(prefs[HOST] || {}), always: Boolean(always), updatedAt: new Date().toISOString() },
+          [SITE_KEY]: { ...(prefs[SITE_KEY] || {}), ...patch, updatedAt: new Date().toISOString() },
         },
       });
     });
   }
 
+  function setAlwaysForSite(always) {
+    writeSitePref({ always: Boolean(always), consentVersion: CONSENT_VERSION });
+  }
+
   function createDock() {
     removeDock();
     if (!pageApplied || !activeSettings) return;
-
     const host = document.createElement("div");
     host.id = DOCK_ID;
     Object.assign(host.style, { position: "fixed", right: "18px", bottom: "18px", zIndex: "2147483647" });
@@ -306,51 +405,51 @@
     const changes = visibleChanges(activeSettings);
     root.innerHTML = `
       <style>
-        *{box-sizing:border-box} .wrap{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#1f2a30}
-        .bar{display:flex;align-items:center;gap:10px;min-width:286px;padding:11px 12px;border:1px solid #cfd9dc;border-radius:16px;background:#fff;box-shadow:0 14px 34px rgba(19,37,46,.18)}
-        .dot{width:9px;height:9px;border-radius:999px;background:#4f887e;box-shadow:0 0 0 4px #e3f0ed}.copy{min-width:0;flex:1}.copy strong{display:block;font-size:15px;line-height:1.25}.copy span{display:block;margin-top:3px;font-size:14px;line-height:1.35;color:#66737c}
-        button{border:1px solid #d5dee1;border-radius:10px;padding:8px 10px;background:#fff;color:#30414a;font:650 14.5px/1 system-ui;cursor:pointer}button:hover{background:#f3f6f7}.restore{color:#7c4f4f}
-        .panel{display:none;margin-top:8px;width:350px;padding:15px;border:1px solid #cfd9dc;border-radius:16px;background:#fff;box-shadow:0 14px 34px rgba(19,37,46,.18)}.panel.open{display:block}.why{font-size:14px;line-height:1.45;color:#5d6b73;margin-bottom:11px}.grid{display:grid;gap:8px}.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 10px;border-radius:10px;background:#f5f7f7}.row span{font-size:14.5px;font-weight:650}.row input{width:19px;height:19px;accent-color:#315f72}.always{margin-top:11px;padding-top:11px;border-top:1px solid #e2e7e9;background:#fff}.always small{display:block;margin-top:3px;color:#748088;font-size:14px;line-height:1.4}
+        *{box-sizing:border-box}.wrap{font-family:Arial,Verdana,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#1f2a30}
+        .bar{display:flex;align-items:center;gap:10px;min-width:315px;padding:12px 13px;border:1px solid #cfd9dc;border-radius:16px;background:#fff;box-shadow:0 14px 34px rgba(19,37,46,.2)}
+        .dot{width:10px;height:10px;border-radius:999px;background:#4f887e;box-shadow:0 0 0 4px #e3f0ed}.copy{min-width:0;flex:1}.copy strong{display:block;font-size:15.5px;line-height:1.25}.copy span{display:block;margin-top:3px;font-size:14.5px;line-height:1.35;color:#66737c}
+        button{border:1px solid #d5dee1;border-radius:10px;padding:9px 11px;background:#fff;color:#30414a;font:650 14.5px/1 system-ui;cursor:pointer}button:hover{background:#f3f6f7}.restore{color:#7c4f4f}
+        .panel{display:none;margin-top:8px;width:370px;padding:15px;border:1px solid #cfd9dc;border-radius:16px;background:#fff;box-shadow:0 14px 34px rgba(19,37,46,.18)}.panel.open{display:block}.why{font-size:14.5px;line-height:1.45;color:#5d6b73;margin-bottom:11px}.grid{display:grid;gap:8px}.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px;border-radius:10px;background:#f5f7f7}.row span{font-size:14.5px;font-weight:650}.row input{width:19px;height:19px;accent-color:#315f72}.always{margin-top:11px;padding-top:11px;border-top:1px solid #e2e7e9;background:#fff}.always small{display:block;margin-top:3px;color:#748088;font-size:14px;line-height:1.4}.note{margin-top:10px;font-size:14px;line-height:1.4;color:#66737c}
       </style>
       <div class="wrap">
-        <div class="bar">
-          <span class="dot"></span>
-          <div class="copy"><strong>SomatoSync Shield active</strong><span>${changes.length} page ${changes.length === 1 ? "change" : "changes"}</span></div>
-          <button id="adjust">Adjust</button><button id="restore" class="restore">Restore</button>
-        </div>
+        <div class="bar"><span class="dot"></span><div class="copy"><strong>SomatoSync Shield active</strong><span>${changes.length} reversible page ${changes.length === 1 ? "change" : "changes"}</span></div><button id="adjust">Adjust</button><button id="restore" class="restore">Restore</button></div>
         <div class="panel" id="panel">
           <div class="why">${reasonText(activeSettings)}</div>
           <div class="grid">
-            <label class="row"><span>Calm colors</span><input data-key="warmPalette" type="checkbox" ${activeSettings.warmPalette ? "checked" : ""}></label>
+            <label class="row"><span>Black + amber anti-glare</span><input data-key="photophobiaMode" type="checkbox" ${activeSettings.photophobiaMode ? "checked" : ""}></label>
             <label class="row"><span>Calm images</span><input data-key="calmMedia" type="checkbox" ${activeSettings.calmMedia ? "checked" : ""}></label>
+            <label class="row"><span>Pause moving media</span><input data-key="pauseMedia" type="checkbox" ${activeSettings.pauseMedia ? "checked" : ""}></label>
             <label class="row"><span>Focus article</span><input data-key="simplifyChrome" type="checkbox" ${activeSettings.simplifyChrome ? "checked" : ""}></label>
-            <label class="row"><span>Reading guide</span><input data-key="readingGuide" type="checkbox" ${activeSettings.readingGuide ? "checked" : ""}></label>
-            <label class="row"><span>Reduce motion</span><input data-key="reduceMotion" type="checkbox" ${activeSettings.reduceMotion ? "checked" : ""}></label>
+            <label class="row"><span>Reading spotlight</span><input data-key="readingSpotlight" type="checkbox" ${activeSettings.readingSpotlight ? "checked" : ""}></label>
+            <label class="row"><span>Freeze motion</span><input data-key="reduceMotion" type="checkbox" ${activeSettings.reduceMotion ? "checked" : ""}></label>
           </div>
-          <label class="row always"><span>Always use on ${HOST}</span><input id="always" type="checkbox"><small></small></label>
+          <label class="row always"><span>Always use on ${SITE_LABEL}</span><input id="always" type="checkbox"><small></small></label>
+          <div class="note">Navigation and sidebars stay available. Only clear ads/promotions/recommendations may be hidden.</div>
         </div>
       </div>`;
 
     const panel = root.getElementById("panel");
     root.getElementById("adjust")?.addEventListener("click", () => panel?.classList.toggle("open"));
-    root.getElementById("restore")?.addEventListener("click", () => {
-      restorePage();
-      removeBanner();
-    });
+    root.getElementById("restore")?.addEventListener("click", () => { restorePage(); removeBanner(); });
     root.querySelectorAll("input[data-key]").forEach((input) => {
       input.addEventListener("change", (event) => {
         const target = event.currentTarget;
         if (!(target instanceof HTMLInputElement) || !activeSettings) return;
-        activeSettings = { ...activeSettings, [target.dataset.key]: target.checked };
+        const key = target.dataset.key;
+        activeSettings = { ...activeSettings, [key]: target.checked };
+        if (key === "readingSpotlight") activeSettings.readingGuide = target.checked || activeSettings.readingGuide;
+        if (key === "photophobiaMode" && target.checked) activeSettings.warmPalette = false;
         applySettingsToPage(activeSettings);
         createDock();
-        const nextPanel = document.getElementById(DOCK_ID)?.shadowRoot?.getElementById("panel");
-        nextPanel?.classList.add("open");
+        document.getElementById(DOCK_ID)?.shadowRoot?.getElementById("panel")?.classList.add("open");
       });
     });
     const always = root.getElementById("always");
     if (always instanceof HTMLInputElement) {
-      readSitePrefs((prefs) => { always.checked = Boolean(prefs[HOST]?.always); });
+      readSitePrefs((prefs) => {
+        const pref = prefs[SITE_KEY] || {};
+        always.checked = Boolean(pref.always && pref.consentVersion === CONSENT_VERSION);
+      });
       always.addEventListener("change", () => setAlwaysForSite(always.checked));
     }
     document.body.appendChild(host);
@@ -368,39 +467,32 @@
 
   function readingHeavyPage() {
     const surface = readingSurface();
+    if (surface === document.body) return false;
     const text = surface?.innerText?.replace(/\s+/g, " ").trim() || "";
-    return text.length >= 1400;
+    return text.length >= 1200;
   }
 
   function showPreflight(profile) {
-    if (!profile?.recommended || document.getElementById(BANNER_ID) || !readingHeavyPage()) return;
-    const preview = settingsFrom(profile, true);
-    const changes = visibleChanges(preview).slice(0, 4);
+    if (!profile || document.getElementById(BANNER_ID) || !readingHeavyPage()) return;
+    const useRecommended = Boolean(profile.recommended);
+    const preview = settingsFrom(profile, useRecommended);
+    const changes = visibleChanges(preview).slice(0, 5);
     readSitePrefs((prefs) => {
-      if (prefs[HOST]?.dismissedProfileAt === profile.updatedAt) return;
+      const pref = prefs[SITE_KEY] || {};
+      if (pref.dismissedProfileAt === profile.updatedAt) return;
+      if (document.getElementById(BANNER_ID) || pageApplied) return;
       const banner = document.createElement("div");
       banner.id = BANNER_ID;
       banner.setAttribute("role", "dialog");
-      banner.setAttribute("aria-label", "SomatoSync reading setup");
+      banner.setAttribute("aria-label", "SomatoSync reading setup permission");
       banner.innerHTML = `
-        <div style="font:700 15px/1.35 system-ui,-apple-system,sans-serif;color:#17242a">Use your SomatoSync reading setup?</div>
-        <div style="margin-top:5px;font:400 14px/1.45 system-ui,-apple-system,sans-serif;color:#4b5a62">${reasonText(preview)}</div>
-        ${changes.length ? `<div style="margin-top:8px;font:600 14px/1.45 system-ui;color:#315f72">${changes.join(" · ")}</div>` : ""}
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <button data-action="use" style="border:0;border-radius:10px;padding:8px 12px;background:#315f72;color:white;font:650 14px system-ui;cursor:pointer">Use setup</button>
-          <button data-action="dismiss" style="border:1px solid #d6dde1;border-radius:10px;padding:8px 12px;background:white;color:#475569;font:650 14px system-ui;cursor:pointer">Not now</button>
-        </div>`;
-      Object.assign(banner.style, {
-        position: "fixed", right: "20px", bottom: "20px", zIndex: "2147483647", width: "min(370px,calc(100vw - 32px))",
-        padding: "16px", border: "1px solid #d6dde1", borderRadius: "16px", background: "#fff", boxShadow: "0 16px 40px rgba(15,23,42,.18)"
-      });
-      banner.querySelector('[data-action="use"]')?.addEventListener("click", () => applyPage(profile, true));
-      banner.querySelector('[data-action="dismiss"]')?.addEventListener("click", () => {
-        removeBanner();
-        readSitePrefs((nextPrefs) => {
-          chrome.storage.local.set({ somatosyncShieldSitePrefs: { ...nextPrefs, [HOST]: { ...(nextPrefs[HOST] || {}), dismissedProfileAt: profile.updatedAt } } });
-        });
-      });
+        <div style="font:750 16px/1.35 Arial,Verdana,system-ui;color:#17242a">Use SomatoSync supports on this site?</div>
+        <div style="margin-top:6px;font:400 14.5px/1.5 Arial,Verdana,system-ui;color:#4b5a62">Nothing on ${SITE_LABEL} changes until you approve it. ${reasonText(preview)}</div>
+        ${changes.length ? `<div style="margin-top:9px;font:650 14.5px/1.45 Arial,Verdana,system-ui;color:#315f72">${changes.join(" · ")}</div>` : ""}
+        <div style="display:flex;gap:8px;margin-top:13px"><button data-action="use" style="border:0;border-radius:10px;padding:9px 13px;background:#315f72;color:white;font:700 14.5px Arial,Verdana,system-ui;cursor:pointer">Use on this page</button><button data-action="dismiss" style="border:1px solid #d6dde1;border-radius:10px;padding:9px 13px;background:white;color:#475569;font:650 14.5px Arial,Verdana,system-ui;cursor:pointer">Not now</button></div>`;
+      Object.assign(banner.style, { position: "fixed", right: "20px", bottom: "20px", zIndex: "2147483647", width: "min(410px,calc(100vw - 32px))", padding: "17px", border: "1px solid #d6dde1", borderRadius: "16px", background: "#fff", boxShadow: "0 16px 40px rgba(15,23,42,.2)" });
+      banner.querySelector('[data-action="use"]')?.addEventListener("click", () => applyPage(profile, useRecommended));
+      banner.querySelector('[data-action="dismiss"]')?.addEventListener("click", () => { removeBanner(); writeSitePref({ dismissedProfileAt: profile.updatedAt }); });
       document.body.appendChild(banner);
     });
   }
@@ -411,31 +503,17 @@
     const preview = settingsFrom(profile, recommended);
     if (!preview) return;
     readSitePrefs((prefs) => {
-      if (prefs[HOST]?.dismissedUpdateAt === profile.updatedAt) return;
-      const changes = visibleChanges(preview).slice(0, 4);
+      const pref = prefs[SITE_KEY] || {};
+      if (pref.dismissedUpdateAt === profile.updatedAt) return;
+      const changes = visibleChanges(preview).slice(0, 5);
       const banner = document.createElement("div");
       banner.id = BANNER_ID;
       banner.setAttribute("role", "dialog");
       banner.setAttribute("aria-label", "Updated SomatoSync reading setup");
-      banner.innerHTML = `
-        <div style="font:700 15px/1.35 system-ui,-apple-system,sans-serif;color:#17242a">Your SomatoSync setup changed</div>
-        <div style="margin-top:5px;font:400 14px/1.45 system-ui,-apple-system,sans-serif;color:#4b5a62">Update this page to match the newest reading supports?</div>
-        ${changes.length ? `<div style="margin-top:8px;font:600 14px/1.45 system-ui;color:#315f72">${changes.join(" · ")}</div>` : ""}
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <button data-action="update" style="border:0;border-radius:10px;padding:8px 12px;background:#315f72;color:white;font:650 14px system-ui;cursor:pointer">Update page</button>
-          <button data-action="keep" style="border:1px solid #d6dde1;border-radius:10px;padding:8px 12px;background:white;color:#475569;font:650 14px system-ui;cursor:pointer">Keep current</button>
-        </div>`;
-      Object.assign(banner.style, {
-        position: "fixed", right: "20px", bottom: "20px", zIndex: "2147483647", width: "min(390px,calc(100vw - 32px))",
-        padding: "16px", border: "1px solid #d6dde1", borderRadius: "16px", background: "#fff", boxShadow: "0 16px 40px rgba(15,23,42,.18)"
-      });
+      banner.innerHTML = `<div style="font:750 16px/1.35 Arial,Verdana,system-ui;color:#17242a">Your SomatoSync setup changed</div><div style="margin-top:6px;font:400 14.5px/1.5 Arial,Verdana,system-ui;color:#4b5a62">Update this already-approved page to the newest supports?</div>${changes.length ? `<div style="margin-top:9px;font:650 14.5px/1.45 Arial,Verdana,system-ui;color:#315f72">${changes.join(" · ")}</div>` : ""}<div style="display:flex;gap:8px;margin-top:13px"><button data-action="update" style="border:0;border-radius:10px;padding:9px 13px;background:#315f72;color:white;font:700 14.5px Arial,Verdana,system-ui;cursor:pointer">Update page</button><button data-action="keep" style="border:1px solid #d6dde1;border-radius:10px;padding:9px 13px;background:white;color:#475569;font:650 14.5px Arial,Verdana,system-ui;cursor:pointer">Keep current</button></div>`;
+      Object.assign(banner.style, { position: "fixed", right: "20px", bottom: "20px", zIndex: "2147483647", width: "min(410px,calc(100vw - 32px))", padding: "17px", border: "1px solid #d6dde1", borderRadius: "16px", background: "#fff", boxShadow: "0 16px 40px rgba(15,23,42,.2)" });
       banner.querySelector('[data-action="update"]')?.addEventListener("click", () => applyPage(profile, recommended));
-      banner.querySelector('[data-action="keep"]')?.addEventListener("click", () => {
-        removeBanner();
-        readSitePrefs((nextPrefs) => {
-          chrome.storage.local.set({ somatosyncShieldSitePrefs: { ...nextPrefs, [HOST]: { ...(nextPrefs[HOST] || {}), dismissedUpdateAt: profile.updatedAt } } });
-        });
-      });
+      banner.querySelector('[data-action="keep"]')?.addEventListener("click", () => { removeBanner(); writeSitePref({ dismissedUpdateAt: profile.updatedAt }); });
       document.body.appendChild(banner);
     });
   }
@@ -453,24 +531,23 @@
         removeBanner();
         return;
       }
-      const sitePref = stored.somatosyncShieldSitePrefs?.[HOST] || {};
-      if (sitePref.always) {
+
+      const sitePref = stored.somatosyncShieldSitePrefs?.[SITE_KEY] || {};
+      const explicitAlwaysConsent = Boolean(sitePref.always && sitePref.consentVersion === CONSENT_VERSION);
+      if (explicitAlwaysConsent) {
         applyPage(currentProfile, Boolean(currentProfile.recommended));
         return;
       }
 
-      // Default behavior is consent-first: never auto-apply on a normal site.
-      // If the user manually adapted this page and SomatoSync later syncs a new setup,
-      // keep the current page stable and ask before replacing it.
+      // Consent-first invariant: profile sync, Focus Mode, tab navigation, and old site prefs
+      // can NEVER alter a new page. Only a click in the preflight/popup or v2 site consent can.
       if (pageApplied) {
-        if (currentProfile.updatedAt && currentProfile.updatedAt !== activeProfileUpdatedAt) {
-          showSetupUpdate(currentProfile);
-        }
+        if (currentProfile.updatedAt && currentProfile.updatedAt !== activeProfileUpdatedAt) showSetupUpdate(currentProfile);
         return;
       }
 
       restorePage();
-      if (stored.somatosyncShieldAutoPreflight) window.setTimeout(() => showPreflight(currentProfile), 500);
+      if (stored.somatosyncShieldAutoPreflight) window.setTimeout(() => showPreflight(currentProfile), 450);
     });
   }
 
@@ -486,15 +563,12 @@
       return;
     }
     if (message?.type === "SOMATOSYNC_SHIELD_APPLY_RECOMMENDED") {
-      if (currentProfile?.recommended) applyPage(currentProfile, true);
-      sendResponse({ applied: Boolean(currentProfile?.recommended), pageApplied, changes: visibleChanges(activeSettings) });
+      if (currentProfile) applyPage(currentProfile, Boolean(currentProfile.recommended));
+      sendResponse({ applied: Boolean(currentProfile), pageApplied, changes: visibleChanges(activeSettings) });
       return;
     }
     if (message?.type === "SOMATOSYNC_SHIELD_RESTORE") {
-      restorePage();
-      removeBanner();
-      sendResponse({ applied: false, pageApplied });
-      return;
+      restorePage(); removeBanner(); sendResponse({ applied: false, pageApplied }); return;
     }
     if (message?.type === "SOMATOSYNC_SHIELD_STATUS") {
       sendResponse({ pageApplied, hasProfile: Boolean(currentProfile), hasRecommended: Boolean(currentProfile?.recommended), source: activeSource, changes: visibleChanges(activeSettings) });

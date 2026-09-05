@@ -1,7 +1,7 @@
 @import "./styles/tokens.css";
 
-/* Neuro-Adaptive Mode applies only user-approved, reversible presentation changes.
-   Typography changes target reading content rather than browser-zooming the whole product. */
+/* Neuro-Adaptive Mode applies reversible presentation changes to the current app only.
+   It never uses page-level browser zoom and it preserves navigation/access to the full product. */
 html.neuro-adaptive-active {
   --adaptive-text-scale: 1;
   --adaptive-line-spacing: 1;
@@ -13,60 +13,105 @@ html.neuro-adaptive-active .app-content blockquote {
   line-height: calc(1.62 * var(--adaptive-line-spacing, 1)) !important;
 }
 
-/* Text growth is concentrated on long-form reading surfaces so controls and chrome do not
-   feel like a browser zoom. */
+/* Heavy typography targets reading content rather than scaling controls/chrome. */
 html.neuro-reading-layout .app-content article p,
 html.neuro-reading-layout .app-content article li,
 html.neuro-reading-layout .app-content [data-focus-reading-surface="true"] p,
 html.neuro-reading-layout .app-content [data-focus-reading-surface="true"] li,
 html.neuro-reading-layout .app-content .reading-measure p,
 html.neuro-reading-layout .app-content .reading-measure li {
+  font-family: Arial, Verdana, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif !important;
   font-size: calc(17px * var(--adaptive-text-scale, 1)) !important;
-  line-height: calc(1.66 * var(--adaptive-line-spacing, 1)) !important;
+  line-height: calc(1.62 * var(--adaptive-line-spacing, 1)) !important;
+  letter-spacing: .012em !important;
+  word-spacing: .035em !important;
 }
 
-/* Distinct low-glare palette for light/visual sensitivity. This remains an optional
-   accessibility presentation, not a treatment claim. Text contrast stays intentionally strong. */
-html.neuro-soft-contrast:not(.dark) {
-  --color-bg: #D9CDBA;
-  --color-surface: #E9DECC;
-  --color-surface-raised: #F7EEDC;
-  --color-surface-sunken: #CFC1AD;
-  --color-text-primary: #211F1D;
-  --color-text-secondary: #4C4741;
-  --color-text-tertiary: #655E56;
-  --color-border: #B9A995;
-  --color-border-strong: #9E8C77;
-  --color-accent: #6B4C5B;
-  --color-accent-hover: #553B48;
-  --color-accent-soft: #D9C2C9;
-  --color-accent-soft-border: #BFA2AB;
+/* Moderate visual sensitivity: clearly warm, low-glare, but not the severe-photophobia mode. */
+html.neuro-soft-contrast:not(.dark):not(.neuro-photophobia) {
+  --color-bg: #CDBD9F;
+  --color-surface: #DDD0B7;
+  --color-surface-raised: #EEE3CB;
+  --color-surface-sunken: #BBAA8C;
+  --color-text-primary: #1E211F;
+  --color-text-secondary: #3E4541;
+  --color-text-tertiary: #59605B;
+  --color-border: #A18F72;
+  --color-border-strong: #7E6C51;
+  --color-accent: #405F5C;
+  --color-accent-hover: #304B49;
+  --color-accent-soft: #BCD0C7;
+  --color-accent-soft-border: #91AEA2;
 }
 
-html.neuro-soft-contrast.dark {
-  --color-bg: #101417;
-  --color-surface: #171D21;
-  --color-surface-raised: #20282D;
-  --color-surface-sunken: #0C1012;
-  --color-text-primary: #F0E7DA;
-  --color-text-secondary: #C5B9AA;
-  --color-text-tertiary: #9F9385;
-  --color-border: #384248;
-  --color-border-strong: #59656C;
-  --color-accent: #D4A8B4;
-  --color-accent-soft: #3A2830;
+html.neuro-soft-contrast.dark:not(.neuro-photophobia) {
+  --color-bg: #101412;
+  --color-surface: #181D1A;
+  --color-surface-raised: #202822;
+  --color-surface-sunken: #0A0D0B;
+  --color-text-primary: #EEE5CC;
+  --color-text-secondary: #C8BFA7;
+  --color-text-tertiary: #9F967E;
+  --color-border: #364238;
+  --color-border-strong: #59675B;
+  --color-accent: #D2B96E;
+  --color-accent-soft: #332C18;
 }
 
-/* Blink/visual-strain mode: media becomes substantially calmer, not just slightly tinted. */
+/* Severe photophobia: deliberately drastic. Black surfaces and soft amber text avoid a
+   bright-white "high contrast" treatment while creating a visibly different sensory mode. */
+html.neuro-photophobia,
+html.neuro-photophobia.dark {
+  color-scheme: dark;
+  --color-bg: #000000;
+  --color-surface: #060604;
+  --color-surface-raised: #0D0C08;
+  --color-surface-sunken: #030302;
+  --color-text-primary: #F4D98B;
+  --color-text-secondary: #D6BD78;
+  --color-text-tertiary: #AA945E;
+  --color-border: #3C321C;
+  --color-border-strong: #6D592B;
+  --color-accent: #E1B952;
+  --color-accent-hover: #F0C966;
+  --color-accent-soft: #211A08;
+  --color-accent-soft-border: #5A4615;
+  --color-positive: #C5C879;
+  --color-positive-soft: #151608;
+  --color-caution: #E0B65A;
+  --color-caution-soft: #1C1607;
+}
+html.neuro-photophobia body,
+html.neuro-photophobia .app-content,
+html.neuro-photophobia [data-focus-shell="header"],
+html.neuro-photophobia [data-focus-shell="sidebar"],
+html.neuro-photophobia [data-focus-shell="mobile-nav"] {
+  background-image: none !important;
+  background-color: var(--color-bg) !important;
+}
+html.neuro-photophobia .app-content img,
+html.neuro-photophobia .app-content video,
+html.neuro-photophobia .app-content svg:not([aria-hidden="true"]) {
+  filter: grayscale(.28) saturate(.32) brightness(.48) contrast(.86) !important;
+  opacity: .72 !important;
+}
+
+/* Visual-strain mode: media becomes substantially calmer, not just tinted. */
 html.neuro-calm-media .app-content img,
 html.neuro-calm-media .app-content video {
-  filter: saturate(.38) brightness(.82) contrast(.90) !important;
-  opacity: .86 !important;
+  filter: saturate(.28) brightness(.67) contrast(.88) !important;
+  opacity: .74 !important;
 }
 html.neuro-calm-media .app-content [data-focus-secondary="true"] img,
-html.neuro-calm-media .app-content [data-focus-secondary="true"] video { opacity: .55 !important; }
+html.neuro-calm-media .app-content [data-focus-secondary="true"] video { opacity: .42 !important; }
 
-/* Head/gaze-instability mode: remove moving viewport behavior and sticky distractions. */
+/* When media motion itself is a problem, video is paused by JS and visually marked as quiet. */
+html.neuro-pause-media .app-content video[data-focus-paused="true"] {
+  filter: grayscale(.75) brightness(.42) contrast(.85) !important;
+  opacity: .46 !important;
+}
+
+/* Head/gaze-instability mode: freeze motion without deleting controls or navigation. */
 html.neuro-stable-viewport,
 html.neuro-stable-viewport * { scroll-behavior: auto !important; }
 html.neuro-stable-viewport .app-content *,
@@ -75,82 +120,102 @@ html.neuro-stable-viewport .app-content *::after {
   animation-duration: .001ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: .001ms !important;
+  transition-delay: 0ms !important;
 }
-html.neuro-stable-viewport .app-content [class*="sticky"],
-html.neuro-stable-viewport .app-content [class*="fixed"] {
+/* Only decorative/floating content is flattened. Core app shell navigation stays in place. */
+html.neuro-stable-viewport .app-content [class*="floating"],
+html.neuro-stable-viewport .app-content [class*="parallax"] {
   position: static !important;
   transform: none !important;
 }
 
-/* Cognitive-load mode: make hierarchy more obvious rather than only hiding content. */
+/* Cognitive-load mode strengthens hierarchy. */
 html.neuro-emphasize-structure .app-content h1,
 html.neuro-emphasize-structure .app-content h2,
 html.neuro-emphasize-structure .app-content h3 {
   letter-spacing: -.015em !important;
-  line-height: 1.18 !important;
-  font-weight: 750 !important;
+  line-height: 1.14 !important;
+  font-weight: 800 !important;
 }
 html.neuro-emphasize-structure .app-content h2,
 html.neuro-emphasize-structure .app-content h3 {
-  padding-top: .35rem;
-  border-top: 2px solid color-mix(in srgb, var(--color-border-strong) 72%, transparent);
+  padding-top: .5rem;
+  border-top: 3px solid color-mix(in srgb, var(--color-accent) 58%, var(--color-border));
 }
-html.neuro-emphasize-structure .app-content section + section { margin-top: 2.5rem !important; }
-html.neuro-emphasize-structure .app-content p + p { margin-top: 1.05rem !important; }
+html.neuro-emphasize-structure .app-content section + section { margin-top: 3rem !important; }
+html.neuro-emphasize-structure .app-content p + p { margin-top: 1.2rem !important; }
 
-html.neuro-audio-first main p { max-width: 68ch; }
+html.neuro-audio-first main p { max-width: 62ch; }
 
-/* Cognitive simplification removes explicitly secondary material. */
-html.neuro-low-density main [data-focus-secondary="true"],
-html.neuro-low-density main details[data-focus-secondary="true"] { display: none !important; }
-
+/* Low-density mode NEVER removes navigation or information. Secondary blocks are visually
+   de-emphasized and return to full prominence on hover/focus so content remains accessible. */
+html.neuro-low-density main [data-focus-secondary="true"] {
+  opacity: .48 !important;
+  filter: saturate(.38) contrast(.88) !important;
+  transition: opacity .12s linear, filter .12s linear !important;
+}
+html.neuro-low-density main [data-focus-secondary="true"]:hover,
+html.neuro-low-density main [data-focus-secondary="true"]:focus-within {
+  opacity: 1 !important;
+  filter: none !important;
+}
 html.neuro-low-density main section,
 html.neuro-low-density main article { scroll-margin-top: 3rem; }
-
-html.neuro-low-density main .focus-adaptive-compact {
-  max-height: 7.5rem; overflow: hidden; position: relative;
-}
-html.neuro-low-density main .focus-adaptive-compact::after {
-  content: ""; position: absolute; inset: auto 0 0; height: 2.5rem;
-  background: linear-gradient(to bottom, transparent, var(--color-surface)); pointer-events: none;
-}
 
 .app-content { font-size: 16px; line-height: 1.62; }
 @media (min-width: 1280px) { .app-content { font-size: 16.25px; } }
 
-/* Reading spotlight: a genuine layout mode, not zoom. */
-html.neuro-reading-layout .app-content > div {
-  max-width: 840px !important;
-}
+/* Focused reading lane is layout reflow, not browser zoom. */
+html.neuro-reading-layout .app-content > div { max-width: 900px !important; }
 html.neuro-reading-layout .app-content p,
-html.neuro-reading-layout .app-content li { max-width: 66ch; }
-html.neuro-reading-layout .app-content p + p { margin-top: 1em; }
+html.neuro-reading-layout .app-content li { max-width: 62ch; }
+html.neuro-reading-layout .app-content p + p { margin-top: 1.15em; }
 html.neuro-reading-layout .app-content article,
 html.neuro-reading-layout .app-content [data-focus-reading-surface="true"] {
-  max-width: 760px !important;
+  max-width: 780px !important;
   margin-inline: auto !important;
-  padding: clamp(1.5rem, 4vw, 2.75rem) !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: 24px !important;
+  padding: clamp(1.6rem, 4vw, 3rem) !important;
+  border: 2px solid var(--color-border) !important;
+  border-radius: 22px !important;
   background: var(--color-surface-raised) !important;
-  box-shadow: 0 18px 54px rgba(47, 38, 32, .10) !important;
+  box-shadow: 0 20px 58px rgba(0, 0, 0, .16) !important;
 }
 
-/* When a sustained close-viewing + squint pattern calls for both focused layout and
-   reduced density, remove the surrounding application chrome for a true reading canvas. */
-html.neuro-reading-layout.neuro-low-density [data-focus-shell="sidebar"],
-html.neuro-reading-layout.neuro-low-density [data-focus-shell="demo-banner"] { display: none !important; }
+/* Strong cognitive simplification de-emphasizes shell chrome, but never hides it. */
+html.neuro-reading-layout.neuro-low-density [data-focus-shell="sidebar"] {
+  opacity: .6;
+  filter: saturate(.4) contrast(.9);
+  transition: opacity .12s linear, filter .12s linear !important;
+}
+html.neuro-reading-layout.neuro-low-density [data-focus-shell="sidebar"]:hover,
+html.neuro-reading-layout.neuro-low-density [data-focus-shell="sidebar"]:focus-within {
+  opacity: 1;
+  filter: none;
+}
+html.neuro-reading-layout.neuro-low-density [data-focus-shell="demo-banner"] { opacity: .55; }
 html.neuro-reading-layout.neuro-low-density [data-focus-shell="header"] {
-  min-height: 52px !important;
-  height: 52px !important;
   backdrop-filter: none !important;
   background: var(--color-surface) !important;
 }
 html.neuro-reading-layout.neuro-low-density .app-content {
   padding: clamp(1rem, 3vw, 2rem) !important;
-  background: color-mix(in srgb, var(--color-bg) 88%, var(--color-surface) 12%);
+  background-image: none !important;
+  background-color: color-mix(in srgb, var(--color-bg) 90%, var(--color-surface) 10%) !important;
 }
-html.neuro-reading-layout.neuro-low-density .app-content > div { max-width: 820px !important; }
+html.neuro-reading-layout.neuro-low-density .app-content > div { max-width: 850px !important; }
+
+/* The active reading anchor receives a clear ruler/highlight. Surrounding dimming is provided
+   by the non-interactive overlay created in NeuroAdaptiveContext. */
+html.neuro-reading-spotlight [data-focus-anchor-current="true"] {
+  position: relative !important;
+  z-index: 28 !important;
+  opacity: 1 !important;
+  background: color-mix(in srgb, var(--color-accent-soft) 52%, transparent) !important;
+  border-left: 5px solid var(--color-accent) !important;
+  border-radius: 10px !important;
+  padding: .45em .75em !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 35%, transparent) !important;
+}
 
 /* Calm layout primitives: favor readable measure and generous vertical rhythm. */
 .app-content p, .app-content li { line-height: 1.62; }

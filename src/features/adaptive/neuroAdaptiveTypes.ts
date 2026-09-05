@@ -14,6 +14,9 @@ export interface NeuroAdaptiveSettings {
   calmMedia: boolean;
   stabilizeViewport: boolean;
   emphasizeStructure: boolean;
+  photophobiaMode: boolean;
+  readingSpotlight: boolean;
+  pauseMedia: boolean;
   autoAdapt: boolean;
   updatedAt: string;
 }
@@ -41,6 +44,9 @@ export interface AdaptiveInterventionPlan {
   calmMedia: boolean;
   stabilizeViewport: boolean;
   emphasizeStructure: boolean;
+  photophobiaMode: boolean;
+  readingSpotlight: boolean;
+  pauseMedia: boolean;
   changes: string[];
   reasons: string[];
   recommendBreak: boolean;

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "SomatoSync Shield",
-  "version": "1.1.0",
-  "description": "Carries symptom-matched SomatoSync reading supports\u2014typography, color, motion, focus and clutter reduction\u2014to everyday websites.",
+  "version": "1.2.0",
+  "description": "Consent-first adaptive reading supports for concussion recovery: typography, anti-glare, motion, media and visual focus.",
   "permissions": [
     "storage",
     "activeTab",

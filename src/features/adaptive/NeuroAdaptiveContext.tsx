@@ -76,6 +76,9 @@ function applyToDocument(settings: NeuroAdaptiveSettings) {
   root.classList.toggle("neuro-calm-media", settings.enabled && settings.calmMedia);
   root.classList.toggle("neuro-stable-viewport", settings.enabled && settings.stabilizeViewport);
   root.classList.toggle("neuro-emphasize-structure", settings.enabled && settings.emphasizeStructure);
+  root.classList.toggle("neuro-photophobia", settings.enabled && settings.photophobiaMode);
+  root.classList.toggle("neuro-reading-spotlight", settings.enabled && settings.readingSpotlight);
+  root.classList.toggle("neuro-pause-media", settings.enabled && settings.pauseMedia);
   root.style.setProperty("--adaptive-text-scale", settings.enabled ? String(settings.textScale) : "1");
   root.style.setProperty("--adaptive-line-spacing", settings.enabled ? String(settings.lineSpacing) : "1");
   root.dataset.neuroAdaptiveProfile = settings.enabled ? settings.profile : "off";
@@ -173,7 +176,121 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
     setAdaptationSource(null);
   }, [mode, userId]);
 
+
   useEffect(() => applyToDocument(settings), [settings]);
+
+  // Pause only media that was actually playing when Focus requested sensory reduction.
+  // Navigation and controls remain untouched; disabling the support restores prior playback.
+  useEffect(() => {
+    const videos = Array.from(document.querySelectorAll<HTMLVideoElement>(".app-content video"));
+    if (settings.enabled && settings.pauseMedia) {
+      for (const video of videos) {
+        if (!video.paused) video.dataset.focusWasPlaying = "true";
+        video.dataset.focusPaused = "true";
+        try { video.pause(); } catch { /* keep the page usable if a media element rejects pause */ }
+      }
+      return;
+    }
+    for (const video of videos) {
+      const shouldResume = video.dataset.focusWasPlaying === "true";
+      delete video.dataset.focusPaused;
+      delete video.dataset.focusWasPlaying;
+      if (shouldResume) void video.play().catch(() => undefined);
+    }
+  }, [settings.enabled, settings.pauseMedia]);
+
+  useEffect(() => () => {
+    document.querySelectorAll<HTMLVideoElement>('video[data-focus-paused="true"]').forEach((video) => {
+      const shouldResume = video.dataset.focusWasPlaying === "true";
+      delete video.dataset.focusPaused;
+      delete video.dataset.focusWasPlaying;
+      if (shouldResume) void video.play().catch(() => undefined);
+    });
+  }, []);
+
+  // Visual-anchor isolation: keep one paragraph/list block clear while dimming the rest of
+  // the reading viewport. The overlay never intercepts clicks, so navigation stays accessible.
+  useEffect(() => {
+    const OVERLAY_ID = "somatosync-focus-reading-spotlight";
+    const ACTIVE_ATTR = "data-focus-anchor-current";
+    const clear = () => {
+      document.getElementById(OVERLAY_ID)?.remove();
+      document.querySelectorAll(`[${ACTIVE_ATTR}]`).forEach((node) => node.removeAttribute(ACTIVE_ATTR));
+    };
+    if (!settings.enabled || !settings.readingSpotlight) {
+      clear();
+      return;
+    }
+
+    clear();
+    const overlay = document.createElement("div");
+    overlay.id = OVERLAY_ID;
+    overlay.setAttribute("aria-hidden", "true");
+    Object.assign(overlay.style, { position: "fixed", inset: "0", pointerEvents: "none", zIndex: "24" });
+    const panes = ["top", "bottom", "left", "right"].map((name) => {
+      const pane = document.createElement("div");
+      pane.dataset.pane = name;
+      Object.assign(pane.style, {
+        position: "fixed",
+        pointerEvents: "none",
+        background: settings.photophobiaMode ? "rgba(0,0,0,.82)" : "rgba(10,15,16,.58)",
+        transition: "top .08s linear,left .08s linear,width .08s linear,height .08s linear",
+      });
+      overlay.appendChild(pane);
+      return pane;
+    });
+    document.body.appendChild(overlay);
+
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const blocks = Array.from(document.querySelectorAll<HTMLElement>(".app-content p, .app-content li, .app-content blockquote"))
+        .filter((node) => (node.textContent?.trim().length ?? 0) >= 28)
+        .filter((node) => {
+          const rect = node.getBoundingClientRect();
+          return rect.bottom > 72 && rect.top < window.innerHeight - 40;
+        });
+      if (!blocks.length) return;
+      const center = window.innerHeight * 0.48;
+      const target = blocks.reduce((best, node) => {
+        const rect = node.getBoundingClientRect();
+        const distance = Math.abs((rect.top + rect.bottom) / 2 - center);
+        return distance < best.distance ? { node, distance } : best;
+      }, { node: blocks[0], distance: Number.POSITIVE_INFINITY }).node;
+
+      document.querySelectorAll(`[${ACTIVE_ATTR}]`).forEach((node) => {
+        if (node !== target) node.removeAttribute(ACTIVE_ATTR);
+      });
+      target.setAttribute(ACTIVE_ATTR, "true");
+      const rect = target.getBoundingClientRect();
+      const contentRect = document.querySelector<HTMLElement>(".app-content")?.getBoundingClientRect() ?? { left: 0, right: window.innerWidth, top: 0, bottom: window.innerHeight, width: window.innerWidth };
+      const padX = 14;
+      const padY = 10;
+      const surfaceLeft = Math.max(0, contentRect.left);
+      const surfaceRight = Math.min(window.innerWidth, contentRect.right);
+      const surfaceTop = Math.max(0, contentRect.top);
+      const surfaceBottom = Math.min(window.innerHeight, contentRect.bottom);
+      const left = Math.max(surfaceLeft, rect.left - padX);
+      const right = Math.min(surfaceRight, rect.right + padX);
+      const top = Math.max(surfaceTop, rect.top - padY);
+      const bottom = Math.min(surfaceBottom, rect.bottom + padY);
+      const [topPane, bottomPane, leftPane, rightPane] = panes;
+      Object.assign(topPane.style, { left: `${surfaceLeft}px`, top: `${surfaceTop}px`, width: `${Math.max(0, surfaceRight - surfaceLeft)}px`, height: `${Math.max(0, top - surfaceTop)}px` });
+      Object.assign(bottomPane.style, { left: `${surfaceLeft}px`, top: `${bottom}px`, width: `${Math.max(0, surfaceRight - surfaceLeft)}px`, height: `${Math.max(0, surfaceBottom - bottom)}px` });
+      Object.assign(leftPane.style, { left: `${surfaceLeft}px`, top: `${top}px`, width: `${Math.max(0, left - surfaceLeft)}px`, height: `${Math.max(0, bottom - top)}px` });
+      Object.assign(rightPane.style, { left: `${right}px`, top: `${top}px`, width: `${Math.max(0, surfaceRight - right)}px`, height: `${Math.max(0, bottom - top)}px` });
+    };
+    const schedule = () => { if (!raf) raf = requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", schedule, true);
+    window.addEventListener("resize", schedule);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", schedule, true);
+      window.removeEventListener("resize", schedule);
+      clear();
+    };
+  }, [settings.enabled, settings.photophobiaMode, settings.readingSpotlight]);
 
   useEffect(() => {
     const onShieldReady = (event: MessageEvent) => {
@@ -230,6 +347,9 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
       calmMedia: settings.calmMedia || plan.calmMedia,
       stabilizeViewport: settings.stabilizeViewport || plan.stabilizeViewport,
       emphasizeStructure: settings.emphasizeStructure || plan.emphasizeStructure,
+      photophobiaMode: settings.photophobiaMode || plan.photophobiaMode,
+      readingSpotlight: settings.readingSpotlight || plan.readingSpotlight,
+      pauseMedia: settings.pauseMedia || plan.pauseMedia,
       updatedAt: new Date().toISOString(),
     });
 
@@ -409,6 +529,9 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
         calmMedia: startingSettings.calmMedia || seedPlan.calmMedia,
         stabilizeViewport: startingSettings.stabilizeViewport || seedPlan.stabilizeViewport,
         emphasizeStructure: startingSettings.emphasizeStructure || seedPlan.emphasizeStructure,
+        photophobiaMode: startingSettings.photophobiaMode || seedPlan.photophobiaMode,
+        readingSpotlight: startingSettings.readingSpotlight || seedPlan.readingSpotlight,
+        pauseMedia: startingSettings.pauseMedia || seedPlan.pauseMedia,
         updatedAt: new Date().toISOString(),
       });
     }
