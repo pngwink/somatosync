@@ -10,3 +10,13 @@
 8. Mark prompts as accurate or false alarms when offered so local personalization can improve over repeated confirmed sessions.
 
 Focus Mode is an experimental accessibility aid, not a diagnostic test. Raw video and face landmarks are not stored.
+
+## Undo and re-trigger verification
+
+1. Complete or use a saved daily symptom check-in, then turn on Focus Mode.
+2. Confirm the symptom-matched starting interface applies before live camera refinement.
+3. After calibration, sustain close viewing + squinting until a live refinement appears.
+4. Select **Undo changes**. Confirm the live refinement disappears but Focus remains **on** and monitoring continues.
+5. Return to a neutral position for at least 5 seconds.
+6. Sustain a fresh qualifying pattern again. Confirm Focus can offer/apply another live refinement without waiting for the normal 90-second prompt cooldown.
+7. Select **Turn off & restore original** only when you want monitoring to stop completely.

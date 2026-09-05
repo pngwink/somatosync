@@ -29,6 +29,7 @@ const PROMPT_COOLDOWN_MS = 90_000;
 const ROUTE_GRACE_MS = 4_000;
 const ACTIVE_START_GRACE_MS = 1_500;
 const TAB_RESUME_GRACE_MS = 3_000;
+const UNDO_REARM_GRACE_MS = 5_000;
 const BREAK_SECONDS = 120;
 const DEFAULT_CHECK_IN: AdaptiveCheckIn = { lightSensitivity: 1, visualMotionDiscomfort: 1, mentalFatigue: 1 };
 
@@ -437,13 +438,28 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
       finishAdaptiveResponse(pendingResponseRef.current.id, pendingResponseRef.current.beforeScore, latestEstimateRef.current?.score ?? null, "reverted");
       pendingResponseRef.current = null;
     }
+
+    // Undo only restores the most recent interface change. It does NOT stop Focus monitoring.
+    // Clear the old trigger window so the exact same buffered samples cannot instantly reapply
+    // the change, then re-arm after a short grace period. A new sustained multi-signal pattern
+    // can therefore adapt the UI again without waiting for the normal 90-second prompt cooldown.
+    const now = typeof performance !== "undefined" ? performance.now() : 0;
+    activeSamplesRef.current = [];
+    elevatedHistoryRef.current = [];
+    latestEstimateRef.current = null;
+    graceUntilRef.current = now + UNDO_REARM_GRACE_MS;
+    lastPromptAtRef.current = now - PROMPT_COOLDOWN_MS;
+    setEstimate(null);
+    setPromptVisible(false);
+    setLatestFeedback(null);
+
     previousSettingsRef.current = null;
     setAdaptationActive(false);
     setAdaptationReasons([]);
     setAdaptationChanges([]);
     setAdaptationRecommendBreak(false);
     setAdaptationSource(null);
-  }, [setSettings]);
+  }, [setPromptVisible, setSettings]);
 
   const disable = useCallback(() => {
     setSettings({ ...settings, enabled: false, updatedAt: new Date().toISOString() });
