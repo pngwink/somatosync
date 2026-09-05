@@ -14,7 +14,7 @@ export function AvatarFallback({ className, ...props }: React.ComponentProps<typ
   return (
     <AvatarPrimitive.Fallback
       className={cn(
-        "flex h-full w-full items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-[14px] font-semibold text-[var(--color-accent)]",
+        "flex h-full w-full items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-[16px] font-semibold text-[var(--color-accent)]",
         className
       )}
       {...props}

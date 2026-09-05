@@ -16,7 +16,7 @@ export function MobileNavigation() {
           end={end}
           className={({ isActive }) =>
             cn(
-              "flex flex-1 flex-col items-center gap-1.5 rounded-[14px] py-2.5 text-[14px] font-semibold transition-colors",
+              "flex flex-1 flex-col items-center gap-1.5 rounded-[14px] py-2.5 text-[16px] font-semibold transition-colors",
               isActive ? "bg-[var(--color-accent-soft)] text-[var(--color-accent)]" : "text-[var(--color-text-tertiary)]"
             )
           }

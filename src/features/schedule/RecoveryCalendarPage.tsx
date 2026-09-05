@@ -59,7 +59,7 @@ export function RecoveryCalendarPage() {
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className="text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">
+                    <p className="text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">
                       {day.date.toLocaleDateString(undefined, { weekday: "short" })}
                     </p>
                     <p className="mt-0.5 font-mono text-[18px] font-semibold tabular-nums text-[var(--color-text-primary)]">
@@ -78,8 +78,8 @@ export function RecoveryCalendarPage() {
                         to={task.href}
                         className={cn("block rounded-[var(--radius-sm)] border-l-4 px-2.5 py-2 transition hover:brightness-95", presentation.className)}
                       >
-                        <p className="text-[14.5px] font-medium text-[var(--color-text-primary)]">{task.shortLabel}</p>
-                        <Badge tone={presentation.tone} showDot className="mt-0.5 text-[14.5px]">
+                        <p className="text-[16px] font-medium text-[var(--color-text-primary)]">{task.shortLabel}</p>
+                        <Badge tone={presentation.tone} showDot className="mt-0.5 text-[16px]">
                           {presentation.label}
                         </Badge>
                       </Link>
@@ -91,7 +91,7 @@ export function RecoveryCalendarPage() {
           })}
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t border-[var(--color-border)] pt-4 text-[14.5px]">
+        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t border-[var(--color-border)] pt-4 text-[16px]">
           <Badge tone="positive" showDot>Completed</Badge>
           <Badge tone="caution" showDot>Due today</Badge>
           <Badge tone="risk" showDot>Overdue in schedule</Badge>
@@ -106,14 +106,14 @@ export function RecoveryCalendarPage() {
             <Card key={definition.assessmentType} className="p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h3 className="text-[15px] font-semibold text-[var(--color-text-primary)]">{definition.label}</h3>
-                  <p className="mt-1 text-[14.5px] font-medium text-[var(--color-accent)]">{definition.cadence}</p>
+                  <h3 className="text-[16px] font-semibold text-[var(--color-text-primary)]">{definition.label}</h3>
+                  <p className="mt-1 text-[16px] font-medium text-[var(--color-accent)]">{definition.cadence}</p>
                 </div>
                 <Button variant="ghost" size="sm" asChild>
                   <Link to={definition.href}>Open</Link>
                 </Button>
               </div>
-              <p className="mt-3 text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">{definition.rationale}</p>
+              <p className="mt-3 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">{definition.rationale}</p>
             </Card>
           ))}
         </div>
@@ -125,8 +125,8 @@ export function RecoveryCalendarPage() {
             {latestItems.map((item) => (
               <div key={item.assessmentType} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <p className="text-[14.5px] font-medium text-[var(--color-text-primary)]">{item.label}</p>
-                  <p className="mt-0.5 max-w-2xl text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">{item.detail}</p>
+                  <p className="text-[16px] font-medium text-[var(--color-text-primary)]">{item.label}</p>
+                  <p className="mt-0.5 max-w-2xl text-[16px] leading-relaxed text-[var(--color-text-secondary)]">{item.detail}</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <Badge tone={item.tone} showDot>{item.resultLabel}</Badge>
@@ -142,12 +142,12 @@ export function RecoveryCalendarPage() {
         <div className="flex items-start gap-3">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-risk)]" aria-hidden="true" />
           <div>
-            <h2 className="text-[15px] font-semibold text-[var(--color-text-primary)]">Schedule priority is not medical urgency</h2>
-            <p className="mt-1 text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">
+            <h2 className="text-[16px] font-semibold text-[var(--color-text-primary)]">Schedule priority is not medical urgency</h2>
+            <p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
               A red calendar item only means a planned check-in was missed. Emergency warning signs—such as repeated vomiting, worsening headache, seizure, inability to wake, slurred speech, weakness, or one pupil larger than the other—require immediate medical care.
             </p>
             <a
-              className="mt-2 inline-flex items-center gap-1 text-[14.5px] font-medium text-[var(--color-risk)] hover:underline"
+              className="mt-2 inline-flex items-center gap-1 text-[16px] font-medium text-[var(--color-risk)] hover:underline"
               href="https://www.cdc.gov/heads-up/signs-symptoms/index.html"
               target="_blank"
               rel="noreferrer"
@@ -181,9 +181,9 @@ function SummaryCard({
     <Card className="p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[14.5px] text-[var(--color-text-tertiary)]">{label}</p>
+          <p className="text-[16px] text-[var(--color-text-tertiary)]">{label}</p>
           <p className="mt-1 font-mono text-[28px] font-semibold tabular-nums text-[var(--color-text-primary)]">{value}</p>
-          <p className="mt-0.5 text-[14.5px] text-[var(--color-text-secondary)]">{detail}</p>
+          <p className="mt-0.5 text-[16px] text-[var(--color-text-secondary)]">{detail}</p>
         </div>
         <Icon className={cn("h-5 w-5", tone === "info" ? "text-[var(--color-info)]" : tone === "caution" ? "text-[var(--color-caution)]" : "text-[var(--color-risk)]")} />
       </div>

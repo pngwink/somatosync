@@ -217,6 +217,9 @@ export function NeuroAdaptivePage() {
       textToSpeechPreferred: startingPlan.textToSpeechPreferred,
       reduceDensity: startingPlan.reduceDensity,
       focusReadingLayout: startingPlan.focusReadingLayout,
+      calmMedia: startingPlan.calmMedia,
+      stabilizeViewport: startingPlan.stabilizeViewport,
+      emphasizeStructure: startingPlan.emphasizeStructure,
       updatedAt: new Date().toISOString(),
     });
     adaptationsRef.current.push(...startingPlan.changes);
@@ -387,6 +390,9 @@ export function NeuroAdaptivePage() {
       textToSpeechPreferred: plan.textToSpeechPreferred,
       reduceDensity: plan.reduceDensity,
       focusReadingLayout: plan.focusReadingLayout,
+      calmMedia: plan.calmMedia,
+      stabilizeViewport: plan.stabilizeViewport,
+      emphasizeStructure: plan.emphasizeStructure,
       updatedAt: new Date().toISOString(),
     });
     adaptationsRef.current.push(...plan.changes);
@@ -460,7 +466,7 @@ export function NeuroAdaptivePage() {
       trackingQualityPercent: trackingQuality,
       maxStrainScore: estimate?.score ?? 0,
       promptCount: promptCountRef.current,
-      adaptationsApplied: [...new Set(adaptationsRef.current)],
+      adaptationsApplied: Array.from(new Set<string>(adaptationsRef.current)),
       userConfirmedPrompt: confirmed,
       checkIn,
       featureVector: estimate?.featureVector,
@@ -489,7 +495,7 @@ export function NeuroAdaptivePage() {
       <PageHeader
         eyebrow="Adaptive reading"
         title="Focus"
-        context="Run a short reading session, see whether the reading environment stays comfortable, and leave with a clear setup for the next session."
+        context="Let SomatoSync adapt during normal use, or run an optional controlled reading check to calibrate and test your setup."
         actions={settings.enabled ? <Button variant="secondary" size="sm" onClick={() => setSettings({ ...settings, enabled: false, updatedAt: new Date().toISOString() })}>Reset display</Button> : undefined}
       />
 
@@ -500,38 +506,38 @@ export function NeuroAdaptivePage() {
               <div className="flex items-start gap-4">
                 <div className="rounded-[16px] bg-[var(--color-surface)] p-3"><BrainCircuit className="h-6 w-6 text-[var(--color-accent)]" /></div>
                 <div className="max-w-3xl">
-                  <p className="text-[14px] font-bold uppercase tracking-[0.14em] text-[var(--color-accent)]">What this session does</p>
-                  <h2 className="mt-2 text-[25px] font-semibold tracking-tight">Read normally. SomatoSync watches for sustained changes and tells you what, if anything, may help.</h2>
-                  <p className="mt-3 text-[16px] leading-7 text-[var(--color-text-secondary)]">You do not have to force a trigger. If reading stays steady, the result will say that no extra support was needed during this short session. If a sustained pattern appears, you can adapt the page, take a break, or keep reading.</p>
+                  <p className="text-[16px] font-bold uppercase tracking-[0.14em] text-[var(--color-accent)]">Adaptive Focus</p>
+                  <h2 className="mt-2 text-[25px] font-semibold tracking-tight">Use SomatoSync normally. Focus starts from your current symptoms, then refines the interface only when a sustained pattern appears.</h2>
+                  <p className="mt-3 text-[16px] leading-7 text-[var(--color-text-secondary)]">Light or visual sensitivity can start a low-glare view, cognitive fatigue can simplify information density, and motion-related symptoms can stabilize the page. Local face-landmark signals can then refine reading layout, media intensity, motion, spacing, and hierarchy during use.</p>
                 </div>
               </div>
               <div className="mt-6 grid gap-3 md:grid-cols-3">
-                <FocusStep number="1" title="Check the screen" text="Rate light sensitivity, motion discomfort, and mental fatigue." />
-                <FocusStep number="2" title="Read naturally" text="After a short comfortable reference, read the sample like you normally would." />
-                <FocusStep number="3" title="Get a clear result" text="Finish with what happened and which setup to keep available next time." />
+                <FocusStep number="1" title="Start from symptoms" text="Uses the latest confirmed symptom record, regardless of whether it came from voice, the form, or task-tolerance checks." />
+                <FocusStep number="2" title="Watch locally" text="MediaPipe compares sustained blink, squint, viewing-distance, head, gaze, and interaction changes with this session’s reference." />
+                <FocusStep number="3" title="Refine the interface" text="Applies only matched, reversible changes instead of zooming the entire page." />
               </div>
-              <Button className="mt-6" onClick={() => setPhase("checkin")}>Start guided reading session</Button>
+              {siteWideStatus === "off" || siteWideStatus === "error" ? <Button className="mt-6" onClick={() => void startMonitoring()}><Camera />Turn on adaptive Focus</Button> : <Button className="mt-6" variant="secondary" onClick={stopMonitoring}>Turn off adaptive Focus</Button>}
             </div>
           </Card>
 
           <Card className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">Optional: monitor while you use SomatoSync</p><p className="mt-1 max-w-2xl text-[15px] leading-6 text-[var(--color-text-secondary)]">The guided session above is the easiest way to understand Focus. Site-wide mode simply keeps the same local detector available while you move through SomatoSync pages.</p></div>
-            {siteWideStatus === "off" || siteWideStatus === "error" ? <Button variant="secondary" size="sm" onClick={() => void startMonitoring(checkIn)}><Camera />Turn on app monitoring</Button> : <Button size="sm" variant="secondary" onClick={stopMonitoring}>Turn off app monitoring</Button>}
+            <div><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">Optional controlled reading check</p><p className="mt-1 max-w-2xl text-[16px] leading-6 text-[var(--color-text-secondary)]">Use the guided session when you want to recalibrate, test the detector in a controlled reading task, or compare which setup feels easiest.</p></div>
+            <Button variant="secondary" size="sm" onClick={() => setPhase("checkin")}>Open guided check</Button>
           </Card>
           <section aria-label="SomatoSync Shield" className="pt-1">
             <div className="mb-3">
               <h2 className="text-[20px] font-semibold text-[var(--color-text-primary)]">Carry your setup to other websites</h2>
-              <p className="mt-1 max-w-3xl text-[15px] leading-6 text-[var(--color-text-secondary)]">Shield belongs with Focus Mode: it takes the reading supports you choose or learn here and applies them to reading-heavy sites such as Wikipedia.</p>
+              <p className="mt-1 max-w-3xl text-[16px] leading-6 text-[var(--color-text-secondary)]">Shield belongs with Focus Mode: it takes the reading supports you choose or learn here and applies them to reading-heavy sites such as Wikipedia.</p>
             </div>
             <SomatoSyncShieldPanel />
           </section>
 
           {priorSessions.length > 0 && (
             <details className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-4">
-              <summary className="cursor-pointer text-[15px] font-semibold text-[var(--color-text-primary)]">Recent sessions</summary>
+              <summary className="cursor-pointer text-[16px] font-semibold text-[var(--color-text-primary)]">Recent sessions</summary>
               <div className="mt-4 divide-y divide-[var(--color-border)]">
                 {priorSessions.slice(0, 3).map((session) => (
-                  <div key={session.id} className="py-3 text-[14.5px] text-[var(--color-text-secondary)]">
+                  <div key={session.id} className="py-3 text-[16px] text-[var(--color-text-secondary)]">
                     <p className="font-medium text-[var(--color-text-primary)]">{new Date(session.completedAt).toLocaleDateString()}</p>
                     <p className="mt-1">{session.durationSeconds}s · {session.promptCount} prompt{session.promptCount === 1 ? "" : "s"}</p>
                     <p>{session.cameraUsed ? "Camera-assisted session" : "Behavior-only session"}</p>
@@ -545,21 +551,21 @@ export function NeuroAdaptivePage() {
 
       {phase === "checkin" && (
         <Card className="mx-auto max-w-3xl p-6">
-          <h2 className="text-[17px] font-semibold">How does the screen feel right now?</h2>
-          <p className="mt-1 text-[14px] text-[var(--color-text-secondary)]">These answers drive the first interface recommendation. Camera signals never override what you report.</p>
+          <h2 className="text-[22px] font-bold tracking-tight">How does the screen feel?</h2>
+          <p className="mt-1 text-[16px] text-[var(--color-text-secondary)]">Choose how the screen feels right now.</p>
           <div className="mt-5 space-y-5">
             <RatingRow label="Light sensitivity" value={checkIn.lightSensitivity} onChange={(value) => updateCheckIn("lightSensitivity", value)} />
             <RatingRow label="Scrolling or visual-motion discomfort" value={checkIn.visualMotionDiscomfort} onChange={(value) => updateCheckIn("visualMotionDiscomfort", value)} />
             <RatingRow label="Mental fatigue" value={checkIn.mentalFatigue} onChange={(value) => updateCheckIn("mentalFatigue", value)} />
           </div>
           <div className="mt-5 rounded-[var(--radius-md)] border border-[var(--color-accent-soft-border)] bg-[var(--color-accent-soft)] p-4">
-            <p className="text-[14.5px] font-semibold uppercase tracking-wide text-[var(--color-accent)]">Matched reading environment</p>
+            <p className="text-[16px] font-semibold uppercase tracking-wide text-[var(--color-accent)]">Matched reading environment</p>
             {startingPlan.changes.length ? (
               <div className="mt-2 flex flex-wrap gap-2">
-                {startingPlan.changes.map((change) => <span key={change} className="rounded-full bg-[var(--color-surface)] px-2.5 py-1 text-[14.5px] font-medium text-[var(--color-text-primary)]">{change}</span>)}
+                {startingPlan.changes.map((change) => <span key={change} className="rounded-full bg-[var(--color-surface)] px-2.5 py-1 text-[16px] font-medium text-[var(--color-text-primary)]">{change}</span>)}
               </div>
-            ) : <p className="mt-1 text-[14px] text-[var(--color-text-secondary)]">No display change is suggested from the current symptom ratings.</p>}
-            <p className="mt-2 text-[14.5px] text-[var(--color-text-secondary)]">The camera can add a different support later only when the matching behavior pattern persists.</p>
+            ) : <p className="mt-1 text-[16px] text-[var(--color-text-secondary)]">No display change is suggested from the current symptom ratings.</p>}
+            <p className="mt-2 text-[16px] text-[var(--color-text-secondary)]">More support can appear if a pattern lasts.</p>
           </div>
           <div className="mt-5 space-y-3 rounded-[var(--radius-md)] border border-[var(--color-border)] p-4">
             <Toggle label="Use camera-based face landmarks" detail="Optional; frames are processed in memory and immediately discarded." checked={cameraEnabled} onCheckedChange={setCameraEnabled} />
@@ -572,9 +578,9 @@ export function NeuroAdaptivePage() {
       {(phase === "loading" || phase === "calibrating") && (
         <Card className="mx-auto max-w-3xl p-6">
           <h2 className="text-[17px] font-semibold">{phase === "loading" ? "Starting reading support…" : `Comfortable reading reference · ${seconds}s`}</h2>
-          <p className="mt-1 text-[14px] text-[var(--color-text-secondary)]">Sit at a comfortable distance and read the sentence normally. This same-session reference is not a pre-injury baseline.</p>
+          <p className="mt-1 text-[16px] text-[var(--color-text-secondary)]">Sit comfortably and read normally.</p>
           <CameraPanel videoRef={videoRef} overlayRef={overlayRef} visible={cameraVisible} />
-          <p className="mt-4 rounded-[var(--radius-md)] bg-[var(--color-surface-sunken)] p-4 text-[15px] leading-relaxed">A gradual return to everyday thinking and reading tasks can be paced according to symptom tolerance.</p>
+          <p className="mt-4 rounded-[var(--radius-md)] bg-[var(--color-surface-sunken)] p-4 text-[16px] leading-relaxed">A gradual return to everyday thinking and reading tasks can be paced according to symptom tolerance.</p>
         </Card>
       )}
 
@@ -582,18 +588,18 @@ export function NeuroAdaptivePage() {
         <div className="space-y-5">
           {tabPaused && !document.hidden && (
             <Card className="border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] p-4">
-              <div className="flex items-start gap-3"><Pause className="mt-0.5 h-5 w-5 text-[var(--color-accent)]" /><div><p className="text-[15px] font-semibold">Focus session paused while you were away</p><p className="mt-1 text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">Camera analysis and the reading timer pause in another tab. Monitoring resumes after a {resumeGraceSeconds || 3}-second settling period.</p></div></div>
+              <div className="flex items-start gap-3"><Pause className="mt-0.5 h-5 w-5 text-[var(--color-accent)]" /><div><p className="text-[16px] font-semibold">Focus session paused while you were away</p><p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">Monitoring resumes {resumeGraceSeconds || 3} seconds after you return.</p></div></div>
             </Card>
           )}
           {autoAdaptNotice && (
             <Card className="border-[var(--color-positive)]/35 bg-[var(--color-positive-soft)]/30 p-4">
-              <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-[15px] font-semibold">Reading environment adjusted automatically</p><p className="mt-1 text-[14.5px] text-[var(--color-text-secondary)]">The matched support was applied after a sustained multi-signal pattern.</p></div><Button size="sm" variant="secondary" onClick={undoGuidedAutoAdapt}>Undo</Button></div>
+              <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-[16px] font-semibold">Reading environment adjusted automatically</p><p className="mt-1 text-[16px] text-[var(--color-text-secondary)]">Support applied.</p></div><Button size="sm" variant="secondary" onClick={undoGuidedAutoAdapt}>Undo</Button></div>
             </Card>
           )}
           <Card className="overflow-hidden">
             <div className="border-b border-[var(--color-border)] bg-[var(--color-surface-sunken)] px-5 py-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <div><h2 className="text-[17px] font-semibold">Read naturally</h2><p className="mt-0.5 text-[14.5px] text-[var(--color-text-secondary)]">Do not try to trigger anything. A steady session is still a useful result · {Math.floor(elapsedSeconds / 60)}:{String(elapsedSeconds % 60).padStart(2, "0")} elapsed</p></div>
+                <div><h2 className="text-[22px] font-bold tracking-tight">Read naturally</h2><p className="mt-0.5 text-[16px] text-[var(--color-text-secondary)]">{Math.floor(elapsedSeconds / 60)}:{String(elapsedSeconds % 60).padStart(2, "0")} elapsed</p></div>
                 <div className="flex gap-2"><Button size="sm" variant="secondary" onClick={toggleSpeech}>{speechActive ? <Pause /> : <Volume2 />}{speechActive ? "Stop audio" : "Read aloud"}</Button><Button size="sm" onClick={finishSession}>Finish & see result</Button></div>
               </div>
             </div>
@@ -605,7 +611,7 @@ export function NeuroAdaptivePage() {
               className="max-h-[560px] overflow-y-auto p-6 sm:p-8"
               style={{ lineHeight: `calc(1.65 * var(--adaptive-line-spacing, 1))` }}
             >
-              <h3 className="text-[24px] font-semibold tracking-tight">Pacing cognitive activity during recovery</h3>
+              <h3 className="text-[28px] font-bold tracking-tight">Pacing cognitive activity during recovery</h3>
               {READING_TEXT.map((paragraph) => <p key={paragraph.slice(0, 25)} className="mt-6 text-[17px] leading-8 text-[var(--color-text-secondary)]">{paragraph}</p>)}
               <div className="h-40" />
             </div>
@@ -614,23 +620,23 @@ export function NeuroAdaptivePage() {
           <Card className="p-5 sm:p-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-[14.5px] font-medium text-[var(--color-text-tertiary)]">Reading status</p>
+                <p className="text-[16px] font-medium text-[var(--color-text-tertiary)]">Reading status</p>
                 <p className={`mt-1 text-[18px] font-semibold ${estimate?.band === "elevated" ? "text-[var(--color-caution)]" : "text-[var(--color-text-primary)]"}`}>{estimate?.band === "elevated" ? "Sustained reading difficulty noticed" : estimate?.band === "possible" ? "A few small changes noticed" : "Reading looks steady"}</p>
               </div>
-              {cameraEnabled && <span className="text-[14.5px] text-[var(--color-text-secondary)]">Camera tracking {trackingQuality >= 65 ? "ready" : "limited"}</span>}
+              {cameraEnabled && <span className="text-[16px] text-[var(--color-text-secondary)]">Camera tracking {trackingQuality >= 65 ? "ready" : "limited"}</span>}
             </div>
             <details className="mt-4 border-t border-[var(--color-border)] pt-4">
-              <summary className="cursor-pointer text-[14.5px] font-semibold text-[var(--color-accent)]">Why this status changed</summary>
-              <div className="mt-3 space-y-3">{estimate?.reasons.length ? estimate.reasons.map((reason) => <div key={reason.key}><p className="text-[15px] font-medium text-[var(--color-text-primary)]">{reason.label}</p><p className="mt-0.5 text-[14.5px] leading-6 text-[var(--color-text-secondary)]">{reason.detail}</p></div>) : <p className="text-[14.5px] text-[var(--color-text-secondary)]">No sustained multi-signal change detected yet.</p>}</div>
-              {cameraEnabled && <div className="mt-4"><CameraPanel videoRef={videoRef} overlayRef={overlayRef} visible={cameraVisible} compact /><p className="mt-2 text-[14px] text-[var(--color-text-tertiary)]">Camera frames are processed for the session and are not stored.</p></div>}
+              <summary className="cursor-pointer text-[16px] font-semibold text-[var(--color-accent)]">Why this status changed</summary>
+              <div className="mt-3 flex flex-wrap gap-2">{estimate?.reasons.length ? estimate.reasons.map((reason) => <div key={reason.key}><p className="text-[16px] font-medium text-[var(--color-text-primary)]">{reason.label}</p><p className="mt-0.5 text-[16px] leading-6 text-[var(--color-text-secondary)]">{reason.detail}</p></div>) : <p className="text-[16px] text-[var(--color-text-secondary)]">No sustained multi-signal change detected yet.</p>}</div>
+              {cameraEnabled && <div className="mt-4"><CameraPanel videoRef={videoRef} overlayRef={overlayRef} visible={cameraVisible} compact /></div>}
             </details>
           </Card>
 
           {promptVisible && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
               <Card className="w-full max-w-lg p-6 shadow-[var(--shadow-med)]">
-                <div className="flex items-start gap-3"><Sparkles className="mt-0.5 h-6 w-6 text-[var(--color-caution)]" /><div><h2 className="text-[17px] font-semibold">Possible increasing strain</h2><p className="mt-1 text-[14px] text-[var(--color-text-secondary)]">Several session signals changed. This does not prove neurological fatigue.</p></div></div>
-                <div className="mt-4 space-y-2">{estimate?.reasons.slice(0, 3).map((reason) => <p key={reason.key} className="rounded-[var(--radius-md)] bg-[var(--color-surface-sunken)] p-3 text-[14.5px]">{reason.label}</p>)}</div>
+                <div className="flex items-start gap-3"><Sparkles className="mt-0.5 h-6 w-6 text-[var(--color-caution)]" /><div><h2 className="text-[17px] font-semibold">Possible increasing strain</h2><p className="mt-1 text-[16px] text-[var(--color-text-secondary)]">Several session signals changed.</p></div></div>
+                <div className="mt-4 space-y-2">{estimate?.reasons.slice(0, 3).map((reason) => <p key={reason.key} className="rounded-[var(--radius-md)] bg-[var(--color-surface-sunken)] p-3 text-[16px]">{reason.label}</p>)}</div>
                 <div className="mt-5 grid gap-2 sm:grid-cols-3"><Button onClick={applyAdaptiveChanges}>Adapt interface</Button><Button variant="secondary" onClick={startBreak}><Pause />Take 2-min break</Button><Button variant="ghost" onClick={() => setPromptVisible(false)}>Continue</Button></div>
               </Card>
             </div>
@@ -639,28 +645,28 @@ export function NeuroAdaptivePage() {
       )}
 
       {phase === "break" && (
-        <Card className="mx-auto max-w-2xl p-8 text-center"><Pause className="mx-auto h-9 w-9 text-[var(--color-accent)]" /><h2 className="mt-4 text-[20px] font-semibold">Quiet break</h2><p className="mt-2 text-[14.5px] text-[var(--color-text-secondary)]">Look away from the screen, relax your shoulders, and breathe normally. Resume when comfortable.</p><p className="mt-5 text-[36px] font-semibold tabular-nums">{Math.floor(breakSeconds / 60)}:{String(breakSeconds % 60).padStart(2, "0")}</p><Button className="mt-5" variant="secondary" onClick={resumeReading}><Play />Resume early</Button></Card>
+        <Card className="mx-auto max-w-2xl p-8 text-center"><Pause className="mx-auto h-9 w-9 text-[var(--color-accent)]" /><h2 className="mt-4 text-[20px] font-semibold">Quiet break</h2><p className="mt-2 text-[16px] text-[var(--color-text-secondary)]">Look away from the screen, relax your shoulders, and breathe normally. Resume when comfortable.</p><p className="mt-5 text-[36px] font-semibold tabular-nums">{Math.floor(breakSeconds / 60)}:{String(breakSeconds % 60).padStart(2, "0")}</p><Button className="mt-5" variant="secondary" onClick={resumeReading}><Play />Resume early</Button></Card>
       )}
 
       {phase === "result" && (
         <div className="mx-auto max-w-3xl space-y-5">
           <Card className={`border-0 p-6 sm:p-7 ${promptCountRef.current > 0 ? "bg-[var(--color-accent-soft)]" : "bg-[var(--color-positive-soft)]"}`}>
-            <div className="flex items-start gap-4"><CheckCircle2 className="mt-0.5 h-7 w-7 shrink-0 text-[var(--color-positive)]" /><div><p className="text-[14px] font-bold uppercase tracking-[0.14em] text-[var(--color-text-tertiary)]">Session result</p><h2 className="mt-2 text-[24px] font-semibold tracking-tight">{promptCountRef.current > 0 ? "A sustained reading change appeared" : "Reading stayed steady in this session"}</h2><p className="mt-2 text-[15.5px] leading-7 text-[var(--color-text-secondary)]">{promptCountRef.current > 0 ? "SomatoSync noticed a persistent multi-signal change and offered support. The result is about this session only, not a diagnosis." : "No sustained multi-signal change crossed the prompt threshold. That means SomatoSync did not need to interrupt this short reading session."}</p></div></div>
+            <div className="flex items-start gap-4"><CheckCircle2 className="mt-0.5 h-7 w-7 shrink-0 text-[var(--color-positive)]" /><div><p className="text-[16px] font-bold uppercase tracking-[0.14em] text-[var(--color-text-tertiary)]">Session result</p><h2 className="mt-2 text-[24px] font-semibold tracking-tight">{promptCountRef.current > 0 ? "A sustained reading change appeared" : "Reading stayed steady in this session"}</h2><p className="mt-2 text-[16px] leading-7 text-[var(--color-text-secondary)]">{promptCountRef.current > 0 ? "SomatoSync noticed a sustained change and offered support." : "No support was needed during this session."}</p></div></div>
           </Card>
 
           <Card className="p-6 sm:p-7">
-            <p className="text-[14px] font-bold uppercase tracking-[0.14em] text-[var(--color-accent)]">For your next reading session</p>
-            <h3 className="mt-2 text-[21px] font-semibold tracking-tight text-[var(--color-text-primary)]">Keep the setup matched to what you reported</h3>
-            <div className="mt-4 space-y-3">{focusSessionTips(checkIn, promptCountRef.current, adaptationsRef.current).map((tip) => <div key={tip.title} className="rounded-[15px] bg-[var(--color-surface-sunken)] p-4"><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{tip.title}</p><p className="mt-1 text-[15px] leading-6 text-[var(--color-text-secondary)]">{tip.detail}</p></div>)}</div>
+            <p className="text-[16px] font-bold uppercase tracking-[0.14em] text-[var(--color-accent)]">For your next reading session</p>
+            <h3 className="mt-2 text-[21px] font-semibold tracking-tight text-[var(--color-text-primary)]">Next time</h3>
+            <div className="mt-4 space-y-3">{focusSessionTips(checkIn, promptCountRef.current, adaptationsRef.current).map((tip) => <div key={tip.title} className="rounded-[15px] bg-[var(--color-surface-sunken)] p-4"><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{tip.title}</p><p className="mt-1 text-[16px] leading-6 text-[var(--color-text-secondary)]">{tip.detail}</p></div>)}</div>
           </Card>
 
-          {promptCountRef.current > 0 && <Card className="p-5 sm:p-6"><h3 className="text-[16px] font-semibold">Did the latest prompt match how strained you felt?</h3><p className="mt-1 text-[14.5px] text-[var(--color-text-secondary)]">Your answer adjusts local sensitivity slightly. It is not sent anywhere.</p><div className="mt-3 flex flex-wrap gap-2"><Button variant={feedback === true ? "primary" : "secondary"} onClick={() => submitFeedback(true)} disabled={feedback !== null}><CheckCircle2 />Yes, it matched</Button><Button variant={feedback === false ? "primary" : "secondary"} onClick={() => submitFeedback(false)} disabled={feedback !== null}><XCircle />No, it did not</Button></div></Card>}
+          {promptCountRef.current > 0 && <Card className="p-5 sm:p-6"><h3 className="text-[16px] font-semibold">Did the latest prompt match how strained you felt?</h3><p className="mt-1 text-[16px] text-[var(--color-text-secondary)]">This helps tune future prompts.</p><div className="mt-3 flex flex-wrap gap-2"><Button variant={feedback === true ? "primary" : "secondary"} onClick={() => submitFeedback(true)} disabled={feedback !== null}><CheckCircle2 />Yes, it matched</Button><Button variant={feedback === false ? "primary" : "secondary"} onClick={() => submitFeedback(false)} disabled={feedback !== null}><XCircle />No, it did not</Button></div></Card>}
 
           <details className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-4">
-            <summary className="cursor-pointer text-[15px] font-semibold text-[var(--color-text-primary)]">Session details</summary>
+            <summary className="cursor-pointer text-[16px] font-semibold text-[var(--color-text-primary)]">Session details</summary>
             <div className="mt-4 grid gap-3 sm:grid-cols-3"><ResultMetric label="Duration" value={`${elapsedSeconds}s`} /><ResultMetric label="Prompts" value={`${promptCountRef.current}`} /><ResultMetric label="Tracking" value={cameraEnabled ? (trackingQuality >= 65 ? "Ready" : "Limited") : "Off"} /></div>
-            {adaptationsRef.current.length > 0 && <div className="mt-5"><h3 className="text-[15px] font-semibold">Adaptations used</h3><ul className="mt-2 list-disc space-y-1 pl-5 text-[14.5px] text-[var(--color-text-secondary)]">{[...new Set(adaptationsRef.current)].map((item) => <li key={item}>{item}</li>)}</ul></div>}
-            <p className="mt-4 text-[14px] leading-6 text-[var(--color-text-tertiary)]">Only aggregate session information can be saved. No raw camera or interaction stream is retained.</p>
+            {adaptationsRef.current.length > 0 && <div className="mt-5"><h3 className="text-[16px] font-semibold">Adaptations used</h3><ul className="mt-2 list-disc space-y-1 pl-5 text-[16px] text-[var(--color-text-secondary)]">{[...new Set(adaptationsRef.current)].map((item) => <li key={item}>{item}</li>)}</ul></div>}
+            <p className="mt-4 text-[16px] leading-6 text-[var(--color-text-tertiary)]"></p>
           </details>
 
           <div className="flex flex-wrap gap-2"><Button onClick={reset}><RefreshCw />New session</Button><Button variant="secondary" onClick={() => applyProfile("standard", true)}>Return to standard interface</Button></div>
@@ -668,15 +674,15 @@ export function NeuroAdaptivePage() {
       )}
 
       {phase === "error" && (
-        <Card className="mx-auto max-w-2xl p-6"><XCircle className="h-8 w-8 text-[var(--color-risk)]" /><h2 className="mt-3 text-[17px] font-semibold">Camera monitoring could not start</h2><p className="mt-2 text-[14px] text-[var(--color-text-secondary)]">{error}</p><div className="mt-4 flex gap-2"><Button onClick={() => { setCameraEnabled(false); startReading(zeroWindow); }}>Continue without camera</Button><Button variant="secondary" onClick={() => setPhase("checkin")}>Back</Button></div></Card>
+        <Card className="mx-auto max-w-2xl p-6"><XCircle className="h-8 w-8 text-[var(--color-risk)]" /><h2 className="mt-3 text-[17px] font-semibold">Camera monitoring could not start</h2><p className="mt-2 text-[16px] text-[var(--color-text-secondary)]">{error}</p><div className="mt-4 flex gap-2"><Button onClick={() => { setCameraEnabled(false); startReading(zeroWindow); }}>Continue without camera</Button><Button variant="secondary" onClick={() => setPhase("checkin")}>Back</Button></div></Card>
       )}
 
       <details className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-4">
-        <summary className="cursor-pointer text-[15px] font-semibold text-[var(--color-text-primary)]">Scientific and accessibility basis</summary>
-        <p className="mt-1 text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">
+        <summary className="cursor-pointer text-[16px] font-semibold text-[var(--color-text-primary)]">Scientific and accessibility basis</summary>
+        <p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
           The interface adaptations reflect guidance supporting cognitive pacing, scheduled breaks, symptom-limited return to learning, and accommodations for reading difficulty, fatigue, and visual sensitivity. The camera-derived patterns themselves are experimental and non-diagnostic.
         </p>
-        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-[14.5px] font-medium text-[var(--color-accent)]">
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-[16px] font-medium text-[var(--color-accent)]">
           <a href="https://bjsm.bmj.com/content/57/11/695" target="_blank" rel="noreferrer" className="hover:underline">Amsterdam concussion consensus</a>
           <a href="https://concussionsontario.org/concussion/guideline-section/fatigue" target="_blank" rel="noreferrer" className="hover:underline">Ontario fatigue and pacing guidance</a>
           <a href="https://pedsconcussion.com/template-for-concussion-teams-letter-to-the-child-adolescents-school/" target="_blank" rel="noreferrer" className="hover:underline">Pediatric school accommodations</a>
@@ -703,21 +709,21 @@ function focusSessionTips(checkIn: AdaptiveCheckIn, promptCount: number, adaptat
 }
 
 function FocusStep({ number, title, text }: { number: string; title: string; text: string }) {
-  return <div className="rounded-[16px] bg-[var(--color-surface)]/85 p-4"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-accent)] text-[14px] font-bold text-white">{number}</span><p className="mt-3 text-[16px] font-semibold text-[var(--color-text-primary)]">{title}</p><p className="mt-1 text-[14.5px] leading-6 text-[var(--color-text-secondary)]">{text}</p></div>;
+  return <div className="rounded-[16px] bg-[var(--color-surface)]/85 p-4"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-accent)] text-[16px] font-bold text-white">{number}</span><p className="mt-3 text-[16px] font-semibold text-[var(--color-text-primary)]">{title}</p><p className="mt-1 text-[16px] leading-6 text-[var(--color-text-secondary)]">{text}</p></div>;
 }
 
 function RatingRow({ label, value, onChange }: { label: string; value: number; onChange: (value: number) => void }) {
-  return <div><div className="flex items-center justify-between"><label className="text-[14.5px] font-medium">{label}</label><span className="text-[14px] font-semibold tabular-nums">{value}/5</span></div><input className="mt-2 w-full accent-[var(--color-accent)]" type="range" min={0} max={5} value={value} onChange={(event: ChangeEvent<HTMLInputElement>) => onChange(Number(event.target.value))} /><div className="flex justify-between text-[14.5px] text-[var(--color-text-tertiary)]"><span>None</span><span>Severe</span></div></div>;
+  return <div><div className="flex items-center justify-between"><label className="text-[16px] font-medium">{label}</label><span className="text-[16px] font-semibold tabular-nums">{value}/5</span></div><input className="mt-2 w-full accent-[var(--color-accent)]" type="range" min={0} max={5} value={value} onChange={(event: ChangeEvent<HTMLInputElement>) => onChange(Number(event.target.value))} /><div className="flex justify-between text-[16px] text-[var(--color-text-tertiary)]"><span>None</span><span>Severe</span></div></div>;
 }
 
 function Toggle({ label, detail, checked, onCheckedChange }: { label: string; detail: string; checked: boolean; onCheckedChange: (value: boolean) => void }) {
-  return <div className="flex items-start justify-between gap-4"><div><p className="text-[14px] font-medium">{label}</p><p className="mt-0.5 text-[14.5px] text-[var(--color-text-tertiary)]">{detail}</p></div><Switch checked={checked} onCheckedChange={onCheckedChange} aria-label={label} /></div>;
+  return <div className="flex items-start justify-between gap-4"><div><p className="text-[16px] font-medium">{label}</p><p className="mt-0.5 text-[16px] text-[var(--color-text-tertiary)]">{detail}</p></div><Switch checked={checked} onCheckedChange={onCheckedChange} aria-label={label} /></div>;
 }
 
 function CameraPanel({ videoRef, overlayRef, visible, compact = false }: { videoRef: RefObject<HTMLVideoElement | null>; overlayRef: RefObject<HTMLCanvasElement | null>; visible: boolean; compact?: boolean }) {
-  return <div className={`relative mt-4 overflow-hidden rounded-[var(--radius-md)] bg-slate-950 ${compact ? "aspect-[4/3]" : "aspect-video"}`}><video ref={videoRef} muted playsInline className="h-full w-full -scale-x-100 object-cover" /><canvas ref={overlayRef} width={720} height={540} className="pointer-events-none absolute inset-0 h-full w-full" /><div className="absolute left-2 top-2 rounded bg-black/60 px-2 py-1 text-[14.5px] font-medium text-white"><Camera className="mr-1 inline h-3 w-3" />{visible ? "Face landmarks local" : "Position face in view"}</div></div>;
+  return <div className={`relative mt-4 overflow-hidden rounded-[var(--radius-md)] bg-slate-950 ${compact ? "aspect-[4/3]" : "aspect-video"}`}><video ref={videoRef} muted playsInline className="h-full w-full -scale-x-100 object-cover" /><canvas ref={overlayRef} width={720} height={540} className="pointer-events-none absolute inset-0 h-full w-full" /><div className="absolute left-2 top-2 rounded bg-black/60 px-2 py-1 text-[16px] font-medium text-white"><Camera className="mr-1 inline h-3 w-3" />{visible ? "Face landmarks local" : "Position face in view"}</div></div>;
 }
 
 function ResultMetric({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-[var(--radius-md)] bg-[var(--color-surface-sunken)] p-3"><p className="text-[14px] font-medium text-[var(--color-text-tertiary)]">{label}</p><p className="mt-1 text-[18px] font-semibold tabular-nums">{value}</p></div>;
+  return <div className="rounded-[var(--radius-md)] bg-[var(--color-surface-sunken)] p-3"><p className="text-[16px] font-medium text-[var(--color-text-tertiary)]">{label}</p><p className="mt-1 text-[18px] font-semibold tabular-nums">{value}</p></div>;
 }

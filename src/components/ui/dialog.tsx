@@ -31,5 +31,5 @@ export function DialogTitle({ className, ...props }: React.ComponentProps<typeof
 }
 
 export function DialogDescription({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Description>) {
-  return <DialogPrimitive.Description className={cn("mt-1.5 text-[14px] text-[var(--color-text-secondary)]", className)} {...props} />;
+  return <DialogPrimitive.Description className={cn("mt-1.5 text-[16px] text-[var(--color-text-secondary)]", className)} {...props} />;
 }

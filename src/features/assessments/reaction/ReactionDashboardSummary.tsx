@@ -41,12 +41,12 @@ export function ReactionDashboardSummary() {
               <span className="font-mono text-[26px] font-semibold tabular-nums text-[var(--color-text-primary)]">
                 {roundMs(latest.medianMs)}
               </span>
-              <span className="text-[14px] text-[var(--color-text-tertiary)]">ms median</span>
+              <span className="text-[16px] text-[var(--color-text-tertiary)]">ms median</span>
             </div>
           ) : (
-            <p className="text-[15px] font-medium text-[var(--color-text-primary)]">Not enough valid trials to interpret</p>
+            <p className="text-[16px] font-medium text-[var(--color-text-primary)]">Not enough valid trials to interpret</p>
           )}
-          <p className="mt-0.5 text-[14.5px] text-[var(--color-text-secondary)]">
+          <p className="mt-0.5 text-[16px] text-[var(--color-text-secondary)]">
             {formatDate(latest.completedAt, { month: "short", day: "numeric" })} &middot; Quality: {qualityLabel[latest.quality]}
           </p>
         </div>
@@ -56,7 +56,7 @@ export function ReactionDashboardSummary() {
       </div>
 
       {latest.medianMs != null && (
-        <dl className="mt-3 flex flex-wrap gap-x-8 gap-y-1.5 border-t border-[var(--color-border)] pt-3 text-[14px]">
+        <dl className="mt-3 flex flex-wrap gap-x-8 gap-y-1.5 border-t border-[var(--color-border)] pt-3 text-[16px]">
           <div>
             <dt className="text-[var(--color-text-tertiary)]">Change from first assessment</dt>
             <dd className="text-[var(--color-text-primary)]">

@@ -144,7 +144,7 @@ export function ResearchAssistantPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Research Assistant" context="Ask a recovery question and inspect the evidence behind the answer." />
+      <PageHeader title="Research Assistant" context="Ask a recovery question." />
 
       <div className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--color-positive)]/20 bg-[var(--color-positive-soft)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
@@ -152,14 +152,14 @@ export function ResearchAssistantPage() {
             {aiWorking ? <LoaderCircle className="h-4 w-4 animate-spin" /> : aiReady ? <Cpu className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
           </span>
           <div>
-            <p className="text-[14.5px] font-semibold text-[var(--color-text-primary)]">{assistantStatusLabel}</p>
-            <p className="mt-0.5 text-[14.5px] text-[var(--color-text-secondary)]">
+            <p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{assistantStatusLabel}</p>
+            <p className="mt-0.5 text-[16px] text-[var(--color-text-secondary)]">
               {aiReady
-                ? "Ask a recovery question and SomatoSync will answer from the evidence library with sources you can inspect."
-                : "Evidence search works now. You can optionally prepare fuller private answers for this device."}
+                ? "Private AI is ready."
+                : "Evidence search is ready."}
             </p>
             {aiProgress?.percent != null && (
-              <p className="mt-1 text-[14.5px] font-medium text-[var(--color-positive)]">{aiProgress.percent}% downloaded</p>
+              <p className="mt-1 text-[16px] font-medium text-[var(--color-positive)]">{aiProgress.percent}% downloaded</p>
             )}
           </div>
         </div>
@@ -170,7 +170,7 @@ export function ResearchAssistantPage() {
               Prepare fuller answers
             </Button>
           )}
-          <details className="text-[14.5px] text-[var(--color-text-secondary)]">
+          <details className="text-[16px] text-[var(--color-text-secondary)]">
             <summary className="cursor-pointer font-semibold text-[var(--color-positive)]">Privacy details</summary>
             <p className="mt-2 max-w-xl leading-relaxed">
               The optional answer generator can run privately after a one-time setup. Questions clear when you leave this page, and the assistant cannot read camera or assessment data.
@@ -182,13 +182,13 @@ export function ResearchAssistantPage() {
       <div className={"space-y-6"}>
         <Panel
           title="Ask a question"
-          description="Answers are grounded in a curated concussion evidence library."
+          description="Answers use the built-in evidence library."
           actions={
             history.length > 0 ? (
               <button
                 type="button"
                 onClick={clearConversation}
-                className="flex items-center gap-1.5 text-[14.5px] font-medium text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
+                className="flex items-center gap-1.5 text-[16px] font-medium text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
               >
                 <Eraser className="h-3.5 w-3.5" /> Clear chat
               </button>
@@ -200,9 +200,9 @@ export function ResearchAssistantPage() {
               <div className="flex items-start gap-2.5">
                 <Bot className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-accent)]" aria-hidden="true" />
                 <div>
-                  <p className="text-[14.5px] font-semibold text-[var(--color-text-primary)]">Ask in your own words</p>
-                  <p className="mt-1 text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">
-                    BM25 and semantic search retrieve evidence, a local cross-encoder reranks it, and a verifier checks the generated answer before display.
+                  <p className="text-[16px] font-semibold text-[var(--color-text-primary)]">Ask in your own words</p>
+                  <p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
+                    Ask in your own words. Sources stay visible.
                   </p>
                 </div>
               </div>
@@ -212,7 +212,7 @@ export function ResearchAssistantPage() {
                     key={question}
                     type="button"
                     onClick={() => void ask(question)}
-                    className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-left text-[14.5px] text-[var(--color-accent)] hover:border-[var(--color-accent-soft-border)] hover:bg-[var(--color-accent-soft)]"
+                    className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-left text-[16px] text-[var(--color-accent)] hover:border-[var(--color-accent-soft-border)] hover:bg-[var(--color-accent-soft)]"
                   >
                     {question}
                   </button>
@@ -236,12 +236,12 @@ export function ResearchAssistantPage() {
                 <div className="ml-auto max-w-[85%] rounded-[var(--radius-md)] bg-[var(--color-accent-soft)] px-4 py-3">
                   <div className="flex items-start gap-2">
                     <UserRound className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-accent)]" aria-hidden="true" />
-                    <p className="text-[14px] leading-relaxed text-[var(--color-text-primary)]">{pendingQuestion}</p>
+                    <p className="text-[16px] leading-relaxed text-[var(--color-text-primary)]">{pendingQuestion}</p>
                   </div>
                 </div>
                 <div className="max-w-[90%] rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-sunken)] p-4">
                   <LoadingState label={aiProgress?.label ?? "Searching the local evidence library"} />
-                  {aiProgress?.percent != null && <p className="mt-2 text-center text-[14.5px] text-[var(--color-text-tertiary)]">{aiProgress.percent}%</p>}
+                  {aiProgress?.percent != null && <p className="mt-2 text-center text-[16px] text-[var(--color-text-tertiary)]">{aiProgress.percent}%</p>}
                 </div>
               </div>
             )}
@@ -267,7 +267,7 @@ export function ResearchAssistantPage() {
             </div>
             <Button type="submit" disabled={!query.trim() || loading || preparingAi}>Ask</Button>
           </form>
-          <p className="mt-2 text-[14.5px] text-[var(--color-text-tertiary)]">
+          <p className="mt-2 text-[16px] text-[var(--color-text-tertiary)]">
             Session-only chat · local generation when available · no paid cloud API
           </p>
         </Panel>
@@ -284,7 +284,7 @@ export function ResearchAssistantPage() {
         )}
       </div>
 
-      <details className="rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-[14.5px] text-[var(--color-text-secondary)] shadow-[var(--shadow-low)]">
+      <details className="rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-[16px] text-[var(--color-text-secondary)] shadow-[var(--shadow-low)]">
         <summary className="cursor-pointer font-semibold text-[var(--color-text-primary)]">AI Evaluation Lab</summary>
         <div className="mt-3 space-y-4">
           <p className="max-w-3xl leading-relaxed">
@@ -303,14 +303,14 @@ export function ResearchAssistantPage() {
             </div>
           )}
           {evaluation && (
-            <p className="text-[14.5px] text-[var(--color-text-tertiary)]">
+            <p className="text-[16px] text-[var(--color-text-tertiary)]">
               {evaluation.retrievalCases} retrieval cases · {evaluation.safetyCases} safety cases · {evaluation.failures.length} failed check{evaluation.failures.length === 1 ? "" : "s"} · completed {new Date(evaluation.completedAt).toLocaleTimeString()}
             </p>
           )}
         </div>
       </details>
 
-      <details className="rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-[14.5px] text-[var(--color-text-secondary)] shadow-[var(--shadow-low)]">
+      <details className="rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-[16px] text-[var(--color-text-secondary)] shadow-[var(--shadow-low)]">
         <summary className="cursor-pointer font-semibold text-[var(--color-text-primary)]">How the assistant protects privacy</summary>
         <div className="mt-3 space-y-3">
           <p><strong className="text-[var(--color-text-primary)]">Local pipeline:</strong> embeddings, reranking, Gemini Nano or FLAN-T5, and verification run on the device after model downloads.</p>
@@ -326,7 +326,7 @@ export function ResearchAssistantPage() {
 function EvaluationMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-sunken)] p-3">
-      <p className="text-[14.5px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-tertiary)]">{label}</p>
+      <p className="text-[16px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-tertiary)]">{label}</p>
       <p className="mt-1 text-[18px] font-semibold text-[var(--color-text-primary)]">{value}</p>
     </div>
   );
@@ -346,25 +346,25 @@ function ResearchExchange({
       <div className="ml-auto max-w-[85%] rounded-[var(--radius-md)] bg-[var(--color-accent-soft)] px-4 py-3">
         <div className="flex items-start gap-2">
           <UserRound className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-accent)]" aria-hidden="true" />
-          <p className="text-[14px] leading-relaxed text-[var(--color-text-primary)]">{answer.question}</p>
+          <p className="text-[16px] leading-relaxed text-[var(--color-text-primary)]">{answer.question}</p>
         </div>
       </div>
 
       <div className="max-w-[92%] rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-sunken)] p-4">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-accent-soft)] px-2.5 py-1 text-[14.5px] font-medium text-[var(--color-accent)]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-accent-soft)] px-2.5 py-1 text-[16px] font-medium text-[var(--color-accent)]">
             <Bot className="h-3.5 w-3.5" /> {answer.retrievalLabel}
           </span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-positive-soft)] px-2.5 py-1 text-[14.5px] font-medium text-[var(--color-positive)]">
+          <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-positive-soft)] px-2.5 py-1 text-[16px] font-medium text-[var(--color-positive)]">
             <CheckCircle2 className="h-3.5 w-3.5" /> {answer.confidenceLabel}
           </span>
         </div>
 
-        <p className="mt-3 text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">{answer.answer}</p>
+        <p className="mt-3 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">{answer.answer}</p>
         <Disclaimer variant="inline" className="mt-4" />
 
         {(answer.orchestrationTrace || answer.retrievalDetails || answer.verification) && (
-          <details className="mt-4 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-[14.5px] text-[var(--color-text-secondary)]">
+          <details className="mt-4 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-[16px] text-[var(--color-text-secondary)]">
             <summary className="cursor-pointer font-semibold text-[var(--color-text-primary)]">Why this answer was shown</summary>
             {answer.retrievalDetails && (
               <div className="mt-3 flex flex-wrap gap-2">
@@ -387,7 +387,7 @@ function ResearchExchange({
               <ol className="mt-3 space-y-2">
                 {answer.orchestrationTrace.map((step, index) => (
                   <li key={`${answer.id}_${step.node}_${index}`} className="flex gap-2">
-                    <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--color-surface-sunken)] text-[14.5px] font-semibold">{index + 1}</span>
+                    <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--color-surface-sunken)] text-[16px] font-semibold">{index + 1}</span>
                     <span><strong className="text-[var(--color-text-primary)]">{step.node}</strong> · {step.detail} <span className="text-[var(--color-text-tertiary)]">({step.durationMs} ms)</span></span>
                   </li>
                 ))}
@@ -397,7 +397,7 @@ function ResearchExchange({
         )}
 
         <div className="mt-4 flex items-center gap-2 border-t border-[var(--color-border)] pt-3">
-          <span className="text-[14.5px] text-[var(--color-text-tertiary)]">Helpful?</span>
+          <span className="text-[16px] text-[var(--color-text-tertiary)]">Helpful?</span>
           <button
             type="button"
             onClick={() => onFeedback("up")}
@@ -416,7 +416,7 @@ function ResearchExchange({
           >
             <ThumbsDown className="h-3.5 w-3.5" />
           </button>
-          <span className="ml-auto text-[14.5px] text-[var(--color-text-tertiary)]">General information only</span>
+          <span className="ml-auto text-[16px] text-[var(--color-text-tertiary)]">General information only</span>
         </div>
       </div>
     </div>

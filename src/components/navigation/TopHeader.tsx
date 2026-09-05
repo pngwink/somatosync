@@ -61,7 +61,7 @@ export function TopHeader() {
           <div className="lg:hidden">
             <Wordmark />
           </div>
-          <span className="hidden text-[15.5px] font-semibold text-[var(--color-text-primary)] lg:block" aria-current="page">
+          <span className="hidden text-[16px] font-semibold text-[var(--color-text-primary)] lg:block" aria-current="page">
             {currentTitle}
           </span>
         </div>
@@ -91,13 +91,13 @@ export function TopHeader() {
                       <DropdownMenuItem key={`${task.date}-${task.assessmentType}`} onClick={() => navigate(task.href)}>
                         <div>
                           <p className="font-medium">{task.label}</p>
-                          <p className="text-[14.5px] text-[var(--color-text-secondary)]">Suggested for today</p>
+                          <p className="text-[16px] text-[var(--color-text-secondary)]">Suggested for today</p>
                         </div>
                       </DropdownMenuItem>
                     ))}
                   </div>
                 ) : (
-                  <div className="px-2.5 py-3 text-[14.5px] text-[var(--color-text-secondary)]">
+                  <div className="px-2.5 py-3 text-[16px] text-[var(--color-text-secondary)]">
                     {assessmentRemindersEnabled ? "Nothing is due right now." : "Assessment reminders are turned off."}
                   </div>
                 )}
@@ -178,7 +178,7 @@ export function TopHeader() {
                   onClick={() => setMobileOpen(false)}
                   className={({ isActive }) =>
                     cn(
-                      "flex items-center gap-2.5 rounded-[var(--radius-sm)] px-2.5 py-2.5 text-[15px] font-medium",
+                      "flex items-center gap-2.5 rounded-[var(--radius-sm)] px-2.5 py-2.5 text-[16px] font-medium",
                       isActive ? "bg-[var(--color-accent-soft)] text-[var(--color-accent)]" : "text-[var(--color-text-secondary)]"
                     )
                   }
@@ -187,7 +187,7 @@ export function TopHeader() {
                   {item.label}
                 </NavLink>
               ))}
-              <p className="mb-1 mt-4 px-2.5 text-[14.5px] font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">More</p>
+              <p className="mb-1 mt-4 px-2.5 text-[16px] font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">More</p>
               {secondaryNavItems.map((item) => (
                 <NavLink
                   key={item.href}
@@ -195,7 +195,7 @@ export function TopHeader() {
                   onClick={() => setMobileOpen(false)}
                   className={({ isActive }) =>
                     cn(
-                      "flex items-center gap-2.5 rounded-[var(--radius-sm)] px-2.5 py-2.5 text-[15px] font-medium",
+                      "flex items-center gap-2.5 rounded-[var(--radius-sm)] px-2.5 py-2.5 text-[16px] font-medium",
                       isActive ? "bg-[var(--color-accent-soft)] text-[var(--color-accent)]" : "text-[var(--color-text-secondary)]"
                     )
                   }

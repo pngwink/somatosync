@@ -9,7 +9,7 @@ export function SelectTrigger({ className, children, ...props }: React.Component
   return (
     <SelectPrimitive.Trigger
       className={cn(
-        "flex h-10 w-full items-center justify-between gap-2 rounded-[var(--radius-sm)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3 text-[15px] text-[var(--color-text-primary)]",
+        "flex h-10 w-full items-center justify-between gap-2 rounded-[var(--radius-sm)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3 text-[16px] text-[var(--color-text-primary)]",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]",
         className
       )}
@@ -43,7 +43,7 @@ export function SelectItem({ className, children, ...props }: React.ComponentPro
   return (
     <SelectPrimitive.Item
       className={cn(
-        "relative flex cursor-pointer items-center rounded-[var(--radius-sm)] py-2 pl-7 pr-3 text-[14px] text-[var(--color-text-primary)] outline-none data-[highlighted]:bg-[var(--color-surface-sunken)]",
+        "relative flex cursor-pointer items-center rounded-[var(--radius-sm)] py-2 pl-7 pr-3 text-[16px] text-[var(--color-text-primary)] outline-none data-[highlighted]:bg-[var(--color-surface-sunken)]",
         className
       )}
       {...props}

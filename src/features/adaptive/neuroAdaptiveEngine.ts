@@ -14,7 +14,7 @@ const clamp = (value: number, min = 0, max = 1) => Math.min(max, Math.max(min, v
 const average = (values: number[]) => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
 
 export function recommendProfile(checkIn: AdaptiveCheckIn): AdaptiveProfile {
-  const peak = Math.max(checkIn.lightSensitivity, checkIn.visualMotionDiscomfort, checkIn.mentalFatigue);
+  const peak = Math.max(checkIn.lightSensitivity, checkIn.visualMotionDiscomfort, checkIn.mentalFatigue, checkIn.visualProblems ?? 0);
   if (checkIn.mentalFatigue >= 4 && (checkIn.lightSensitivity >= 3 || checkIn.visualMotionDiscomfort >= 3)) return "audio-first";
   if (peak >= 3) return "reduced-stimulation";
   return "standard";
@@ -22,12 +22,24 @@ export function recommendProfile(checkIn: AdaptiveCheckIn): AdaptiveProfile {
 
 export function profileSettings(profile: AdaptiveProfile) {
   if (profile === "audio-first") {
-    return { textScale: 1.12, lineSpacing: 1.35, reduceMotion: true, softContrast: true, textToSpeechPreferred: true, reduceDensity: true, focusReadingLayout: true };
+    return {
+      textScale: 1.12, lineSpacing: 1.32, reduceMotion: true, softContrast: true,
+      textToSpeechPreferred: true, reduceDensity: true, focusReadingLayout: true,
+      calmMedia: true, stabilizeViewport: true, emphasizeStructure: true,
+    };
   }
   if (profile === "reduced-stimulation") {
-    return { textScale: 1.08, lineSpacing: 1.25, reduceMotion: true, softContrast: true, textToSpeechPreferred: false, reduceDensity: true, focusReadingLayout: true };
+    return {
+      textScale: 1.08, lineSpacing: 1.22, reduceMotion: true, softContrast: true,
+      textToSpeechPreferred: false, reduceDensity: true, focusReadingLayout: true,
+      calmMedia: true, stabilizeViewport: false, emphasizeStructure: true,
+    };
   }
-  return { textScale: 1, lineSpacing: 1, reduceMotion: false, softContrast: false, textToSpeechPreferred: false, reduceDensity: false, focusReadingLayout: false };
+  return {
+    textScale: 1, lineSpacing: 1, reduceMotion: false, softContrast: false,
+    textToSpeechPreferred: false, reduceDensity: false, focusReadingLayout: false,
+    calmMedia: false, stabilizeViewport: false, emphasizeStructure: false,
+  };
 }
 
 export function summarizeSignalWindow(
@@ -149,50 +161,69 @@ export function planAdaptiveIntervention(
   const reasonKeys = new Set(estimate?.reasons.map((reason) => reason.key) ?? []);
   const closeViewing = reasonKeys.has("faceScale");
   const squintOrTension = reasonKeys.has("browTension");
-  const visualInstability = reasonKeys.has("gazeDeviation") || reasonKeys.has("headMotion");
+  const headMovement = reasonKeys.has("headMotion");
+  const gazeChange = reasonKeys.has("gazeDeviation");
+  const visualInstability = gazeChange || headMovement;
   const rereading = reasonKeys.has("scrollReversalsPerMinute");
   const longPauses = reasonKeys.has("idleRatio");
   const blinkChange = reasonKeys.has("blinkRateBpm");
 
+  const lightSensitivity = checkIn.lightSensitivity ?? 0;
+  const motionDiscomfort = checkIn.visualMotionDiscomfort ?? 0;
+  const mentalFatigue = checkIn.mentalFatigue ?? 0;
+  const headache = checkIn.headache ?? 0;
+  const visualProblems = checkIn.visualProblems ?? 0;
+
+  // Different signals create different support modes. The camera is never treated
+  // as diagnostic evidence; it only refines reversible presentation changes.
   const combinedVisualStrain = closeViewing && squintOrTension;
-  const needsTextSupport = closeViewing || squintOrTension;
-  const needsVisualCalming = checkIn.lightSensitivity >= 3 || (blinkChange && squintOrTension);
-  const needsMotionReduction = checkIn.visualMotionDiscomfort >= 3 || visualInstability;
-  // Sustained close-viewing + squinting is treated as a reading-layout problem, not just a font-size problem.
-  // This creates a visibly quieter reading spotlight while keeping palette changes symptom-specific.
-  const needsCognitiveSimplification = checkIn.mentalFatigue >= 3 || rereading || longPauses || combinedVisualStrain;
-  const needsFocusedReadingLayout = needsTextSupport || needsCognitiveSimplification;
-  const needsAudio = checkIn.mentalFatigue >= 4 && (rereading || longPauses || visualInstability);
+  const needsTextSupport = closeViewing || squintOrTension || visualProblems >= 4;
+  const needsVisualCalming = lightSensitivity >= 3 || (blinkChange && (squintOrTension || headache >= 3 || visualProblems >= 2));
+  const needsMotionReduction = motionDiscomfort >= 3 || visualInstability;
+  const needsViewportStability = motionDiscomfort >= 3 || headMovement || (gazeChange && blinkChange);
+  const needsCognitiveSimplification = mentalFatigue >= 3 || rereading || longPauses;
+  const needsFocusedReadingLayout = needsTextSupport || visualProblems >= 3 || headache >= 4 || needsCognitiveSimplification;
+  const needsStructure = combinedVisualStrain || needsCognitiveSimplification || visualProblems >= 3;
+  const needsCalmMedia = needsVisualCalming || visualInstability;
+  const needsAudio = mentalFatigue >= 4 && (rereading || longPauses || visualInstability);
 
   const changes: string[] = [];
-  if (needsTextSupport) changes.push("Larger text");
-  if (needsTextSupport || rereading) changes.push("More line spacing");
-  if (needsVisualCalming) changes.push("Softer contrast");
-  if (needsMotionReduction) changes.push("Reduced motion");
-  if (combinedVisualStrain) changes.push("Reading spotlight");
-  else if (needsCognitiveSimplification) changes.push("Less secondary detail");
-  if (needsFocusedReadingLayout) changes.push("Focused reading width");
+  if (needsVisualCalming) changes.push("Low-glare palette");
+  if (needsCalmMedia) changes.push("Calmer media");
+  if (needsTextSupport) changes.push(combinedVisualStrain ? "Reading text enlarged" : "Readable text sizing");
+  if (needsTextSupport || rereading || headache >= 4) changes.push("More reading spacing");
+  if (needsFocusedReadingLayout) changes.push(combinedVisualStrain ? "Reading lane" : "Focused reading width");
+  if (needsCognitiveSimplification) changes.push("Secondary content reduced");
+  if (needsStructure) changes.push("Stronger visual hierarchy");
+  if (needsMotionReduction) changes.push("Motion reduced");
+  if (needsViewportStability) changes.push("Stable viewport");
   if (needsAudio) changes.push("Read-aloud support");
 
   const reasons: string[] = [];
-  if (checkIn.lightSensitivity >= 3) reasons.push("Latest check-in reports light sensitivity");
-  if (checkIn.visualMotionDiscomfort >= 3) reasons.push("Latest check-in reports visual or motion discomfort");
-  if (checkIn.mentalFatigue >= 3) reasons.push("Latest check-in reports mental fatigue");
+  if (lightSensitivity >= 3) reasons.push("Current symptoms include light sensitivity");
+  if (visualProblems >= 3) reasons.push("Current symptoms include visual difficulty");
+  if (headache >= 4) reasons.push("Current symptoms include a higher headache rating");
+  if (motionDiscomfort >= 3) reasons.push("Current symptoms include dizziness, balance, nausea, or visual-motion discomfort");
+  if (mentalFatigue >= 3) reasons.push("Current symptoms include fatigue or cognitive difficulty");
   for (const reason of estimate?.reasons.slice(0, 3) ?? []) reasons.push(reason.label);
 
   const profile: AdaptiveProfile = needsAudio ? "audio-first" : changes.length ? "reduced-stimulation" : "standard";
   return {
     profile,
-    textScale: needsTextSupport ? (combinedVisualStrain ? 1.16 : 1.1) : 1,
-    lineSpacing: needsTextSupport || rereading ? (combinedVisualStrain ? 1.28 : 1.2) : 1,
+    // Typography changes are intentionally reading-surface changes, not browser zoom.
+    textScale: needsTextSupport ? (combinedVisualStrain ? 1.18 : 1.1) : (headache >= 4 ? 1.06 : 1),
+    lineSpacing: needsTextSupport || rereading || headache >= 4 ? (combinedVisualStrain ? 1.28 : 1.18) : 1,
     reduceMotion: needsMotionReduction,
     softContrast: needsVisualCalming,
     textToSpeechPreferred: needsAudio,
     reduceDensity: needsCognitiveSimplification,
     focusReadingLayout: needsFocusedReadingLayout,
-    changes,
-    reasons: [...new Set(reasons)].slice(0, 5),
-    recommendBreak: longPauses || checkIn.mentalFatigue >= 4 || (estimate?.reasons.length ?? 0) >= 4,
+    calmMedia: needsCalmMedia,
+    stabilizeViewport: needsViewportStability,
+    emphasizeStructure: needsStructure,
+    changes: [...new Set(changes)],
+    reasons: [...new Set(reasons)].slice(0, 6),
+    recommendBreak: longPauses || mentalFatigue >= 4 || (estimate?.reasons.length ?? 0) >= 4,
   };
 }
 

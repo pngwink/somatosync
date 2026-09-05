@@ -1,7 +1,7 @@
-import { getMostRecentPcssResult } from "../assessments/pcss/pcssStorage";
 import { buildSupportPatterns } from "../recovery-memory/recoveryMemoryEngine";
 import type { AdaptiveCheckIn, NeuroAdaptiveSettings } from "./neuroAdaptiveTypes";
 import { buildAdaptivePreflightSuggestion } from "./adaptivePreflight";
+import { getCurrentAdaptiveCheckIn } from "./symptomContext";
 
 export interface SomatoSyncShieldProfile {
   version: 2;
@@ -14,6 +14,9 @@ export interface SomatoSyncShieldProfile {
   softContrast: boolean;
   reduceDensity: boolean;
   focusReadingLayout: boolean;
+  calmMedia: boolean;
+  stabilizeViewport: boolean;
+  emphasizeStructure: boolean;
   symptomContext: AdaptiveCheckIn | null;
   learnedSupports: string[];
   recommendedChanges: string[];
@@ -24,31 +27,12 @@ export interface SomatoSyncShieldProfile {
     softContrast: boolean;
     reduceDensity: boolean;
     focusReadingLayout: boolean;
+    calmMedia: boolean;
+    stabilizeViewport: boolean;
+    emphasizeStructure: boolean;
   } | null;
 }
 
-function latestSymptomContext(): AdaptiveCheckIn | null {
-  const latest = getMostRecentPcssResult();
-  if (!latest) return null;
-  const ratings = latest.ratings;
-  const clip = (value: number) => Math.max(0, Math.min(5, Number(value) || 0));
-  return {
-    lightSensitivity: clip(ratings.sensitivityToLight),
-    visualMotionDiscomfort: clip(Math.max(
-      ratings.visualProblems,
-      ratings.dizziness,
-      ratings.balanceProblems,
-      ratings.nausea,
-    )),
-    mentalFatigue: clip(Math.max(
-      ratings.fatigue,
-      ratings.drowsiness,
-      ratings.slowedDown,
-      ratings.mentallyFoggy,
-      ratings.difficultyConcentrating,
-    )),
-  };
-}
 
 export function createShieldProfile(settings: NeuroAdaptiveSettings): SomatoSyncShieldProfile {
   const preflight = buildAdaptivePreflightSuggestion(settings);
@@ -63,7 +47,10 @@ export function createShieldProfile(settings: NeuroAdaptiveSettings): SomatoSync
     softContrast: settings.softContrast,
     reduceDensity: settings.reduceDensity,
     focusReadingLayout: settings.focusReadingLayout,
-    symptomContext: latestSymptomContext(),
+    calmMedia: settings.calmMedia,
+    stabilizeViewport: settings.stabilizeViewport,
+    emphasizeStructure: settings.emphasizeStructure,
+    symptomContext: getCurrentAdaptiveCheckIn(),
     learnedSupports: preflight?.learnedFrom ?? buildSupportPatterns()
       .filter((pattern) => pattern.helpfulCount > 0)
       .slice(0, 3)
@@ -76,6 +63,9 @@ export function createShieldProfile(settings: NeuroAdaptiveSettings): SomatoSync
       softContrast: preflight.settings.softContrast,
       reduceDensity: preflight.settings.reduceDensity,
       focusReadingLayout: preflight.settings.focusReadingLayout,
+      calmMedia: preflight.settings.calmMedia,
+      stabilizeViewport: preflight.settings.stabilizeViewport,
+      emphasizeStructure: preflight.settings.emphasizeStructure,
     } : null,
   };
 }

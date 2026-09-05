@@ -13,8 +13,8 @@ function SettingsRow({ title, description, control }: { title: string; descripti
   return (
     <div className="flex items-center justify-between gap-4 py-3.5">
       <div>
-        <p className="text-[14.5px] font-medium text-[var(--color-text-primary)]">{title}</p>
-        {description && <p className="mt-0.5 max-w-lg text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">{description}</p>}
+        <p className="text-[16px] font-medium text-[var(--color-text-primary)]">{title}</p>
+        {description && <p className="mt-0.5 max-w-lg text-[16px] leading-relaxed text-[var(--color-text-secondary)]">{description}</p>}
       </div>
       <div className="shrink-0">{control}</div>
     </div>
@@ -69,7 +69,7 @@ export function SettingsPage() {
 
         <PanelDivider />
 
-        <h3 className="mb-1 text-[14.5px] font-semibold text-[var(--color-text-primary)]">In-app notifications</h3>
+        <h3 className="mb-1 text-[16px] font-semibold text-[var(--color-text-primary)]">In-app notifications</h3>
         <div className="divide-y divide-[var(--color-border)]">
           <SettingsRow
             title="Notification center"
@@ -94,8 +94,8 @@ export function SettingsPage() {
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="text-[14.5px] font-semibold text-[var(--color-text-primary)]">Privacy and data controls</h3>
-            <p className="mt-0.5 text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">
+            <h3 className="text-[16px] font-semibold text-[var(--color-text-primary)]">Privacy and data controls</h3>
+            <p className="mt-0.5 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
               Export or delete the local recovery record from the working Privacy & Data page.
             </p>
           </div>

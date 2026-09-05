@@ -90,7 +90,7 @@ export function CheckInPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Check In" context="Start with symptoms. Add another task only when it is useful today." />
+      <PageHeader title="Check In" context="Start with symptoms. Add a task only if you need it." />
 
       <Tabs value={activeTab} onValueChange={changeTab}>
         <TabsList className="grid w-full grid-cols-3 sm:inline-grid sm:w-auto">
@@ -104,8 +104,8 @@ export function CheckInPage() {
               <div>
                 <Badge tone="caution" showDot>Recommended first</Badge>
                 <h2 className="mt-3 text-[22px] font-semibold tracking-tight text-[var(--color-text-primary)]">Daily symptom check-in</h2>
-                <p className="mt-2 max-w-xl text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">
-                  A short PCSS-format update gives the rest of the app context about how you feel today.
+                <p className="mt-2 max-w-xl text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
+                  Give SomatoSync a quick update.
                 </p>
                 <div className="mt-5 flex flex-wrap items-center gap-3">
                   <Button asChild>
@@ -114,9 +114,9 @@ export function CheckInPage() {
                   <Button variant="secondary" asChild>
                     <Link to="/app/assessments/pcss">Use form<ArrowRight className="ml-1 h-4 w-4" /></Link>
                   </Button>
-                  {latestPcss && <span className="text-[14.5px] text-[var(--color-text-secondary)]">Last result: <strong className="text-[var(--color-text-primary)]">{latestPcss.totalSeverity} / 132</strong></span>}
+                  {latestPcss && <span className="text-[16px] text-[var(--color-text-secondary)]">Last result: <strong className="text-[var(--color-text-primary)]">{latestPcss.totalSeverity} / 132</strong></span>}
                 </div>
-                <p className="mt-5 border-t border-[var(--color-border)] pt-4 text-[14.5px] text-[var(--color-text-tertiary)]">You do not need to complete every assessment every day.</p>
+                <p className="mt-5 border-t border-[var(--color-border)] pt-4 text-[16px] text-[var(--color-text-tertiary)]">You do not need every assessment every day.</p>
               </div>
           </Card>
 
@@ -124,7 +124,7 @@ export function CheckInPage() {
             <div className="mb-3 flex items-end justify-between gap-3">
               <div>
                 <h2 className="text-[17px] font-semibold text-[var(--color-text-primary)]">Optional tasks</h2>
-                <p className="mt-0.5 text-[14.5px] text-[var(--color-text-secondary)]">Short, separate signals—not one combined score.</p>
+                <p className="mt-0.5 text-[16px] text-[var(--color-text-secondary)]">Only when useful.</p>
               </div>
               <Button variant="ghost" size="sm" asChild><Link to="/app/check-in?tab=schedule">View schedule</Link></Button>
             </div>
@@ -144,7 +144,7 @@ export function CheckInPage() {
                               <h3 className="text-[17px] font-semibold text-[var(--color-text-primary)]">{definition.name}</h3>
                               {definition.id === "balance" && <Badge tone="info">Camera proxy</Badge>}
                             </div>
-                            <p className="mt-0.5 text-[14.5px] text-[var(--color-text-tertiary)]">{definition.estimatedDurationMinutes} min · {definition.suggestedCadence}</p>
+                            <p className="mt-0.5 text-[16px] text-[var(--color-text-tertiary)]">{definition.estimatedDurationMinutes} min · {definition.suggestedCadence}</p>
                           </div>
                           <Button size="sm" variant={result ? "secondary" : "primary"} onClick={() => startAssessment(definition)}>
                             <Play className="h-3.5 w-3.5" /> {result ? "Retake" : "Start"}
@@ -154,12 +154,12 @@ export function CheckInPage() {
                           <div className="mt-3 flex items-start gap-2 border-t border-[var(--color-border)] pt-3">
                             <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-positive)]" />
                             <div>
-                              <p className="text-[14.5px] font-semibold text-[var(--color-text-primary)]">{interpretation.label}</p>
-                              <p className="mt-0.5 line-clamp-2 text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">{interpretation.detail}</p>
+                              <p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{interpretation.label}</p>
+                              
                             </div>
                           </div>
                         ) : (
-                          <p className="mt-3 border-t border-[var(--color-border)] pt-3 text-[14.5px] text-[var(--color-text-tertiary)]">No result yet</p>
+                          <p className="mt-3 border-t border-[var(--color-border)] pt-3 text-[16px] text-[var(--color-text-tertiary)]">No result yet</p>
                         )}
                       </div>
                     </div>
@@ -170,8 +170,8 @@ export function CheckInPage() {
           </section>
 
           <details className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 shadow-[var(--shadow-low)]">
-            <summary className="cursor-pointer text-[14.5px] font-semibold text-[var(--color-text-primary)]">What each task can—and cannot—show</summary>
-            <div className="mt-4 space-y-3 text-[15px] leading-6 text-[var(--color-text-secondary)]">
+            <summary className="cursor-pointer text-[16px] font-semibold text-[var(--color-text-primary)]">What each task can—and cannot—show</summary>
+            <div className="mt-4 space-y-3 text-[16px] leading-6 text-[var(--color-text-secondary)]">
               <p><strong className="text-[var(--color-text-primary)]">PCSS:</strong> standardized symptom tracking; still self-report, not diagnosis.</p>
               <p><strong className="text-[var(--color-text-primary)]">Reaction:</strong> response-speed trend; affected by device, sleep, attention, and practice.</p>
               <p><strong className="text-[var(--color-text-primary)]">Learning & recall:</strong> repeated learning plus delayed recall; one cognitive domain only.</p>
@@ -183,13 +183,13 @@ export function CheckInPage() {
           <div className="flex flex-col gap-3 sm:flex-row">
             <Link to="/app/recovery?tab=plan" className="flex flex-1 items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
               <span className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-[var(--color-info-soft)] text-[var(--color-info)]"><Route className="h-5 w-5" /></span>
-              <div className="min-w-0 flex-1"><p className="text-[14.5px] font-semibold text-[var(--color-text-primary)]">Log an activity response</p><p className="mt-0.5 text-[14.5px] text-[var(--color-text-secondary)]">School, work, daily life, or exercise</p></div>
+              <div className="min-w-0 flex-1"><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">Log an activity response</p><p className="mt-0.5 text-[16px] text-[var(--color-text-secondary)]">School, work, exercise</p></div>
               <ChevronRight className="h-4 w-4 text-[var(--color-text-tertiary)]" />
             </Link>
             {latestPcss && guidance.length > 0 && (
               <Link to="/app/recovery?tab=plan" className="flex flex-1 items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
                 <span className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-[var(--color-caution-soft)] text-[var(--color-caution)]"><Sparkles className="h-5 w-5" /></span>
-                <div className="min-w-0 flex-1"><p className="text-[14.5px] font-semibold text-[var(--color-text-primary)]">{guidance[0].title}</p><p className="mt-0.5 line-clamp-1 text-[14.5px] text-[var(--color-text-secondary)]">{guidance[0].suggestions[0]}</p></div>
+                <div className="min-w-0 flex-1"><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{guidance[0].title}</p><p className="mt-0.5 line-clamp-1 text-[16px] text-[var(--color-text-secondary)]">{guidance[0].suggestions[0]}</p></div>
                 <ChevronRight className="h-4 w-4 text-[var(--color-text-tertiary)]" />
               </Link>
             )}
@@ -197,7 +197,7 @@ export function CheckInPage() {
         </TabsContent>
 
         <TabsContent value="history" className="space-y-4">
-          <Panel title="Latest results" description="Open a result only when you want the full explanation or trend chart.">
+          <Panel title="Latest results" description="Open a result for more detail.">
             <div className="divide-y divide-[var(--color-border)]">
               {availableAssessments.map((definition) => {
                 const result = latestResultFor(definition.id);
@@ -207,8 +207,8 @@ export function CheckInPage() {
                   <div key={definition.id} className="flex items-center gap-3 py-4 first:pt-0 last:pb-0">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-[var(--color-surface-sunken)] text-[var(--color-accent)]"><Icon className="h-4.5 w-4.5" /></span>
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2"><p className="text-[14.5px] font-semibold text-[var(--color-text-primary)]">{definition.name}</p>{interpretation && <Badge tone={interpretation.tone}>{interpretation.label}</Badge>}</div>
-                      <p className="mt-0.5 text-[14.5px] text-[var(--color-text-secondary)]">{result ? `${result.value} ${result.unit}` : "No result recorded"}</p>
+                      <div className="flex flex-wrap items-center gap-2"><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{definition.name}</p>{interpretation && <Badge tone={interpretation.tone}>{interpretation.label}</Badge>}</div>
+                      <p className="mt-0.5 text-[16px] text-[var(--color-text-secondary)]">{result ? `${result.value} ${result.unit}` : "No result recorded"}</p>
                     </div>
                     <Button size="sm" variant="ghost" onClick={() => startAssessment(definition)}>{result ? "Retake" : "Start"}</Button>
                   </div>
@@ -221,7 +221,7 @@ export function CheckInPage() {
 
         <TabsContent value="schedule" className="space-y-4">
           <WeeklyScheduleView days={days} todayKey={todayKey} />
-          <details className="rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-[14.5px] text-[var(--color-text-secondary)] shadow-[var(--shadow-low)]">
+          <details className="rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-[16px] text-[var(--color-text-secondary)] shadow-[var(--shadow-low)]">
             <summary className="cursor-pointer font-semibold text-[var(--color-text-primary)]">Why are tasks spaced out?</summary>
             <p className="mt-2 leading-relaxed">Symptoms can be checked more often, while reaction, memory, and balance tasks are spaced to reduce fatigue and repeated-test effects. This is a prototype schedule, not a prescription.</p>
           </details>

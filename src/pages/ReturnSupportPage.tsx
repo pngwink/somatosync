@@ -128,7 +128,7 @@ export function ReturnSupportPage() {
       <PageHeader
         eyebrow="Recovery plan"
         title="What are you returning to?"
-        context="Choose one pathway, see the current step, and record how real activities feel. Everything else stays tucked away."
+        context="Choose a pathway. Log what you tried."
         actions={<div className="flex gap-2"><Button variant="ghost" size="sm" onClick={() => setContextOpen(true)}><Pencil />Context</Button><Button variant="secondary" size="sm" asChild><Link to="/app/recovery?tab=plan"><ArrowLeft />Recovery</Link></Button></div>}
       />
 
@@ -140,8 +140,8 @@ export function ReturnSupportPage() {
             onClick={() => setPathway(item)}
             className={`rounded-[16px] border px-4 py-3.5 text-left transition ${pathway === item ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)]" : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-border-strong)]"}`}
           >
-            <p className={`text-[14px] font-bold uppercase tracking-[0.12em] ${pathway === item ? "text-[var(--color-accent)]" : "text-[var(--color-text-tertiary)]"}`}>{pathwayLabels[item]}</p>
-            <p className="mt-1 text-[15px] font-medium text-[var(--color-text-primary)]">Step {(item === pathway ? currentStage(item, progress) : currentStage(item, loadProtocolProgress(item))).step}</p>
+            <p className={`text-[16px] font-bold uppercase tracking-[0.12em] ${pathway === item ? "text-[var(--color-accent)]" : "text-[var(--color-text-tertiary)]"}`}>{pathwayLabels[item]}</p>
+            <p className="mt-1 text-[16px] font-medium text-[var(--color-text-primary)]">Step {(item === pathway ? currentStage(item, progress) : currentStage(item, loadProtocolProgress(item))).step}</p>
           </button>
         ))}
       </div>
@@ -149,10 +149,9 @@ export function ReturnSupportPage() {
       <Card className="overflow-hidden border-0 bg-[var(--color-accent-soft)] p-0">
         <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
           <div className="max-w-[760px]">
-            <p className="text-[14px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent)]">{pathwayLabels[pathway]} · Step {stage.step}</p>
+            <p className="text-[16px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent)]">{pathwayLabels[pathway]} · Step {stage.step}</p>
             <h2 className="mt-3 text-[28px] font-semibold tracking-[-0.025em] text-[var(--color-text-primary)]">{stage.title}</h2>
-            <p className="mt-3 text-[16.5px] leading-8 text-[var(--color-text-secondary)]">{stage.description}</p>
-            <p className="mt-3 text-[14.5px] font-medium text-[var(--color-accent)]">Examples: {stage.examples.slice(0, 3).join(" · ")}</p>
+            <p className="mt-3 line-clamp-2 text-[17px] leading-8 text-[var(--color-text-secondary)]">{stage.description}</p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
             <Button onClick={() => setActivityOpen(true)}><Plus />Log an activity</Button>
@@ -166,10 +165,10 @@ export function ReturnSupportPage() {
           <div className="flex items-start gap-4">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-[var(--color-surface)] text-[var(--color-info)]"><ClipboardCheck className="h-5 w-5" /></span>
             <div>
-              <p className="text-[14px] font-bold uppercase tracking-[0.13em] text-[var(--color-text-tertiary)]">Latest activity response</p>
+              <p className="text-[16px] font-bold uppercase tracking-[0.13em] text-[var(--color-text-tertiary)]">Latest activity response</p>
               <h3 className="mt-2 text-[19px] font-semibold text-[var(--color-text-primary)]">{latestCoach.label}</h3>
-              <p className="mt-1 text-[15px] leading-7 text-[var(--color-text-secondary)]">{latestCoach.detail}</p>
-              <p className="mt-2 text-[15px] font-semibold leading-7 text-[var(--color-text-primary)]">{latestCoach.nextAction}</p>
+              
+              <p className="mt-2 text-[16px] font-semibold leading-7 text-[var(--color-text-primary)]">{latestCoach.nextAction}</p>
             </div>
           </div>
         </Card>
@@ -177,18 +176,18 @@ export function ReturnSupportPage() {
 
       <section aria-labelledby="today-supports" className="space-y-4">
         <div>
-          <p className="text-[14px] font-bold uppercase tracking-[0.14em] text-[var(--color-positive)]">Today</p>
+          <p className="text-[16px] font-bold uppercase tracking-[0.14em] text-[var(--color-positive)]">Today</p>
           <h2 id="today-supports" className="mt-1 text-[24px] font-semibold tracking-tight text-[var(--color-text-primary)]">Supports worth keeping nearby</h2>
-          <p className="mt-1 max-w-3xl text-[15.5px] leading-7 text-[var(--color-text-secondary)]">Only the first few symptom-linked suggestions are shown here. This page is for action, not a clinical report.</p>
+          <p className="mt-1 max-w-3xl text-[16px] leading-7 text-[var(--color-text-secondary)]">Keep the supports that matter today.</p>
         </div>
 
         {guidance.length === 0 ? (
-          <Card className="p-6"><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">No symptom-specific support is highlighted yet.</p><p className="mt-1 text-[15px] text-[var(--color-text-secondary)]">Complete a symptom check-in to populate this section.</p><Button asChild className="mt-4"><Link to="/app/assessments/pcss">Start symptom check-in</Link></Button></Card>
+          <Card className="p-6"><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">No symptom-specific support is highlighted yet.</p><p className="mt-1 text-[16px] text-[var(--color-text-secondary)]">Complete a check-in to see supports.</p><Button asChild className="mt-4"><Link to="/app/assessments/pcss">Start symptom check-in</Link></Button></Card>
         ) : (
           <div className="grid gap-4 lg:grid-cols-2">
             {guidance.slice(0, 3).map((item, index) => (
               <Card key={item.id} className={`border-0 p-5 sm:p-6 ${index % 2 === 0 ? "bg-[var(--color-positive-soft)]" : "bg-[var(--color-info-soft)]"}`}>
-                <div className="flex items-start gap-3"><Sparkles className="mt-1 h-5 w-5 shrink-0 text-[var(--color-accent)]" /><div><h3 className="text-[18px] font-semibold text-[var(--color-text-primary)]">{item.title}</h3><p className="mt-1 text-[14.5px] font-medium text-[var(--color-text-tertiary)]">{item.trigger}</p><p className="mt-3 text-[15.5px] leading-7 text-[var(--color-text-secondary)]">{item.suggestions[0]}</p></div></div>
+                <div className="flex items-start gap-3"><Sparkles className="mt-1 h-5 w-5 shrink-0 text-[var(--color-accent)]" /><div><h3 className="text-[18px] font-semibold text-[var(--color-text-primary)]">{item.title}</h3><p className="mt-2 line-clamp-2 text-[16px] leading-7 text-[var(--color-text-secondary)]">{item.suggestions[0]}</p></div></div>
               </Card>
             ))}
           </div>
@@ -197,7 +196,7 @@ export function ReturnSupportPage() {
 
       {logs.length > 0 && (
         <Card className="p-5 sm:p-6">
-          <div className="flex items-center justify-between gap-4"><div><p className="text-[14px] font-bold uppercase tracking-[0.13em] text-[var(--color-text-tertiary)]">Recent activity</p><h2 className="mt-1 text-[20px] font-semibold text-[var(--color-text-primary)]">What you tried</h2></div><Button variant="ghost" size="sm" onClick={() => setActivityOpen(true)}>Log another</Button></div>
+          <div className="flex items-center justify-between gap-4"><div><p className="text-[16px] font-bold uppercase tracking-[0.13em] text-[var(--color-text-tertiary)]">Recent activity</p><h2 className="mt-1 text-[20px] font-semibold text-[var(--color-text-primary)]">What you tried</h2></div><Button variant="ghost" size="sm" onClick={() => setActivityOpen(true)}>Log another</Button></div>
           <div className="mt-4 divide-y divide-[var(--color-border)]">
             {logs.slice(0, 3).map((log) => <ActivityRow key={log.id} log={log} />)}
           </div>
@@ -206,22 +205,22 @@ export function ReturnSupportPage() {
 
       <details className="group rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-4 sm:px-6">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-1">
-          <div><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">More recovery detail</p><p className="mt-0.5 text-[14.5px] text-[var(--color-text-secondary)]">AI explanation, outlook, data coverage, and scientific sources</p></div>
+          <div><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">More recovery detail</p><p className="mt-0.5 text-[16px] text-[var(--color-text-secondary)]">Sources and deeper guidance</p></div>
           <ChevronRight className="h-5 w-5 shrink-0 text-[var(--color-accent)] transition group-open:rotate-90" />
         </summary>
         <div className="mt-5 space-y-5 border-t border-[var(--color-border)] pt-5">
           <Card className="border-0 bg-[var(--color-info-soft)] p-5">
             <Badge tone={outlook.summaryTone} showDot>{outlook.phaseLabel}</Badge>
             <h3 className="mt-3 text-[18px] font-semibold text-[var(--color-text-primary)]">{outlook.summary}</h3>
-            <p className="mt-2 text-[15px] leading-7 text-[var(--color-text-secondary)]">{outlook.noDateReason}</p>
-            <p className="mt-3 text-[14.5px] font-medium text-[var(--color-text-tertiary)]">Data coverage: {outlook.dataCoverage}</p>
+            <p className="mt-2 text-[16px] leading-7 text-[var(--color-text-secondary)]">{outlook.noDateReason}</p>
+            <p className="mt-3 text-[16px] font-medium text-[var(--color-text-tertiary)]">Data coverage: {outlook.dataCoverage}</p>
           </Card>
 
           <AiRecoveryExplanationPanel evidence={evidence} outlook={outlook} guidance={guidance} />
 
           <div className="rounded-[16px] bg-[var(--color-surface-sunken)] p-5">
-            <div className="flex items-start gap-3"><BookOpenCheck className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-accent)]" /><div><h3 className="text-[17px] font-semibold text-[var(--color-text-primary)]">Scientific basis</h3><p className="mt-1 text-[15px] leading-7 text-[var(--color-text-secondary)]">SomatoSync uses gradual, symptom-limited return concepts and keeps school, daily life, and sport pathways separate. It does not generate clearance or a personal recovery date.</p></div></div>
-            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-[14.5px] font-medium text-[var(--color-accent)]">
+            <div className="flex items-start gap-3"><BookOpenCheck className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-accent)]" /><div><h3 className="text-[17px] font-semibold text-[var(--color-text-primary)]">Scientific basis</h3><p className="mt-1 text-[16px] leading-7 text-[var(--color-text-secondary)]">SomatoSync uses gradual, symptom-limited return concepts and keeps school, daily life, and sport pathways separate. It does not generate clearance or a personal recovery date.</p></div></div>
+            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-[16px] font-medium text-[var(--color-accent)]">
               {recoveryGuidanceSources.slice(0, 3).map((source) => <a key={source.id} href={source.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:underline">{source.publisher}<ExternalLink className="h-3 w-3" /></a>)}
             </div>
           </div>
@@ -241,7 +240,7 @@ function ActivityRow({ log }: { log: ProtocolActivityLog }) {
   const message = coachMessageFor(log);
   return (
     <div className="flex flex-col gap-2 py-3.5 first:pt-0 last:pb-0 sm:flex-row sm:items-start sm:justify-between">
-      <div><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{log.activityLabel}</p><p className="mt-1 text-[14.5px] text-[var(--color-text-secondary)]">{log.durationMinutes} min · {new Date(log.completedAt).toLocaleDateString()}</p>{log.notes && <p className="mt-1 text-[14.5px] text-[var(--color-text-tertiary)]">{log.notes}</p>}</div>
+      <div><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{log.activityLabel}</p><p className="mt-1 text-[16px] text-[var(--color-text-secondary)]">{log.durationMinutes} min · {new Date(log.completedAt).toLocaleDateString()}</p>{log.notes && <p className="mt-1 text-[16px] text-[var(--color-text-tertiary)]">{log.notes}</p>}</div>
       <Badge tone={message.tone} showDot>{message.label}</Badge>
     </div>
   );
@@ -265,19 +264,19 @@ function StageDialog({ open, onOpenChange, pathway, currentStageId, onSelect }: 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[86vh] max-w-xl overflow-y-auto">
         <DialogTitle>Change current {pathwayLabels[pathway].toLowerCase()} step</DialogTitle>
-        <DialogDescription>Choose the step you are currently tracking. SomatoSync never advances this automatically.</DialogDescription>
+        <DialogDescription>Choose your current step.</DialogDescription>
         <div className="mt-5 space-y-3">
           {protocolStages[pathway].map((item) => {
             const active = item.id === currentStageId;
             return (
               <button key={item.id} type="button" onClick={() => choose(item.id)} className={`w-full rounded-[16px] border p-4 text-left ${active ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)]" : "border-[var(--color-border)] hover:border-[var(--color-border-strong)]"}`}>
-                <div className="flex items-start justify-between gap-3"><div><p className="text-[14px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-tertiary)]">Step {item.step}</p><p className="mt-1 text-[16px] font-semibold text-[var(--color-text-primary)]">{item.title}</p><p className="mt-1 text-[14.5px] leading-6 text-[var(--color-text-secondary)]">{item.description}</p></div>{active && <Badge tone="accent">Current</Badge>}</div>
+                <div className="flex items-start justify-between gap-3"><div><p className="text-[16px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-tertiary)]">Step {item.step}</p><p className="mt-1 text-[16px] font-semibold text-[var(--color-text-primary)]">{item.title}</p></div>{active && <Badge tone="accent">Current</Badge>}</div>
               </button>
             );
           })}
         </div>
         {pathway === "play" && (
-          <label className="mt-4 flex items-start gap-3 rounded-[14px] bg-[var(--color-caution-soft)] p-4 text-[14.5px] leading-6 text-[var(--color-text-secondary)]"><input type="checkbox" className="mt-1" checked={medicalConfirmed} onChange={(event) => setMedicalConfirmed(event.target.checked)} /><span>I am only selecting an at-risk sport step because the required healthcare professional has authorized that progression.</span></label>
+          <label className="mt-4 flex items-start gap-3 rounded-[14px] bg-[var(--color-caution-soft)] p-4 text-[16px] leading-6 text-[var(--color-text-secondary)]"><input type="checkbox" className="mt-1" checked={medicalConfirmed} onChange={(event) => setMedicalConfirmed(event.target.checked)} /><span>I am only selecting an at-risk sport step because the required healthcare professional has authorized that progression.</span></label>
         )}
       </DialogContent>
     </Dialog>
@@ -303,7 +302,7 @@ function ActivityDialog({ open, onOpenChange, stageTitle, onSave }: { open: bool
         <DialogDescription>Current step: {stageTitle}. Record the activity and how symptoms responded.</DialogDescription>
         <div className="mt-5 space-y-4">
           <div className="space-y-1.5"><Label htmlFor="activity-name">What did you try?</Label><Input id="activity-name" value={activityLabel} onChange={(event) => setActivityLabel(event.target.value)} placeholder="Example: two classes or a 15-minute walk" /></div>
-          <div className="space-y-1.5"><Label htmlFor="activity-duration">Duration</Label><div className="flex items-center gap-2"><Input id="activity-duration" type="number" min={1} max={480} value={durationMinutes} onChange={(event) => setDurationMinutes(Number(event.target.value) || 1)} /><span className="text-[15px] text-[var(--color-text-secondary)]">minutes</span></div></div>
+          <div className="space-y-1.5"><Label htmlFor="activity-duration">Duration</Label><div className="flex items-center gap-2"><Input id="activity-duration" type="number" min={1} max={480} value={durationMinutes} onChange={(event) => setDurationMinutes(Number(event.target.value) || 1)} /><span className="text-[16px] text-[var(--color-text-secondary)]">minutes</span></div></div>
           <div className="space-y-1.5"><Label>How did symptoms respond?</Label><Select value={response} onValueChange={(value) => setResponse(value as ActivityResponse)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="tolerated">No meaningful increase</SelectItem><SelectItem value="mild-brief">Mild and brief increase</SelectItem><SelectItem value="significant-prolonged">Significant or prolonged increase</SelectItem></SelectContent></Select></div>
           <div className="space-y-1.5"><Label htmlFor="activity-notes">Optional note</Label><Textarea id="activity-notes" rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="What changed, and how long did it last?" /></div>
           <Button className="w-full" onClick={save} disabled={!activityLabel.trim()}>Save activity</Button>
@@ -336,15 +335,15 @@ function RecoveryContextDialog({ open, onOpenChange, profile, isDemo, onSaved }:
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[86vh] max-w-2xl overflow-y-auto">
         <DialogTitle>Recovery context</DialogTitle>
-        <DialogDescription>This optional information personalizes pathways and follow-up guidance. It stays separate from your daily actions.</DialogDescription>
-        {isDemo && <div className="mt-4 rounded-[14px] bg-[var(--color-accent-soft)] p-3 text-[14.5px] text-[var(--color-text-secondary)]">Maya’s demo context is fixed for the sample journey.</div>}
+        <DialogDescription>Optional recovery context.</DialogDescription>
+        {isDemo && <div className="mt-4 rounded-[14px] bg-[var(--color-accent-soft)] p-3 text-[16px] text-[var(--color-text-secondary)]">Maya’s demo context is fixed for the sample journey.</div>}
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5"><Label htmlFor="recovery-injury-date">Injury date</Label><Input id="recovery-injury-date" type="date" value={draft.injuryDate} disabled={isDemo} onChange={(event) => setDraft((previous) => ({ ...previous, injuryDate: event.target.value }))} /></div>
           <div className="space-y-1.5"><Label>Age group</Label><Select value={draft.ageGroup} disabled={isDemo} onValueChange={(value) => setDraft((previous) => ({ ...previous, ageGroup: value as AgeGroup }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="child-teen">Child or teen</SelectItem><SelectItem value="adult">Adult</SelectItem><SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem></SelectContent></Select></div>
           <div className="space-y-1.5 sm:col-span-2"><Label>How the injury happened</Label><Select value={draft.injuryCause} disabled={isDemo} onValueChange={(value) => setDraft((previous) => ({ ...previous, injuryCause: value as InjuryCause }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="fall">Fall</SelectItem><SelectItem value="vehicle">Vehicle crash</SelectItem><SelectItem value="workplace">Workplace incident</SelectItem><SelectItem value="sport">Sport</SelectItem><SelectItem value="recreation">Non-sport recreation</SelectItem><SelectItem value="assault">Assault</SelectItem><SelectItem value="other">Other</SelectItem><SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem></SelectContent></Select></div>
         </div>
-        <div className="mt-6 border-t border-[var(--color-border)] pt-5"><p className="text-[15px] font-semibold text-[var(--color-text-primary)]">What are you returning to?</p><div className="mt-3 grid gap-2 sm:grid-cols-2">{(Object.keys(focusLabels) as RecoveryFocus[]).map((focus) => <label key={focus} className="flex items-center gap-3 rounded-[14px] border border-[var(--color-border)] p-3 text-[15px] text-[var(--color-text-secondary)]"><input type="checkbox" checked={draft.focuses.includes(focus)} disabled={isDemo} onChange={() => toggleFocus(focus)} /><span>{focusLabels[focus]}</span></label>)}</div></div>
-        <details className="mt-5 rounded-[14px] border border-[var(--color-border)] px-4 py-3"><summary className="cursor-pointer text-[15px] font-semibold text-[var(--color-text-primary)]">Optional recovery-risk context</summary><div className="mt-3 grid gap-2 sm:grid-cols-2">{riskOptions.map((option) => <label key={option.key} className="flex items-start gap-2 text-[14.5px] text-[var(--color-text-secondary)]"><input type="checkbox" className="mt-1" checked={draft.riskContext[option.key]} disabled={isDemo} onChange={() => toggleRisk(option.key)} /><span>{option.label}</span></label>)}</div></details>
+        <div className="mt-6 border-t border-[var(--color-border)] pt-5"><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">What are you returning to?</p><div className="mt-3 grid gap-2 sm:grid-cols-2">{(Object.keys(focusLabels) as RecoveryFocus[]).map((focus) => <label key={focus} className="flex items-center gap-3 rounded-[14px] border border-[var(--color-border)] p-3 text-[16px] text-[var(--color-text-secondary)]"><input type="checkbox" checked={draft.focuses.includes(focus)} disabled={isDemo} onChange={() => toggleFocus(focus)} /><span>{focusLabels[focus]}</span></label>)}</div></div>
+        <details className="mt-5 rounded-[14px] border border-[var(--color-border)] px-4 py-3"><summary className="cursor-pointer text-[16px] font-semibold text-[var(--color-text-primary)]">Optional recovery-risk context</summary><div className="mt-3 grid gap-2 sm:grid-cols-2">{riskOptions.map((option) => <label key={option.key} className="flex items-start gap-2 text-[16px] text-[var(--color-text-secondary)]"><input type="checkbox" className="mt-1" checked={draft.riskContext[option.key]} disabled={isDemo} onChange={() => toggleRisk(option.key)} /><span>{option.label}</span></label>)}</div></details>
         <Button className="mt-5 w-full" onClick={save}>{isDemo ? "Close demo context" : "Save context"}</Button>
       </DialogContent>
     </Dialog>

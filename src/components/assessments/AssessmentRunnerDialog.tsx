@@ -45,7 +45,7 @@ export function AssessmentRunnerDialog({ definition, onOpenChange, onComplete }:
         <div className="mt-5">
           {state === "intro" && (
             <div className="space-y-4">
-              <p className="text-[14.5px] text-[var(--color-text-secondary)]">
+              <p className="text-[16px] text-[var(--color-text-secondary)]">
                 This will take about {definition.estimatedDurationMinutes} minutes. Find a quiet, well-lit space before starting.
               </p>
               <Button className="w-full" onClick={handleStart}>
@@ -57,15 +57,15 @@ export function AssessmentRunnerDialog({ definition, onOpenChange, onComplete }:
           {state === "running" && (
             <div className="flex flex-col items-center gap-3 py-6 text-center">
               <Loader2 className="h-6 w-6 animate-spin text-[var(--color-accent)]" aria-hidden="true" />
-              <p className="text-[14.5px] text-[var(--color-text-secondary)]">Assessment in progress…</p>
+              <p className="text-[16px] text-[var(--color-text-secondary)]">Assessment in progress…</p>
             </div>
           )}
 
           {state === "complete" && (
             <div className="flex flex-col items-center gap-3 py-4 text-center">
               <CheckCircle2 className="h-9 w-9 text-[var(--color-positive)]" />
-              <p className="text-[15px] font-medium text-[var(--color-text-primary)]">Assessment complete</p>
-              <p className="text-[14px] text-[var(--color-text-secondary)]">Your result has been added to today's record.</p>
+              <p className="text-[16px] font-medium text-[var(--color-text-primary)]">Assessment complete</p>
+              <p className="text-[16px] text-[var(--color-text-secondary)]">Your result has been added to today's record.</p>
               <Button className="mt-2 w-full" onClick={() => handleClose(false)}>
                 Done
               </Button>
@@ -75,8 +75,8 @@ export function AssessmentRunnerDialog({ definition, onOpenChange, onComplete }:
           {state === "camera-unavailable" && (
             <div className="flex flex-col items-center gap-3 py-4 text-center">
               <VideoOff className="h-8 w-8 text-[var(--color-caution)]" />
-              <p className="text-[15px] font-medium text-[var(--color-text-primary)]">Camera unavailable</p>
-              <p className="text-[14px] text-[var(--color-text-secondary)]">
+              <p className="text-[16px] font-medium text-[var(--color-text-primary)]">Camera unavailable</p>
+              <p className="text-[16px] text-[var(--color-text-secondary)]">
                 This device's camera couldn't be accessed. Check your browser permissions or try on a device with a
                 camera.
               </p>

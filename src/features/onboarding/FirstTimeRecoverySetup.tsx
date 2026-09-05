@@ -78,7 +78,7 @@ export function FirstTimeRecoverySetup() {
       <DialogContent className="max-h-[90vh] max-w-xl overflow-y-auto">
         <div className="flex items-center gap-2 text-[var(--color-accent)]">
           <CalendarDays className="h-5 w-5" />
-          <span className="text-[14.5px] font-semibold uppercase tracking-wide">60-second setup</span>
+          <span className="text-[16px] font-semibold uppercase tracking-wide">60-second setup</span>
         </div>
         <DialogTitle className="mt-2">Personalize the recovery journey</DialogTitle>
         <DialogDescription>Only the details that change what SomatoSync shows. Everything is optional and stored locally.</DialogDescription>
@@ -97,8 +97,8 @@ export function FirstTimeRecoverySetup() {
 
         {step === 1 && (
           <div className="mt-5 space-y-5">
-            <div><Label>Main return goals</Label><div className="mt-2 grid gap-2 sm:grid-cols-2">{focusOptions.map((option) => <button key={option.value} type="button" onClick={() => toggleFocus(option.value)} className={`flex items-center justify-between rounded-[var(--radius-sm)] border px-3 py-3 text-left text-[14px] ${focuses.includes(option.value) ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent)]" : "border-[var(--color-border)] text-[var(--color-text-primary)]"}`}><span>{option.label}</span>{focuses.includes(option.value) && <Check className="h-4 w-4" />}</button>)}</div></div>
-            <div><Label>Working with a healthcare professional?</Label><div className="mt-2 flex gap-2">{[{ value: true, label: "Yes" }, { value: false, label: "Not currently" }].map((option) => <button key={String(option.value)} type="button" onClick={() => setWorkingWithClinician(option.value)} className={`rounded-[var(--radius-sm)] border px-4 py-2 text-[14px] ${workingWithClinician === option.value ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent)]" : "border-[var(--color-border)] text-[var(--color-text-primary)]"}`}>{option.label}</button>)}</div></div>
+            <div><Label>Main return goals</Label><div className="mt-2 grid gap-2 sm:grid-cols-2">{focusOptions.map((option) => <button key={option.value} type="button" onClick={() => toggleFocus(option.value)} className={`flex items-center justify-between rounded-[var(--radius-sm)] border px-3 py-3 text-left text-[16px] ${focuses.includes(option.value) ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent)]" : "border-[var(--color-border)] text-[var(--color-text-primary)]"}`}><span>{option.label}</span>{focuses.includes(option.value) && <Check className="h-4 w-4" />}</button>)}</div></div>
+            <div><Label>Working with a healthcare professional?</Label><div className="mt-2 flex gap-2">{[{ value: true, label: "Yes" }, { value: false, label: "Not currently" }].map((option) => <button key={String(option.value)} type="button" onClick={() => setWorkingWithClinician(option.value)} className={`rounded-[var(--radius-sm)] border px-4 py-2 text-[16px] ${workingWithClinician === option.value ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent)]" : "border-[var(--color-border)] text-[var(--color-text-primary)]"}`}>{option.label}</button>)}</div></div>
           </div>
         )}
 
@@ -111,10 +111,10 @@ export function FirstTimeRecoverySetup() {
               ["audio-first", "Audio first", "Reduced stimulation with text-to-speech suggested for longer content."],
             ] as Array<[AccessibilityPreference, string, string]>).map(([value, title, detail]) => (
               <button key={value} type="button" onClick={() => setAccessibility(value)} className={`w-full rounded-[var(--radius-md)] border p-3 text-left ${accessibility === value ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)]" : "border-[var(--color-border)]"}`}>
-                <p className="text-[14.5px] font-semibold text-[var(--color-text-primary)]">{title}</p><p className="mt-1 text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">{detail}</p>
+                <p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{title}</p><p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">{detail}</p>
               </button>
             ))}
-            <div className="flex items-start gap-2 rounded-[var(--radius-sm)] bg-[var(--color-surface-sunken)] p-3"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-positive)]" /><p className="text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">These choices personalize navigation and accessibility only. They do not diagnose, predict recovery, or set medical restrictions.</p></div>
+            <div className="flex items-start gap-2 rounded-[var(--radius-sm)] bg-[var(--color-surface-sunken)] p-3"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-positive)]" /><p className="text-[16px] leading-relaxed text-[var(--color-text-secondary)]">These choices personalize navigation and accessibility only. They do not diagnose, predict recovery, or set medical restrictions.</p></div>
           </div>
         )}
 

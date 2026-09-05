@@ -47,19 +47,19 @@ export function ReactionResults({ result, onRetake }: ReactionResultsProps) {
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Primary result</p>
+        <p className="text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Primary result</p>
         {hasResult ? (
           <div className="mt-1 flex flex-wrap items-end gap-x-3 gap-y-1">
             <span className="font-mono text-[36px] font-semibold leading-none tracking-tight text-[var(--color-text-primary)] tabular-nums">
               {roundMs(result.medianMs)}
             </span>
-            <span className="mb-0.5 text-[15px] text-[var(--color-text-tertiary)]">ms median</span>
+            <span className="mb-0.5 text-[16px] text-[var(--color-text-tertiary)]">ms median</span>
           </div>
         ) : (
-          <p className="mt-1 text-[15px] font-semibold text-[var(--color-text-primary)]">Not enough valid trials</p>
+          <p className="mt-1 text-[16px] font-semibold text-[var(--color-text-primary)]">Not enough valid trials</p>
         )}
 
-        <dl className="mt-3 flex flex-wrap gap-x-8 gap-y-1.5 text-[14px]">
+        <dl className="mt-3 flex flex-wrap gap-x-8 gap-y-1.5 text-[16px]">
           <div>
             <dt className="text-[var(--color-text-tertiary)]">Change from first assessment</dt>
             <dd className="text-[var(--color-text-primary)]">
@@ -69,7 +69,7 @@ export function ReactionResults({ result, onRetake }: ReactionResultsProps) {
                 <>
                   {formatSignedPercent(roundPercent(result.baselineDifferencePercent) ?? 0)} from {Math.round(result.baselineMs)} ms
                   {result.baselineSource === "demo" && (
-                    <span className="ml-1 text-[14.5px] text-[var(--color-text-tertiary)]">&mdash; Maya's sample history</span>
+                    <span className="ml-1 text-[16px] text-[var(--color-text-tertiary)]">&mdash; Maya's sample history</span>
                   )}
                 </>
               )}
@@ -87,8 +87,8 @@ export function ReactionResults({ result, onRetake }: ReactionResultsProps) {
       <PanelDivider />
 
       <div>
-        <p className="mb-2 text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Supporting metrics</p>
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-[14px] sm:grid-cols-3">
+        <p className="mb-2 text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Supporting metrics</p>
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-[16px] sm:grid-cols-3">
           <Metric label="Mean" value={result.meanMs != null ? `${roundMs(result.meanMs)} ms` : "—"} />
           <Metric label="Standard deviation" value={result.standardDeviationMs != null ? `${roundMs(result.standardDeviationMs)} ms` : "—"} />
           <Metric label="Fastest valid trial" value={result.fastestMs != null ? `${roundMs(result.fastestMs)} ms` : "—"} />
@@ -102,43 +102,43 @@ export function ReactionResults({ result, onRetake }: ReactionResultsProps) {
       <PanelDivider />
 
       <div>
-        <p className="text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Test quality</p>
-        <p className="mt-1 text-[14.5px] text-[var(--color-text-primary)]">
+        <p className="text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Test quality</p>
+        <p className="mt-1 text-[16px] text-[var(--color-text-primary)]">
           {formatQualityReasonSentence(result.quality, result.qualityReasons)}
         </p>
       </div>
 
       <div>
-        <p className="text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Interpretation</p>
+        <p className="text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Interpretation</p>
         {dashboardRow?.id === result.id && dashboardRow.interpretationLabel && (
           <Badge tone={dashboardRow.interpretationTone ?? "neutral"} showDot className="mt-1.5">
             {dashboardRow.interpretationLabel}
           </Badge>
         )}
-        <p className="mt-1 max-w-2xl text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">{interpretation}</p>
+        <p className="mt-1 max-w-2xl text-[16px] leading-relaxed text-[var(--color-text-secondary)]">{interpretation}</p>
       </div>
 
       <PanelDivider />
 
       <div>
-        <p className="text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Symptom comparison</p>
-        <div className="mt-2 flex flex-wrap gap-x-8 gap-y-1.5 text-[14px]">
+        <p className="text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Symptom comparison</p>
+        <div className="mt-2 flex flex-wrap gap-x-8 gap-y-1.5 text-[16px]">
           <Metric label="Before" value={String(symptomComparison.totalBefore)} />
           <Metric label="After" value={String(symptomComparison.totalAfter)} />
           <Metric label="Change" value={symptomComparison.change > 0 ? `+${symptomComparison.change}` : String(symptomComparison.change)} />
         </div>
         {symptomComparison.increased.length > 0 && (
-          <p className="mt-2 text-[14px] text-[var(--color-text-secondary)]">
+          <p className="mt-2 text-[16px] text-[var(--color-text-secondary)]">
             Increased: {symptomComparison.increased.map((k) => symptomLabel(k)).join(", ")}
           </p>
         )}
         {symptomComparison.decreased.length > 0 && (
-          <p className="mt-1 text-[14px] text-[var(--color-text-secondary)]">
+          <p className="mt-1 text-[16px] text-[var(--color-text-secondary)]">
             Decreased: {symptomComparison.decreased.map((k) => symptomLabel(k)).join(", ")}
           </p>
         )}
         {symptomsIncreased && (
-          <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-[var(--color-text-primary)]">
+          <p className="mt-3 max-w-2xl text-[16px] leading-relaxed text-[var(--color-text-primary)]">
             Some symptoms increased during the assessment. Consider stopping further testing and discussing
             persistent or worsening symptoms with a qualified healthcare professional.
           </p>
@@ -148,27 +148,27 @@ export function ReactionResults({ result, onRetake }: ReactionResultsProps) {
       <PanelDivider />
 
       <div>
-        <p className="mb-2 text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Trial history</p>
+        <p className="mb-2 text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Trial history</p>
         <div className="overflow-hidden border border-[var(--color-border)]">
           <table className="w-full border-collapse text-left">
             <thead>
               <tr className="border-b border-[var(--color-border)]">
-                <th scope="col" className="px-3 py-2 text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Trial</th>
-                <th scope="col" className="px-3 py-2 text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Reaction time</th>
-                <th scope="col" className="px-3 py-2 text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Status</th>
+                <th scope="col" className="px-3 py-2 text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Trial</th>
+                <th scope="col" className="px-3 py-2 text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Reaction time</th>
+                <th scope="col" className="px-3 py-2 text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Status</th>
               </tr>
             </thead>
             <tbody>
               {result.trials.map((trial) => (
                 <tr key={trial.id} className="border-b border-[var(--color-border)] last:border-0">
-                  <td className="px-3 py-2 text-[14px] text-[var(--color-text-primary)]">{trial.trialNumber}</td>
-                  <td className="px-3 py-2 font-mono text-[14px] tabular-nums text-[var(--color-text-primary)]">
+                  <td className="px-3 py-2 text-[16px] text-[var(--color-text-primary)]">{trial.trialNumber}</td>
+                  <td className="px-3 py-2 font-mono text-[16px] tabular-nums text-[var(--color-text-primary)]">
                     {trial.reactionTimeMs != null ? `${Math.round(trial.reactionTimeMs)} ms` : "—"}
                   </td>
-                  <td className="px-3 py-2 text-[14px] text-[var(--color-text-secondary)]">
+                  <td className="px-3 py-2 text-[16px] text-[var(--color-text-secondary)]">
                     {statusLabel[trial.status]}
                     {trial.focusLost && trial.status !== "focus-interrupted" && (
-                      <span className="ml-1 text-[14.5px] text-[var(--color-text-tertiary)]">(test conditions may have affected this result)</span>
+                      <span className="ml-1 text-[16px] text-[var(--color-text-tertiary)]">(test conditions may have affected this result)</span>
                     )}
                   </td>
                 </tr>
@@ -180,7 +180,7 @@ export function ReactionResults({ result, onRetake }: ReactionResultsProps) {
 
       <Disclaimer variant="block" />
 
-      <p className="text-[14.5px] text-[var(--color-text-tertiary)]">
+      <p className="text-[16px] text-[var(--color-text-tertiary)]">
         Completed {formatDate(result.completedAt, { month: "long", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}
       </p>
 

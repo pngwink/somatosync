@@ -39,8 +39,8 @@ export function SomatoSyncShieldPanel() {
         <div className="flex min-w-0 items-start gap-3">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-[var(--color-accent-soft)] text-[var(--color-accent)]"><ShieldCheck className="h-5 w-5" /></span>
           <div>
-            <div className="flex flex-wrap items-center gap-2"><h2 className="text-[20px] font-semibold text-[var(--color-text-primary)]">SomatoSync Shield</h2>{connected && <span className="rounded-full bg-[var(--color-positive-soft)] px-2.5 py-1 text-[14px] font-semibold text-[var(--color-positive)]">Connected</span>}</div>
-            <p className="mt-1 max-w-[62ch] text-[15.5px] leading-7 text-[var(--color-text-secondary)]">Carry your symptom-matched reading environment onto other websites.</p>
+            <div className="flex flex-wrap items-center gap-2"><h2 className="text-[20px] font-semibold text-[var(--color-text-primary)]">SomatoSync Shield</h2>{connected && <span className="rounded-full bg-[var(--color-positive-soft)] px-2.5 py-1 text-[16px] font-semibold text-[var(--color-positive)]">Connected</span>}</div>
+            <p className="mt-1 max-w-[62ch] text-[16px] leading-7 text-[var(--color-text-secondary)]">Carry your symptom-matched reading environment onto other websites.</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2 sm:shrink-0">
@@ -50,8 +50,8 @@ export function SomatoSyncShieldPanel() {
       </div>
 
       <details className="mt-5 rounded-[14px] border border-[var(--color-border)] px-4 py-3">
-        <summary className="cursor-pointer text-[14.5px] font-semibold text-[var(--color-accent)]">Shield details</summary>
-        <div className="mt-3 space-y-3 text-[15px] leading-6 text-[var(--color-text-secondary)]">
+        <summary className="cursor-pointer text-[16px] font-semibold text-[var(--color-accent)]">Shield details</summary>
+        <div className="mt-3 space-y-3 text-[16px] leading-6 text-[var(--color-text-secondary)]">
           <p>Shield can change typography, reading width, page colors, image intensity, motion, sticky elements, secondary clutter, and a paragraph reading guide based on the supports currently matched to you. Once applied, a small control stays on the webpage so you can adjust or restore it there.</p>
           {!connected && <p>The ZIP includes <strong className="text-[var(--color-text-primary)]">somatosync-shield-extension</strong>. Load that folder as an unpacked Chrome extension, then reopen SomatoSync.</p>}
         </div>

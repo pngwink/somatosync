@@ -10,10 +10,10 @@ export function ProgressStepper({ currentStep, totalSteps, label }: ProgressStep
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-[14.5px] font-medium text-[var(--color-text-secondary)]">
+        <span className="text-[16px] font-medium text-[var(--color-text-secondary)]">
           {label ?? `Step ${currentStep} of ${totalSteps}`}
         </span>
-        <span className="font-mono text-[14.5px] text-[var(--color-text-tertiary)]">
+        <span className="font-mono text-[16px] text-[var(--color-text-tertiary)]">
           {currentStep}/{totalSteps}
         </span>
       </div>

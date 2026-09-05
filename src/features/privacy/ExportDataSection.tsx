@@ -26,7 +26,7 @@ export function ExportDataSection({ disabled, entryCount }: { disabled: boolean;
 
   return (
     <div className="space-y-3">
-      <p className="text-[14px] leading-relaxed text-[var(--color-text-secondary)]">
+      <p className="text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
         Download a JSON file containing every SomatoSync entry stored on this device, exactly as it's stored. This
         file stays on your device and is not uploaded anywhere.
       </p>

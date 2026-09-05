@@ -38,12 +38,12 @@ export function CreateAccountPage() {
   }
 
   return (
-    <AuthLayout title="Create your account" subtitle="Start with a blank recovery record using email and password.">
+    <AuthLayout title="Create your account" subtitle="Create a blank recovery record.">
       <DemoAccessButton onClick={openDemo} />
 
       <div className="my-5 flex items-center gap-3">
         <div className="h-px flex-1 bg-[var(--color-border)]" />
-        <span className="text-[14.5px] text-[var(--color-text-tertiary)]">or create a blank account</span>
+        <span className="text-[16px] text-[var(--color-text-tertiary)]">or start fresh</span>
         <div className="h-px flex-1 bg-[var(--color-border)]" />
       </div>
 
@@ -58,7 +58,7 @@ export function CreateAccountPage() {
             placeholder="Your name"
             autoComplete="name"
           />
-          {errors.name && <p className="text-[14.5px] text-[var(--color-risk)]">{errors.name}</p>}
+          {errors.name && <p className="text-[16px] text-[var(--color-risk)]">{errors.name}</p>}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="email">Email</Label>
@@ -71,7 +71,7 @@ export function CreateAccountPage() {
             placeholder="you@example.com"
             autoComplete="email"
           />
-          {errors.email && <p className="text-[14.5px] text-[var(--color-risk)]">{errors.email}</p>}
+          {errors.email && <p className="text-[16px] text-[var(--color-risk)]">{errors.email}</p>}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="password">Password</Label>
@@ -84,10 +84,10 @@ export function CreateAccountPage() {
             placeholder="At least 8 characters"
             autoComplete="new-password"
           />
-          {errors.password && <p className="text-[14.5px] text-[var(--color-risk)]">{errors.password}</p>}
+          {errors.password && <p className="text-[16px] text-[var(--color-risk)]">{errors.password}</p>}
         </div>
 
-        <label className="flex items-start gap-2.5 text-[14.5px] leading-snug text-[var(--color-text-secondary)]">
+        <label className="flex items-start gap-2.5 text-[16px] leading-snug text-[var(--color-text-secondary)]">
           <input
             type="checkbox"
             checked={agreed}
@@ -106,14 +106,14 @@ export function CreateAccountPage() {
             .
           </span>
         </label>
-        {errors.agreed && <p className="text-[14.5px] text-[var(--color-risk)]">{errors.agreed}</p>}
+        {errors.agreed && <p className="text-[16px] text-[var(--color-risk)]">{errors.agreed}</p>}
 
         <Button type="submit" className="w-full" disabled={submitting}>
           {submitting ? "Creating account…" : "Create blank account"}
         </Button>
       </form>
 
-      <p className="mt-5 text-center text-[14px] text-[var(--color-text-secondary)]">
+      <p className="mt-5 text-center text-[16px] text-[var(--color-text-secondary)]">
         Already have an account?{" "}
         <Link to="/sign-in" className="font-medium text-[var(--color-accent)] hover:underline">
           Sign in

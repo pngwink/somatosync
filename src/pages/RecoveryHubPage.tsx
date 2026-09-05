@@ -102,7 +102,7 @@ export function RecoveryHubPage() {
       <PageHeader
         eyebrow="Recovery center"
         title="Recovery"
-        context="Start with the big picture. Open details only when you need them."
+        context="See what changed and what seems to help."
       />
 
       <Tabs value={activeTab} onValueChange={changeTab}>
@@ -116,7 +116,7 @@ export function RecoveryHubPage() {
           {!hasAnyData && mode !== "demo" ? (
             <NewUserEmptyState
               title="Complete a check-in to build your recovery overview"
-              description="SomatoSync keeps symptoms, reaction time, memory, balance, and real-world tolerance separate."
+              description="Your recovery highlights."
               primaryHref="/app/check-in"
               primaryLabel="Start check-in"
               secondaryHref="/app/check-in?tab=schedule"
@@ -125,18 +125,13 @@ export function RecoveryHubPage() {
           ) : (
             <>
               <Card className="overflow-hidden border-0 bg-[var(--color-positive-soft)] p-0">
-                <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end">
+                <div className="p-6 sm:p-8">
                   <div className="max-w-[720px]">
-                    <p className="text-[14px] font-bold uppercase tracking-[0.16em] text-[var(--color-positive)]">Right now</p>
-                    <h2 className="mt-3 text-[28px] font-semibold tracking-[-0.025em] text-[var(--color-text-primary)] sm:text-[32px]">{evidence.overallLabel}</h2>
+                    <p className="text-[16px] font-bold uppercase tracking-[0.16em] text-[var(--color-positive)]">Right now</p>
+                    <h2 className="mt-3 text-[32px] font-bold tracking-[-0.025em] text-[var(--color-text-primary)] sm:text-[36px]">{evidence.overallLabel}</h2>
                     <p className="mt-3 text-[17px] leading-8 text-[var(--color-text-secondary)]">{evidence.overallDetail}</p>
                   </div>
-                  <div className="rounded-[18px] bg-[var(--color-surface)]/80 px-5 py-4 lg:min-w-[190px]">
-                    <p className="text-[14px] font-medium text-[var(--color-text-tertiary)]">Recovery snapshot</p>
-                    <p className="mt-1 text-[20px] font-semibold text-[var(--color-text-primary)]">{evidence.measuredCount} areas tracked</p>
-                    <Badge tone={outlook.summaryTone} showDot className="mt-3">{outlook.phaseLabel}</Badge>
                   </div>
-                </div>
               </Card>
 
               <div className="grid gap-4 lg:grid-cols-2">
@@ -144,10 +139,9 @@ export function RecoveryHubPage() {
                   <div className="flex items-start gap-4">
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[var(--color-surface)] text-[var(--color-accent)]"><Sparkles className="h-5 w-5" /></span>
                     <div>
-                      <p className="text-[14px] font-bold uppercase tracking-[0.14em] text-[var(--color-accent)]">What seems to help</p>
-                      <h3 className="mt-2 text-[22px] font-semibold tracking-tight text-[var(--color-text-primary)]">{patterns[0]?.title ?? "Still learning your patterns"}</h3>
-                      <p className="mt-2 text-[15.5px] leading-7 text-[var(--color-text-secondary)]">{patterns[0]?.detail ?? "Focus sessions and shared-support feedback will gradually build this insight."}</p>
-                      {patterns.length > 1 && <p className="mt-3 text-[14.5px] font-medium text-[var(--color-accent)]">Also noticed: {patterns.slice(1, 3).map((item) => item.title).join(" · ")}</p>}
+                      <p className="text-[16px] font-bold uppercase tracking-[0.14em] text-[var(--color-accent)]">What seems to help</p>
+                      <h3 className="mt-2 text-[24px] font-bold tracking-tight text-[var(--color-text-primary)]">{patterns[0]?.title ?? "Still learning your patterns"}</h3>
+                      <p className="mt-2 line-clamp-2 text-[16px] leading-7 text-[var(--color-text-secondary)]">{patterns[0]?.detail ?? "SomatoSync will learn this from your sessions."}</p>
                     </div>
                   </div>
                 </Card>
@@ -156,9 +150,9 @@ export function RecoveryHubPage() {
                   <div className="flex items-start gap-4">
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[var(--color-surface)] text-[var(--color-info)]"><BookOpenCheck className="h-5 w-5" /></span>
                     <div>
-                      <p className="text-[14px] font-bold uppercase tracking-[0.14em] text-[var(--color-info)]">Latest recovery event</p>
-                      <h3 className="mt-2 text-[22px] font-semibold tracking-tight text-[var(--color-text-primary)]">{story[0]?.title ?? "Your story will build here"}</h3>
-                      <p className="mt-2 text-[15.5px] leading-7 text-[var(--color-text-secondary)]">{story[0]?.detail ?? "Check-ins, assessments, Focus sessions, and support feedback will appear as a simple timeline."}</p>
+                      <p className="text-[16px] font-bold uppercase tracking-[0.14em] text-[var(--color-info)]">Latest recovery event</p>
+                      <h3 className="mt-2 text-[24px] font-bold tracking-tight text-[var(--color-text-primary)]">{story[0]?.title ?? "Your story will build here"}</h3>
+                      <p className="mt-2 line-clamp-2 text-[16px] leading-7 text-[var(--color-text-secondary)]">{story[0]?.detail ?? "Your latest meaningful event will appear here."}</p>
                     </div>
                   </div>
                 </Card>
@@ -170,8 +164,8 @@ export function RecoveryHubPage() {
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-[var(--color-surface)] text-[var(--color-caution)]"><Activity className="h-5 w-5" /></span>
                     <div>
                       <h3 className="text-[18px] font-semibold text-[var(--color-text-primary)]">One result looked different</h3>
-                      <p className="mt-1 text-[15.5px] leading-7 text-[var(--color-text-secondary)]">Repeat it under similar conditions before reading too much into a single result.</p>
-                      <p className="mt-3 text-[15px] font-medium text-[var(--color-caution)]">{evidence.changeAlerts?.[0]?.title}</p>
+                      <p className="mt-1 text-[16px] leading-7 text-[var(--color-text-secondary)]">Repeat it under similar conditions.</p>
+                      <p className="mt-3 text-[16px] font-medium text-[var(--color-caution)]">{evidence.changeAlerts?.[0]?.title}</p>
                     </div>
                   </div>
                 </Card>
@@ -180,8 +174,8 @@ export function RecoveryHubPage() {
               <details className="group rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-4 sm:px-6">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-1 text-[16px] font-semibold text-[var(--color-text-primary)]">
                   <span>Recovery story & supporting evidence</span>
-                  <span className="text-[14px] font-medium text-[var(--color-accent)] group-open:hidden">Open details</span>
-                  <span className="hidden text-[14px] font-medium text-[var(--color-accent)] group-open:inline">Hide details</span>
+                  <span className="text-[16px] font-medium text-[var(--color-accent)] group-open:hidden">Open details</span>
+                  <span className="hidden text-[16px] font-medium text-[var(--color-accent)] group-open:inline">Hide details</span>
                 </summary>
                 <div className="mt-5 grid gap-7 border-t border-[var(--color-border)] pt-5 lg:grid-cols-2">
                   <div>
@@ -190,7 +184,7 @@ export function RecoveryHubPage() {
                       {story.slice(0, 3).map((item) => (
                         <div key={item.id} className="flex gap-3">
                           <span className={`mt-2 h-2.5 w-2.5 shrink-0 rounded-full ${item.tone === "positive" ? "bg-[var(--color-positive)]" : item.tone === "caution" ? "bg-[var(--color-caution)]" : "bg-[var(--color-accent)]"}`} />
-                          <div><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{item.title}</p><p className="mt-1 text-[15px] leading-6 text-[var(--color-text-secondary)]">{item.detail}</p></div>
+                          <div><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{item.title}</p><p className="mt-1 text-[16px] leading-6 text-[var(--color-text-secondary)]">{item.detail}</p></div>
                         </div>
                       ))}
                     </div>
@@ -200,8 +194,8 @@ export function RecoveryHubPage() {
                     <div className="mt-4 space-y-3">
                       {measuredDomains.slice(0, 6).map((domain) => (
                         <div key={domain.id} className="rounded-[14px] bg-[var(--color-surface-sunken)] px-4 py-3">
-                          <p className="text-[15.5px] font-semibold text-[var(--color-text-primary)]">{domain.label}</p>
-                          <p className="mt-0.5 text-[14.5px] leading-6 text-[var(--color-text-secondary)]">{domain.headline}</p>
+                          <p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{domain.label}</p>
+                          <p className="mt-0.5 text-[16px] leading-6 text-[var(--color-text-secondary)]">{domain.headline}</p>
                         </div>
                       ))}
                     </div>
@@ -218,14 +212,14 @@ export function RecoveryHubPage() {
           ) : (
             <>
               {pcssSeries.length > 0 && (
-                <Panel title="Symptoms over time" description="Your main trend first. Lower PCSS severity means fewer or less-severe reported symptoms.">
+                <Panel title="Symptoms over time" description="Your main symptom trend.">
                   <MetricLineChart data={pcssSeries} unit="of 132" reference={pcssSeries[0].value} referenceLabel="Starting assessment" height={250} />
                 </Panel>
               )}
 
               <div>
                 <div className="mb-3 flex items-end justify-between gap-4">
-                  <div><p className="text-[14px] font-bold uppercase tracking-[0.14em] text-[var(--color-text-tertiary)]">Other signals</p><h2 className="mt-1 text-[22px] font-semibold tracking-tight text-[var(--color-text-primary)]">Quick trend check</h2></div>
+                  <div><p className="text-[16px] font-bold uppercase tracking-[0.14em] text-[var(--color-text-tertiary)]">Other signals</p><h2 className="mt-1 text-[24px] font-bold tracking-tight text-[var(--color-text-primary)]">Other trends</h2></div>
                   <Button variant="ghost" asChild><Link to="/app/recovery/progress-details">See all trends<ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
                 </div>
                 <div className="grid gap-4 md:grid-cols-3">
@@ -245,18 +239,18 @@ export function RecoveryHubPage() {
             <div className="flex items-start gap-4">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[var(--color-surface)] text-[var(--color-accent)]"><CheckCircle2 className="h-5 w-5" /></span>
               <div className="min-w-0 flex-1">
-                <p className="text-[14px] font-bold uppercase tracking-[0.14em] text-[var(--color-accent)]">Today</p>
-                <h2 className="mt-2 text-[24px] font-semibold tracking-tight text-[var(--color-text-primary)]">Keep today’s support simple</h2>
+                <p className="text-[16px] font-bold uppercase tracking-[0.14em] text-[var(--color-accent)]">Today</p>
+                <h2 className="mt-2 text-[24px] font-semibold tracking-tight text-[var(--color-text-primary)]">Today’s supports</h2>
                 {guidance.length > 0 ? (
                   <div className="mt-4 space-y-3">
                     {guidance.slice(0, 2).map((item) => (
                       <div key={item.id} className="rounded-[15px] bg-[var(--color-surface)]/85 px-4 py-3.5">
                         <p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{item.title}</p>
-                        <p className="mt-1 text-[15px] leading-6 text-[var(--color-text-secondary)]">{item.suggestions[0]}</p>
+                        <p className="mt-1 line-clamp-2 text-[16px] leading-7 text-[var(--color-text-secondary)]">{item.suggestions[0]}</p>
                       </div>
                     ))}
                   </div>
-                ) : <p className="mt-3 text-[15.5px] text-[var(--color-text-secondary)]">Complete a symptom check-in to get today’s evidence-linked supports.</p>}
+                ) : <p className="mt-3 text-[16px] text-[var(--color-text-secondary)]">Complete a check-in to see today’s supports.</p>}
               </div>
             </div>
           </Card>
@@ -266,8 +260,8 @@ export function RecoveryHubPage() {
               tone="info"
               icon={ClipboardList}
               eyebrow="Return plan"
-              title="Update a pathway or log an activity"
-              description={`${pathwayNames[planPathway]} is currently at Step ${planStage.step}: ${planStage.title}. Open one focused screen to change the step or record how an activity felt.`}
+              title="Update return plan"
+              description={`Step ${planStage.step}: ${planStage.title}`}
               href="/app/recovery/plan-details"
               action="Open recovery plan"
             />
@@ -275,17 +269,12 @@ export function RecoveryHubPage() {
               tone="positive"
               icon={QrCode}
               eyebrow="Recovery Relay"
-              title="Share only the supports someone needs"
-              description="Create a temporary teacher, parent, or coach link without putting the QR workflow on this page."
+              title="Share supports"
+              description="Share selected supports by link or QR."
               href="/app/recovery/share"
               action="Share supports"
             />
           </div>
-
-          <Card className="flex flex-col gap-4 border-[var(--color-border)] p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">Need the clinical detail?</p><p className="mt-1 text-[15px] leading-6 text-[var(--color-text-secondary)]">Sources, recovery outlook, context settings, and deeper guidance live inside the focused Recovery Plan screen instead of crowding this page.</p></div>
-            <Button variant="secondary" asChild className="shrink-0"><Link to="/app/recovery/plan-details">Open details</Link></Button>
-          </Card>
         </TabsContent>
       </Tabs>
 
@@ -298,9 +287,9 @@ function MetricPreview({ tone, title, start, latest, note }: { tone: "accent" | 
   const toneClass = tone === "positive" ? "bg-[var(--color-positive-soft)]" : tone === "info" ? "bg-[var(--color-info-soft)]" : "bg-[var(--color-accent-soft)]";
   return (
     <Card className={`border-0 p-5 ${toneClass}`}>
-      <p className="text-[14px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-tertiary)]">{title}</p>
-      <div className="mt-4 flex items-end gap-3"><span className="text-[15px] text-[var(--color-text-tertiary)]">{start}</span><ArrowRight className="mb-1 h-4 w-4 text-[var(--color-text-tertiary)]" /><span className="text-[25px] font-semibold tracking-tight text-[var(--color-text-primary)]">{latest}</span></div>
-      <p className="mt-3 text-[14.5px] leading-6 text-[var(--color-text-secondary)]">{note}</p>
+      <p className="text-[16px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-tertiary)]">{title}</p>
+      <div className="mt-4 flex items-end gap-3"><span className="text-[16px] text-[var(--color-text-tertiary)]">{start}</span><ArrowRight className="mb-1 h-4 w-4 text-[var(--color-text-tertiary)]" /><span className="text-[25px] font-semibold tracking-tight text-[var(--color-text-primary)]">{latest}</span></div>
+      <p className="mt-3 text-[16px] leading-6 text-[var(--color-text-secondary)]">{note}</p>
     </Card>
   );
 }
@@ -310,9 +299,9 @@ function RecoveryActionCard({ tone, icon: Icon, eyebrow, title, description, hre
   return (
     <Card className="group p-6 sm:p-7">
       <div className={`flex h-12 w-12 items-center justify-center rounded-[16px] ${toneClass}`}><Icon className="h-5 w-5" /></div>
-      <p className="mt-5 text-[14px] font-bold uppercase tracking-[0.14em] text-[var(--color-text-tertiary)]">{eyebrow}</p>
-      <h3 className="mt-2 text-[22px] font-semibold tracking-tight text-[var(--color-text-primary)]">{title}</h3>
-      <p className="mt-2 text-[15.5px] leading-7 text-[var(--color-text-secondary)]">{description}</p>
+      <p className="mt-5 text-[16px] font-bold uppercase tracking-[0.14em] text-[var(--color-text-tertiary)]">{eyebrow}</p>
+      <h3 className="mt-2 text-[24px] font-bold tracking-tight text-[var(--color-text-primary)]">{title}</h3>
+      <p className="mt-2 text-[16px] leading-7 text-[var(--color-text-secondary)]">{description}</p>
       <Button variant="ghost" asChild className="mt-4 px-0 text-[var(--color-accent)]"><Link to={href}>{action}<ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
     </Card>
   );
@@ -321,7 +310,7 @@ function RecoveryActionCard({ tone, icon: Icon, eyebrow, title, description, hre
 function demoEvidence(): RecoveryEvidenceSummary {
   return {
     overallLabel: "Several domains are improving",
-    overallDetail: "Maya’s symptoms, reaction time, delayed recall, and camera-measured movement improved from her starting assessments. Light sensitivity and fatigue still affect school and screen use.",
+    overallDetail: "Several tracked areas are improving. Light sensitivity and fatigue still affect longer screen use.",
     overallTone: "positive",
     improvingCount: 5,
     worseningCount: 0,

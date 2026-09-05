@@ -1,17 +1,17 @@
-# Version Notes — Initial Version
+# Version Notes — Version 2: Focus Hybrid Refinement
 
-This is Version 1 of SomatoSync and establishes the core prototype and its initial feature set. It presents the core prototype as a connected, privacy-first concussion recovery platform rather than as a collection of separate tools.
+Building on Version 1, this version makes Focus Mode more tightly connect confirmed symptom context, task response, live interaction signals, and user-controlled personalization.
 
-## Included in this snapshot
+## Changes from Version 1
 
-- Conversational symptom check-ins with local speech transcription and user-confirmed symptom scoring.
-- PCSS-format symptom tracking plus optional reaction-time, short-memory, and camera-based postural-movement assessments.
-- Recovery views for trends, activity tolerance, personalized supports, pathway guidance, Response Memory, and Recovery Relay sharing.
-- Focus Mode with symptom-matched accessibility supports, local MediaPipe interaction signals, reversible adaptations, read-aloud support, and optional TensorFlow.js personalization.
-- SomatoSync Shield for carrying selected reading accommodations onto supported external webpages with explicit user control.
-- Evidence-grounded Research Assistant, printable/shareable Reports, Privacy & Data controls, Profile, and Settings.
-- Local-first handling of sensitive prototype data, explicit medical limitations, and deterministic safety routing for urgent or out-of-scope requests.
+- Added a unified symptom context so Focus can use the latest confirmed symptom record regardless of whether it came from manual or voice check-in.
+- Allowed recent post-task symptom ratings to refresh only the specific symptoms measured by those tasks; task performance scores do not directly drive interface changes.
+- Site-wide Focus now begins with a symptom-matched starting setup before optional camera inference begins.
+- Sustained MediaPipe signals refine the starting setup instead of replacing it.
+- Strengthened distinct adaptation paths for light sensitivity, close viewing/squinting, motion-related difficulty, and cognitive fatigue.
+- Refined the Focus interface so symptom-seeded changes, live refinements, and user controls are easier to distinguish.
+- Applied a broad copy/readability pass across the application while preserving technical detail through progressive disclosure.
 
-## Scope
+## Safety and control
 
-SomatoSync is a hackathon prototype. It supports recovery organization, accessibility, and communication; it does not diagnose concussion, prescribe treatment, predict recovery, or provide medical clearance.
+Adaptations remain reversible and user-controlled. Camera-derived interaction signals are treated as nonspecific accessibility cues, not diagnostic biomarkers.

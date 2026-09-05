@@ -38,12 +38,12 @@ export function SignInPage() {
   }
 
   return (
-    <AuthLayout title="Sign in" subtitle="Use email and password, or open the complete sample profile.">
+    <AuthLayout title="Sign in" subtitle="Sign in or explore the Maya demo.">
       <DemoAccessButton onClick={openDemo} />
 
       <div className="my-5 flex items-center gap-3">
         <div className="h-px flex-1 bg-[var(--color-border)]" />
-        <span className="text-[14.5px] text-[var(--color-text-tertiary)]">or sign in with email</span>
+        <span className="text-[16px] text-[var(--color-text-tertiary)]">or use email</span>
         <div className="h-px flex-1 bg-[var(--color-border)]" />
       </div>
 
@@ -61,7 +61,7 @@ export function SignInPage() {
             autoComplete="email"
           />
           {errors.email && (
-            <p id="email-error" className="text-[14.5px] text-[var(--color-risk)]">
+            <p id="email-error" className="text-[16px] text-[var(--color-risk)]">
               {errors.email}
             </p>
           )}
@@ -91,7 +91,7 @@ export function SignInPage() {
             </button>
           </div>
           {errors.password && (
-            <p id="password-error" className="text-[14.5px] text-[var(--color-risk)]">
+            <p id="password-error" className="text-[16px] text-[var(--color-risk)]">
               {errors.password}
             </p>
           )}
@@ -102,7 +102,7 @@ export function SignInPage() {
         </Button>
       </form>
 
-      <p className="mt-5 text-center text-[14px] text-[var(--color-text-secondary)]">
+      <p className="mt-5 text-center text-[16px] text-[var(--color-text-secondary)]">
         Don't have an account?{" "}
         <Link to="/create-account" className="font-medium text-[var(--color-accent)] hover:underline">
           Create one

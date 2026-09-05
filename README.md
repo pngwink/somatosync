@@ -40,7 +40,7 @@ Recovery is intentionally split into three calm views instead of one dense dashb
 2. **Trends** — the main symptom graph plus compact reaction, memory, and camera-movement summaries; deeper charts remain available on demand.
 3. **Plan** — today’s top supports plus two focused actions: open the recovery pathway workspace or open Recovery Relay sharing.
 
-The detailed pathway screen at `/app/recovery/plan-details` uses a single selected pathway rather than nested tabs. It shows one selected pathway, the current step, a focused activity-log dialog, a focused step-change dialog, recent activity response, and a single collapsed “More recovery detail” section for AI explanation, outlook, and sources. Recovery Relay lives on its own focused screen at `/app/recovery/share`.
+The detailed pathway screen at `/app/recovery/plan-details` no longer uses nested tabs. It shows one selected pathway, the current step, a focused activity-log dialog, a focused step-change dialog, recent activity response, and a single collapsed “More recovery detail” section for AI explanation, outlook, and sources. Recovery Relay lives on its own focused screen at `/app/recovery/share`.
 
 The optional recovery-context form does not require a sport, wearable, or detailed medical history. Users can choose school, work, daily life, sport, or any combination.
 
@@ -141,18 +141,19 @@ Advanced tools remain available under **More**:
 Detailed progress and protocol screens are still available through “Open detailed…” links, so the simplified interface uses progressive disclosure rather than deleting scientific or technical information.
 
 
-## Additional functionality
+## Finishing-pass functionality
 
-- **Reduce visual intensity** persists per local account and changes color tokens, contrast, saturation, backgrounds, and camera/media presentation across the application.
-- **Notification center** controls whether the bell is displayed.
-- **Assessment reminders** add the current day’s suggested tasks to the in-app notification menu; no background push notification claim is made.
-- **Reports** read the real account’s latest stored assessment summaries, apply the selected date range, include chosen sections, download raw JSON, and open a printable view that can be saved as PDF by the browser.
-- **Prototype Terms and Privacy Policy** are available as dedicated routes.
+- **Reduce visual intensity** now persists per local account and changes color tokens, contrast, saturation, backgrounds, and camera/media presentation across the application.
+- **Notification center** now controls whether the bell is displayed.
+- **Assessment reminders** now add the current day’s suggested tasks to the in-app notification menu; no background push notification claim is made.
+- **Reports** now read the real account’s latest stored assessment summaries, apply the selected date range, include chosen sections, download raw JSON, and open a printable view that can be saved as PDF by the browser.
+- **Prototype Terms and Privacy Policy** are real routes rather than dead links.
 
-## Interface and compatibility
+## Latest compatibility and interface pass
 
 - Home, Check In, Recovery, Assistant, and the landing page use a mobile-health card hierarchy with one primary action and progressive disclosure.
 - Full assessment history, charts, protocol tools, sources, reports, privacy controls, and AI/ML details remain available through tabs and detail links.
+- See `WEBGAZER_UI_OVERHAUL.md` for the implementation summary.
 
 ## Assessment evidence review
 
@@ -161,4 +162,4 @@ See `ASSESSMENT_EVIDENCE_AUDIT.md` for the rationale, limitations, and claim bou
 
 ## Advanced responsible-AI research pipeline
 
-The Research Assistant uses BM25 lexical retrieval, local MiniLM embeddings, reciprocal-rank fusion, local cross-encoder reranking, on-device generation, and deterministic claim/safety verification. Emergency, diagnosis, clearance, and exact-timeline requests bypass generative AI. Each answer exposes a state-graph trace and verification result, and the built-in AI Evaluation Lab calculates live Recall@3, MRR, safety-routing accuracy, and latency metrics rather than displaying hardcoded benchmark numbers. See `RESPONSIBLE_AI_PIPELINE.md`.
+The Research Assistant now uses BM25 lexical retrieval, local MiniLM embeddings, reciprocal-rank fusion, local cross-encoder reranking, on-device generation, and deterministic claim/safety verification. Emergency, diagnosis, clearance, and exact-timeline requests bypass generative AI. Each answer exposes a state-graph trace and verification result, and the built-in AI Evaluation Lab calculates live Recall@3, MRR, safety-routing accuracy, and latency metrics rather than displaying hardcoded benchmark numbers. See `RESPONSIBLE_AI_PIPELINE.md`.

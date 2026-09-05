@@ -108,7 +108,7 @@ export function RecoveryRelayPanel() {
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-[var(--color-accent-soft)] text-[var(--color-accent)]"><Users className="h-5 w-5" /></span>
           <div>
             <h2 className="text-[19px] font-semibold text-[var(--color-text-primary)]">Current supports</h2>
-            <p className="mt-1 max-w-2xl text-[15.5px] leading-relaxed text-[var(--color-text-secondary)]">Share only the few accommodations someone needs to help right now.</p>
+            <p className="mt-1 max-w-2xl text-[16px] leading-relaxed text-[var(--color-text-secondary)]">Share only the few accommodations someone needs to help right now.</p>
           </div>
         </div>
         <Button onClick={openShare} disabled={currentSupports.length === 0} className="sm:shrink-0"><QrCode />Share supports</Button>
@@ -119,24 +119,24 @@ export function RecoveryRelayPanel() {
           {currentSupports.slice(0, 3).map((support) => (
             <div key={support.id} className="py-4">
               <p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{support.title}</p>
-              <p className="mt-1 text-[15px] leading-6 text-[var(--color-text-secondary)]">{support.detail}</p>
+              <p className="mt-1 text-[16px] leading-6 text-[var(--color-text-secondary)]">{support.detail}</p>
             </div>
           ))}
         </div>
       ) : (
         <div className="mt-5 rounded-[16px] bg-[var(--color-surface-sunken)] p-4">
-          <p className="text-[15px] font-semibold text-[var(--color-text-primary)]">No support pattern yet</p>
-          <p className="mt-1 text-[15px] leading-relaxed text-[var(--color-text-secondary)]">A check-in or a completed adaptive-reading follow-up can give SomatoSync something useful to suggest here.</p>
+          <p className="text-[16px] font-semibold text-[var(--color-text-primary)]">No support pattern yet</p>
+          <p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">A check-in or a completed adaptive-reading follow-up can give SomatoSync something useful to suggest here.</p>
         </div>
       )}
 
 
       <details className="mt-4 rounded-[14px] border border-[var(--color-border)] px-4 py-3">
-        <summary className="cursor-pointer text-[14.5px] font-semibold text-[var(--color-accent)]">Manage sharing and feedback</summary>
+        <summary className="cursor-pointer text-[16px] font-semibold text-[var(--color-accent)]">Manage sharing and feedback</summary>
         <div className="mt-3 flex flex-col gap-3">
           {latestShare && (
             <div className="flex flex-col gap-3 rounded-[14px] bg-[var(--color-surface-sunken)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-              <div><p className="text-[15px] font-semibold text-[var(--color-text-primary)]">Active {audienceLabel(latestShare.audience).toLowerCase()} share</p><p className="mt-0.5 text-[14.5px] text-[var(--color-text-secondary)]">Expires {new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(latestShare.expiresAt))}</p></div>
+              <div><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">Active {audienceLabel(latestShare.audience).toLowerCase()} share</p><p className="mt-0.5 text-[16px] text-[var(--color-text-secondary)]">Expires {new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(latestShare.expiresAt))}</p></div>
               <Button variant="ghost" size="sm" onClick={endLatestShare}><X />End share here</Button>
             </div>
           )}
@@ -160,13 +160,13 @@ export function RecoveryRelayPanel() {
               <DialogDescription>Choose the audience and edit exactly what they can see. Raw symptoms, camera signals, and assessment scores are not included.</DialogDescription>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <label className="text-[15px] font-semibold text-[var(--color-text-primary)]">For
-                  <select className="mt-2 h-11 w-full rounded-[12px] border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3 text-[15px]" value={audience} onChange={(event) => setAudience(event.target.value as RelayAudience)}>
+                <label className="text-[16px] font-semibold text-[var(--color-text-primary)]">For
+                  <select className="mt-2 h-11 w-full rounded-[12px] border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3 text-[16px]" value={audience} onChange={(event) => setAudience(event.target.value as RelayAudience)}>
                     <option value="teacher">Teacher / school</option><option value="parent">Parent / caregiver</option><option value="coach">Coach / trainer</option>
                   </select>
                 </label>
-                <label className="text-[15px] font-semibold text-[var(--color-text-primary)]">Link expires in
-                  <select className="mt-2 h-11 w-full rounded-[12px] border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3 text-[15px]" value={durationHours} onChange={(event) => setDurationHours(Number(event.target.value))}>
+                <label className="text-[16px] font-semibold text-[var(--color-text-primary)]">Link expires in
+                  <select className="mt-2 h-11 w-full rounded-[12px] border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3 text-[16px]" value={durationHours} onChange={(event) => setDurationHours(Number(event.target.value))}>
                     <option value={2}>2 hours</option><option value={24}>24 hours</option><option value={72}>3 days</option>
                   </select>
                 </label>
@@ -179,12 +179,12 @@ export function RecoveryRelayPanel() {
                     <div key={support.id} className={`rounded-[16px] border p-4 ${active ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)]/35" : "border-[var(--color-border)]"}`}>
                       <button type="button" onClick={() => toggle(support.id)} className="flex w-full items-center gap-3 text-left">
                         <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${active ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-white" : "border-[var(--color-border-strong)]"}`}>{active && <Check className="h-4 w-4" />}</span>
-                        <span className="text-[15px] font-semibold text-[var(--color-text-primary)]">{support.title}</span>
+                        <span className="text-[16px] font-semibold text-[var(--color-text-primary)]">{support.title}</span>
                       </button>
                       {active && (
                         <div className="mt-3 space-y-2 pl-9">
                           <Input value={edits[support.id]?.title ?? support.title} onChange={(event) => setEdits((current) => ({ ...current, [support.id]: { title: event.target.value, detail: current[support.id]?.detail ?? support.detail } }))} aria-label="Support title" />
-                          <Textarea className="min-h-20 text-[15px]" value={edits[support.id]?.detail ?? support.detail} onChange={(event) => setEdits((current) => ({ ...current, [support.id]: { title: current[support.id]?.title ?? support.title, detail: event.target.value } }))} maxLength={180} aria-label="Support detail" />
+                          <Textarea className="min-h-20 text-[16px]" value={edits[support.id]?.detail ?? support.detail} onChange={(event) => setEdits((current) => ({ ...current, [support.id]: { title: current[support.id]?.title ?? support.title, detail: event.target.value } }))} maxLength={180} aria-label="Support detail" />
                         </div>
                       )}
                     </div>
@@ -194,7 +194,7 @@ export function RecoveryRelayPanel() {
 
               <div className="mt-5 flex items-start gap-2 rounded-[14px] bg-[var(--color-surface-sunken)] p-3.5">
                 <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-positive)]" />
-                <p className="text-[15px] leading-relaxed text-[var(--color-text-secondary)]">The link contains only these selected supports, the audience type, and an expiration time.</p>
+                <p className="text-[16px] leading-relaxed text-[var(--color-text-secondary)]">The link contains only these selected supports, the audience type, and an expiration time.</p>
               </div>
               <Button className="mt-5 w-full" onClick={generateShare} disabled={selected.length === 0}>Create temporary share</Button>
             </>
@@ -216,22 +216,22 @@ function ShareReady({ payload, onCopy }: { payload: RelaySharePayload; onCopy: (
       <DialogDescription>{audienceLabel(payload.audience)} will see only {payload.supports.length} selected support{payload.supports.length === 1 ? "" : "s"}. The link expires automatically.</DialogDescription>
       {!shareUrl.crossDeviceReady && (
         <div className="mt-4 rounded-[14px] border border-[var(--color-caution)]/35 bg-[var(--color-caution-soft)] p-4">
-          <p className="text-[15px] font-semibold text-[var(--color-text-primary)]">Phone scanning needs a public or network-accessible URL</p>
-          <p className="mt-1 text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">This share currently points to localhost, which only works on this computer. Before a cross-device demo, set <code className="rounded bg-[var(--color-surface)] px-1.5 py-0.5">VITE_PUBLIC_APP_URL</code> to your deployed SomatoSync URL and restart the app.</p>
+          <p className="text-[16px] font-semibold text-[var(--color-text-primary)]">Phone scanning needs a public or network-accessible URL</p>
+          <p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">This share currently points to localhost, which only works on this computer. Before a cross-device demo, set <code className="rounded bg-[var(--color-surface)] px-1.5 py-0.5">VITE_PUBLIC_APP_URL</code> to your deployed SomatoSync URL and restart the app.</p>
         </div>
       )}
       <div className="mt-5 grid gap-5 sm:grid-cols-[220px_1fr] sm:items-start">
         <QRCodeBlock value={url} />
         <div>
-          <p className="text-[15px] font-semibold text-[var(--color-text-primary)]">What they can see</p>
+          <p className="text-[16px] font-semibold text-[var(--color-text-primary)]">What they can see</p>
           <div className="mt-3 space-y-2">
-            {payload.supports.map((support) => <div key={support.id} className="rounded-[14px] bg-[var(--color-surface-sunken)] p-3"><p className="text-[15.5px] font-semibold text-[var(--color-text-primary)]">{support.title}</p></div>)}
+            {payload.supports.map((support) => <div key={support.id} className="rounded-[14px] bg-[var(--color-surface-sunken)] p-3"><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{support.title}</p></div>)}
           </div>
           <Button className="mt-4 w-full" onClick={() => onCopy(url, "Share link copied")}><Link2 />Copy link</Button>
-          <p className="mt-3 text-[15px] leading-relaxed text-[var(--color-text-secondary)]">Expires {new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(payload.expiresAt))}.</p>
+          <p className="mt-3 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">Expires {new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(payload.expiresAt))}.</p>
         </div>
       </div>
-      <details className="mt-4 rounded-[14px] border border-[var(--color-border)] px-4 py-3 text-[15px] text-[var(--color-text-secondary)]">
+      <details className="mt-4 rounded-[14px] border border-[var(--color-border)] px-4 py-3 text-[16px] text-[var(--color-text-secondary)]">
         <summary className="cursor-pointer font-semibold text-[var(--color-text-primary)]">Sharing privacy</summary>
         <p className="mt-2 leading-relaxed">This prototype uses a self-contained, time-limited link so no account or cloud health record is required. Ending the share removes it from this browser and blocks feedback imports here; a link already copied can still be opened until its expiration.</p>
       </details>

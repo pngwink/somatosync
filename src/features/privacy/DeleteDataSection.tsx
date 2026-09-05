@@ -50,7 +50,7 @@ export function DeleteDataSection({
 
   return (
     <div className="space-y-3">
-      <p className="text-[14px] leading-relaxed text-[var(--color-text-secondary)]">
+      <p className="text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
         Permanently remove all SomatoSync data stored on this device. This does not affect data on other devices or
         browsers, and cannot be undone.
       </p>

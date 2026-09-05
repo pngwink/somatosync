@@ -55,10 +55,10 @@ export function MovementInterpretationScale({
     <div className="mt-5 rounded-[var(--radius-md)] border border-[var(--color-border)] p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Plain-language interpretation</p>
-          <h3 className="mt-1 text-[15px] font-semibold text-[var(--color-text-primary)]">{details.title}</h3>
+          <p className="text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Plain-language interpretation</p>
+          <h3 className="mt-1 text-[16px] font-semibold text-[var(--color-text-primary)]">{details.title}</h3>
         </div>
-        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[14.5px] font-semibold ${details.toneClass}`}>
+        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[16px] font-semibold ${details.toneClass}`}>
           <Icon className="h-3.5 w-3.5" aria-hidden="true" />
           {details.plain}
         </span>
@@ -79,22 +79,22 @@ export function MovementInterpretationScale({
               aria-hidden="true"
             />
           </div>
-          <div className="mt-2 grid grid-cols-3 text-[14.5px] font-medium text-[var(--color-text-tertiary)]">
+          <div className="mt-2 grid grid-cols-3 text-[16px] font-medium text-[var(--color-text-tertiary)]">
             <span>Lower (&lt;0.65%)</span>
             <span className="text-center">Moderate</span>
             <span className="text-right">Higher (≥1.5%)</span>
           </div>
-          <p className="mt-3 text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">
+          <p className="mt-3 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
             Your result: <span className="font-mono font-semibold tabular-nums text-[var(--color-text-primary)]">{value.toFixed(2)}%</span>. {details.guidance}
           </p>
         </div>
       )}
 
       {band === "insufficient" && (
-        <p className="mt-3 text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">{details.guidance}</p>
+        <p className="mt-3 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">{details.guidance}</p>
       )}
 
-      <p className="mt-3 text-[14.5px] leading-relaxed text-[var(--color-text-tertiary)]">
+      <p className="mt-3 text-[16px] leading-relaxed text-[var(--color-text-tertiary)]">
         These are prototype recording bands, not clinical normal ranges or a pass/fail result.
       </p>
     </div>

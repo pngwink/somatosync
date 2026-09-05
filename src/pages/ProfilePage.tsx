@@ -59,16 +59,16 @@ export function ProfilePage() {
       >
         <div className="flex items-center gap-4">
           <Avatar className="h-12 w-12">
-            <AvatarFallback className="text-[15px]">{initials}</AvatarFallback>
+            <AvatarFallback className="text-[16px]">{initials}</AvatarFallback>
           </Avatar>
-          <p className="text-[14px] text-[var(--color-text-secondary)]">
+          <p className="text-[16px] text-[var(--color-text-secondary)]">
             {form.activity || (isDemo ? currentPatient.activity : "No sport or activity added yet")}
           </p>
         </div>
 
         <PanelDivider />
 
-        <h3 className="mb-3 text-[14.5px] font-semibold text-[var(--color-text-primary)]">Personal information</h3>
+        <h3 className="mb-3 text-[16px] font-semibold text-[var(--color-text-primary)]">Personal information</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="name">Full name</Label>
@@ -94,7 +94,7 @@ export function ProfilePage() {
 
         <PanelDivider />
 
-        <h3 className="mb-3 text-[14.5px] font-semibold text-[var(--color-text-primary)]">Care team</h3>
+        <h3 className="mb-3 text-[16px] font-semibold text-[var(--color-text-primary)]">Care team</h3>
         <div className="space-y-1.5">
           <Label htmlFor="provider">Healthcare provider</Label>
           <Input id="provider" value={form.providerName} disabled={isDemo} onChange={(e) => setForm({ ...form, providerName: e.target.value })} />
@@ -102,7 +102,7 @@ export function ProfilePage() {
 
         <PanelDivider />
 
-        <h3 className="mb-3 text-[14.5px] font-semibold text-[var(--color-text-primary)]">Emergency contact</h3>
+        <h3 className="mb-3 text-[16px] font-semibold text-[var(--color-text-primary)]">Emergency contact</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="ec-name">Name</Label>

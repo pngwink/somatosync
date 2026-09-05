@@ -17,11 +17,11 @@ export function AssessmentResultsTable({ results, showLink = true }: { results: 
       <table className="w-full min-w-[760px] border-collapse text-left">
         <thead>
           <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface-sunken)]">
-            <th scope="col" className="px-4 py-2.5 text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Assessment</th>
-            <th scope="col" className="px-4 py-2.5 text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Date</th>
-            <th scope="col" className="px-4 py-2.5 text-right text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Result</th>
-            <th scope="col" className="px-4 py-2.5 text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">What it means</th>
-            <th scope="col" className="px-4 py-2.5 text-right text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">change from start</th>
+            <th scope="col" className="px-4 py-2.5 text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Assessment</th>
+            <th scope="col" className="px-4 py-2.5 text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Date</th>
+            <th scope="col" className="px-4 py-2.5 text-right text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">Result</th>
+            <th scope="col" className="px-4 py-2.5 text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">What it means</th>
+            <th scope="col" className="px-4 py-2.5 text-right text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]">change from start</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-[var(--color-border)] bg-[var(--color-surface)]">
@@ -29,7 +29,7 @@ export function AssessmentResultsTable({ results, showLink = true }: { results: 
             const interpretation = interpretAssessmentResult(r);
             return (
               <tr key={r.id}>
-                <th scope="row" className="px-4 py-3 text-[14.5px] font-medium text-[var(--color-text-primary)]">
+                <th scope="row" className="px-4 py-3 text-[16px] font-medium text-[var(--color-text-primary)]">
                   {showLink ? (
                     <Link to="/app/assessments" className="hover:text-[var(--color-accent)] hover:underline">
                       {typeLabels[r.type]}
@@ -38,17 +38,17 @@ export function AssessmentResultsTable({ results, showLink = true }: { results: 
                     typeLabels[r.type]
                   )}
                 </th>
-                <td className="px-4 py-3 text-[14px] text-[var(--color-text-secondary)]">{formatDate(r.date)}</td>
-                <td className="px-4 py-3 text-right font-mono text-[14px] tabular-nums text-[var(--color-text-primary)]">
+                <td className="px-4 py-3 text-[16px] text-[var(--color-text-secondary)]">{formatDate(r.date)}</td>
+                <td className="px-4 py-3 text-right font-mono text-[16px] tabular-nums text-[var(--color-text-primary)]">
                   {r.value} <span className="text-[var(--color-text-tertiary)]">{r.unit}</span>
                 </td>
                 <td className="max-w-sm px-4 py-3">
                   <Badge tone={interpretation.tone} showDot>{interpretation.label}</Badge>
-                  <p className="mt-1 text-[14.5px] leading-snug text-[var(--color-text-secondary)]">{interpretation.detail}</p>
+                  <p className="mt-1 text-[16px] leading-snug text-[var(--color-text-secondary)]">{interpretation.detail}</p>
                 </td>
                 <td
                   className={cn(
-                    "px-4 py-3 text-right font-mono text-[14px] tabular-nums",
+                    "px-4 py-3 text-right font-mono text-[16px] tabular-nums",
                     r.percentFromStart == null
                       ? "text-[var(--color-text-tertiary)]"
                       : r.percentFromStart >= 0

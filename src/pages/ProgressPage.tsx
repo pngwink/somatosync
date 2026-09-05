@@ -108,7 +108,7 @@ export function ProgressPage() {
         {hasUserHistory && (
           <Panel title="Multidomain pattern" description="A transparent summary of direction and evidence coverage.">
             <Badge tone={evidence.overallTone} showDot>{evidence.overallLabel}</Badge>
-            <p className="mt-1 text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">{evidence.overallDetail}</p>
+            <p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">{evidence.overallDetail}</p>
           </Panel>
         )}
         {userPcssSeries.length > 0 && (
@@ -135,8 +135,8 @@ export function ProgressPage() {
             {latestUserBalance && (
               <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-[var(--radius-sm)] bg-[var(--color-surface-sunken)] px-3.5 py-3">
                 <div>
-                  <p className="text-[14.5px] text-[var(--color-text-tertiary)]">Latest plain-language band</p>
-                  <p className="mt-0.5 text-[14.5px] font-semibold text-[var(--color-text-primary)]">{balanceBandLabel(latestUserBalance.movementBand)}</p>
+                  <p className="text-[16px] text-[var(--color-text-tertiary)]">Latest plain-language band</p>
+                  <p className="mt-0.5 text-[16px] font-semibold text-[var(--color-text-primary)]">{balanceBandLabel(latestUserBalance.movementBand)}</p>
                 </div>
                 <p className="font-mono text-[16px] font-semibold tabular-nums text-[var(--color-text-primary)]">{latestUserBalance.lateralRmsPercent.toFixed(2)}%</p>
               </div>
@@ -180,7 +180,7 @@ export function ProgressPage() {
 
       <Panel title="Multidomain evidence" description="No Recovery Index or readiness percentage is used.">
         <Badge tone="positive" showDot>Several domains are improving</Badge>
-        <p className="mt-1 text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">
+        <p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
           Maya’s symptom burden, reaction time, delayed recall, and recorded lateral movement improved from the first sample sessions. Light sensitivity and fatigue still affect activity planning.
         </p>
       </Panel>
@@ -192,19 +192,19 @@ export function ProgressPage() {
       <Panel title="Cognitive and balance trends" description="Each domain remains separate because no single test determines recovery.">
         <div className="grid gap-6 lg:grid-cols-2">
           <div>
-            <h3 className="mb-2 text-[14px] font-medium text-[var(--color-text-secondary)]">Reaction time — lower is faster</h3>
+            <h3 className="mb-2 text-[16px] font-medium text-[var(--color-text-secondary)]">Reaction time — lower is faster</h3>
             <MetricLineChart data={filtered(demoReactionSeries)} unit="ms" reference={402} referenceLabel="First assessment" />
           </div>
           <div>
-            <h3 className="mb-2 text-[14px] font-medium text-[var(--color-text-secondary)]">Delayed word recall — higher is more recalled</h3>
+            <h3 className="mb-2 text-[16px] font-medium text-[var(--color-text-secondary)]">Delayed word recall — higher is more recalled</h3>
             <MetricLineChart data={filtered(demoMemorySeries)} unit="of 10" reference={4} referenceLabel="First assessment" domain={[0, 10]} />
           </div>
           <div>
-            <h3 className="mb-2 text-[14px] font-medium text-[var(--color-text-secondary)]">Camera lateral movement — lower is less recorded movement</h3>
+            <h3 className="mb-2 text-[16px] font-medium text-[var(--color-text-secondary)]">Camera lateral movement — lower is less recorded movement</h3>
             <MetricLineChart data={filtered(demoBalanceSeries)} unit="% frame" reference={1.46} referenceLabel="First recording" />
           </div>
           <div>
-            <h3 className="mb-2 text-[14px] font-medium text-[var(--color-text-secondary)]">Screen time and same-day symptoms</h3>
+            <h3 className="mb-2 text-[16px] font-medium text-[var(--color-text-secondary)]">Screen time and same-day symptoms</h3>
             <ActivitySymptomChart data={activitySymptomData} />
           </div>
         </div>
@@ -215,8 +215,8 @@ export function ProgressPage() {
           <tbody>
             {recoveryEvents.map((event) => (
               <tr key={event.date} className="border-b border-[var(--color-border)] last:border-0">
-                <td className="w-32 py-2.5 pr-4 text-[14.5px] text-[var(--color-text-tertiary)]">{formatDate(event.date, { month: "long", day: "numeric" })}</td>
-                <td className="py-2.5 text-[14.5px] text-[var(--color-text-primary)]">{event.label}</td>
+                <td className="w-32 py-2.5 pr-4 text-[16px] text-[var(--color-text-tertiary)]">{formatDate(event.date, { month: "long", day: "numeric" })}</td>
+                <td className="py-2.5 text-[16px] text-[var(--color-text-primary)]">{event.label}</td>
               </tr>
             ))}
           </tbody>
@@ -233,7 +233,7 @@ function LatestMeaning({ result }: { result: AssessmentResult }) {
   return (
     <div className="mb-4 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface-sunken)] px-3.5 py-3">
       <Badge tone={interpretation.tone} showDot>{interpretation.label}</Badge>
-      <p className="mt-1 text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">{interpretation.detail}</p>
+      <p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">{interpretation.detail}</p>
     </div>
   );
 }

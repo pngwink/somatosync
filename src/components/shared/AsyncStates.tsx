@@ -39,8 +39,8 @@ export function EmptyState({ title, description, action, className }: StateProps
     <div className={cn("flex flex-col items-start gap-2 rounded-[var(--radius-md)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-5", className)}>
       <Inbox className="h-4.5 w-4.5 text-[var(--color-text-tertiary)]" aria-hidden="true" />
       <div>
-        <p className="text-[14.5px] font-medium text-[var(--color-text-primary)]">{title}</p>
-        {description && <p className="mt-0.5 text-[14px] text-[var(--color-text-secondary)]">{description}</p>}
+        <p className="text-[16px] font-medium text-[var(--color-text-primary)]">{title}</p>
+        {description && <p className="mt-0.5 text-[16px] text-[var(--color-text-secondary)]">{description}</p>}
       </div>
       {action && (
         <Button variant="secondary" size="sm" onClick={action.onClick} className="mt-1">
@@ -56,8 +56,8 @@ export function ErrorState({ title = "Something went wrong", description, action
     <div className={cn("flex flex-col items-start gap-2 rounded-[var(--radius-md)] border border-[var(--color-risk-soft)] bg-[var(--color-risk-soft)] p-5", className)}>
       <AlertTriangle className="h-4.5 w-4.5 text-[var(--color-risk)]" aria-hidden="true" />
       <div>
-        <p className="text-[14.5px] font-medium text-[var(--color-text-primary)]">{title}</p>
-        {description && <p className="mt-0.5 text-[14px] text-[var(--color-text-secondary)]">{description}</p>}
+        <p className="text-[16px] font-medium text-[var(--color-text-primary)]">{title}</p>
+        {description && <p className="mt-0.5 text-[16px] text-[var(--color-text-secondary)]">{description}</p>}
       </div>
       {action && (
         <Button variant="secondary" size="sm" onClick={action.onClick} className="mt-1">

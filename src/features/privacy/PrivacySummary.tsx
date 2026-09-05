@@ -14,7 +14,7 @@ export function PrivacySummary({ summary }: { summary: StorageSummary }) {
   if (!summary.isStorageAvailable) {
     return (
       <div
-        className="flex items-start gap-2.5 rounded-[var(--radius-md)] border border-[var(--color-caution-soft)] bg-[var(--color-caution-soft)] p-3.5 text-[14px] leading-snug text-[var(--color-text-secondary)]"
+        className="flex items-start gap-2.5 rounded-[var(--radius-md)] border border-[var(--color-caution-soft)] bg-[var(--color-caution-soft)] p-3.5 text-[16px] leading-snug text-[var(--color-text-secondary)]"
         role="status"
       >
         <ShieldOff className="mt-[1px] h-4 w-4 shrink-0 text-[var(--color-caution)]" aria-hidden="true" />
@@ -36,18 +36,18 @@ export function PrivacySummary({ summary }: { summary: StorageSummary }) {
 
   return (
     <div className="space-y-3" role="status">
-      <p className="text-[14px] font-medium text-[var(--color-text-secondary)]">Stored on this device</p>
+      <p className="text-[16px] font-medium text-[var(--color-text-secondary)]">Stored on this device</p>
       <dl className="divide-y divide-[var(--color-border)] border-y border-[var(--color-border)]">
         {categoryRows.map(([category, count]) => (
           <div key={category} className="flex items-center justify-between py-2.5">
-            <dt className="text-[14.5px] text-[var(--color-text-primary)]">{category}</dt>
-            <dd className="font-mono text-[14px] tabular-nums text-[var(--color-text-secondary)]">
+            <dt className="text-[16px] text-[var(--color-text-primary)]">{category}</dt>
+            <dd className="font-mono text-[16px] tabular-nums text-[var(--color-text-secondary)]">
               {count} {count === 1 ? "entry" : "entries"}
             </dd>
           </div>
         ))}
       </dl>
-      <p className="text-[14.5px] text-[var(--color-text-tertiary)]">
+      <p className="text-[16px] text-[var(--color-text-tertiary)]">
         Approximate storage used: <span className="font-mono tabular-nums">{formatApproxBytes(summary.totalApproxBytes)}</span>
       </p>
     </div>

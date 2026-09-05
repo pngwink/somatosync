@@ -59,8 +59,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-risk)]" aria-hidden="true" />
               )}
               <div className="flex-1">
-                <p className="text-[14px] font-medium text-[var(--color-text-primary)]">{t.title}</p>
-                {t.description && <p className="mt-0.5 text-[14.5px] text-[var(--color-text-secondary)]">{t.description}</p>}
+                <p className="text-[16px] font-medium text-[var(--color-text-primary)]">{t.title}</p>
+                {t.description && <p className="mt-0.5 text-[16px] text-[var(--color-text-secondary)]">{t.description}</p>}
               </div>
               <button onClick={() => dismiss(t.id)} className="text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]" aria-label="Dismiss">
                 <X className="h-3.5 w-3.5" />

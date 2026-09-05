@@ -37,7 +37,7 @@ export function QRCodeBlock({ value }: { value: string }) {
   return (
     <div className="flex min-h-[212px] w-full items-center justify-center rounded-[18px] border border-[var(--color-border)] bg-white p-3">
       <div ref={ref} aria-label="QR code for shared supports" />
-      {!ready && <p className="max-w-[180px] text-center text-[15px] leading-relaxed text-slate-600">QR preview unavailable. The copyable link still works.</p>}
+      {!ready && <p className="max-w-[180px] text-center text-[16px] leading-relaxed text-slate-600">QR preview unavailable. The copyable link still works.</p>}
     </div>
   );
 }

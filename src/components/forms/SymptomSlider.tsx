@@ -16,7 +16,7 @@ export function SymptomSlider({ id, label, value, onChange, lowLabel = "None", h
     <div className="py-4">
       <div className="mb-3 flex items-center justify-between">
         <Label htmlFor={id}>{label}</Label>
-        <span className="font-mono text-[14px] tabular-nums text-[var(--color-text-secondary)]">{value} / {max}</span>
+        <span className="font-mono text-[16px] tabular-nums text-[var(--color-text-secondary)]">{value} / {max}</span>
       </div>
       <Slider
         id={id}
@@ -28,7 +28,7 @@ export function SymptomSlider({ id, label, value, onChange, lowLabel = "None", h
         aria-label={label}
         aria-valuetext={`${value} of ${max}`}
       />
-      <div className="mt-1.5 flex justify-between text-[14.5px] text-[var(--color-text-tertiary)]">
+      <div className="mt-1.5 flex justify-between text-[16px] text-[var(--color-text-tertiary)]">
         <span>{lowLabel}</span>
         <span>{highLabel}</span>
       </div>

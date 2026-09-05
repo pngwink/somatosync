@@ -11,6 +11,9 @@ export interface NeuroAdaptiveSettings {
   textToSpeechPreferred: boolean;
   reduceDensity: boolean;
   focusReadingLayout: boolean;
+  calmMedia: boolean;
+  stabilizeViewport: boolean;
+  emphasizeStructure: boolean;
   autoAdapt: boolean;
   updatedAt: string;
 }
@@ -19,6 +22,10 @@ export interface AdaptiveCheckIn {
   lightSensitivity: number;
   visualMotionDiscomfort: number;
   mentalFatigue: number;
+  headache?: number;
+  noiseSensitivity?: number;
+  visualProblems?: number;
+  overallSymptomBurden?: number;
 }
 
 
@@ -31,6 +38,9 @@ export interface AdaptiveInterventionPlan {
   textToSpeechPreferred: boolean;
   reduceDensity: boolean;
   focusReadingLayout: boolean;
+  calmMedia: boolean;
+  stabilizeViewport: boolean;
+  emphasizeStructure: boolean;
   changes: string[];
   reasons: string[];
   recommendBreak: boolean;

@@ -22,16 +22,16 @@ export function TodayPlanCard({ tasks }: { tasks: TodayTask[] }) {
           <div className="min-w-0 flex-1">
             <p
               className={cn(
-                "text-[14.5px] font-medium",
+                "text-[16px] font-medium",
                 task.completed ? "text-[var(--color-text-tertiary)] line-through" : "text-[var(--color-text-primary)]"
               )}
             >
               {task.label}
             </p>
-            <p className="mt-0.5 truncate text-[14.5px] text-[var(--color-text-secondary)]">{task.description}</p>
+            <p className="mt-0.5 truncate text-[16px] text-[var(--color-text-secondary)]">{task.description}</p>
           </div>
           {task.estimatedMinutes > 0 && (
-            <span className="shrink-0 text-[14.5px] text-[var(--color-text-tertiary)]">{task.estimatedMinutes} min</span>
+            <span className="shrink-0 text-[16px] text-[var(--color-text-tertiary)]">{task.estimatedMinutes} min</span>
           )}
           <ChevronRight className="h-4 w-4 shrink-0 text-[var(--color-text-tertiary)]" aria-hidden="true" />
         </Link>

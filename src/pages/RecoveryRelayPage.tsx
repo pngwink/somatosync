@@ -11,7 +11,7 @@ export function RecoveryRelayPage() {
       <PageHeader
         eyebrow="Recovery Relay"
         title="Share supports"
-        context="Create a temporary handoff for a teacher, parent, or coach without exposing the rest of the recovery dashboard."
+        context="Share selected supports with someone helping you."
         actions={<Button variant="secondary" size="sm" asChild><Link to="/app/recovery?tab=plan"><ArrowLeft />Back to plan</Link></Button>}
       />
 
@@ -19,9 +19,9 @@ export function RecoveryRelayPage() {
         <div className="flex items-start gap-4">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[var(--color-surface)] text-[var(--color-positive)]"><QrCode className="h-5 w-5" /></span>
           <div>
-            <h2 className="text-[20px] font-semibold tracking-tight text-[var(--color-text-primary)]">Only share what helps someone support you</h2>
-            <p className="mt-2 max-w-3xl text-[15.5px] leading-7 text-[var(--color-text-secondary)]">The recipient sees only the accommodations you select. Raw symptom ratings, camera signals, and assessment scores stay out of the share.</p>
-            <div className="mt-3 flex items-center gap-2 text-[14.5px] font-medium text-[var(--color-positive)]"><ShieldCheck className="h-4 w-4" />Temporary, editable, and limited to selected supports</div>
+            <h2 className="text-[20px] font-semibold tracking-tight text-[var(--color-text-primary)]">Choose what to share</h2>
+            <p className="mt-2 max-w-3xl text-[16px] leading-7 text-[var(--color-text-secondary)]">Only the supports you select are included.</p>
+            <div className="mt-3 flex items-center gap-2 text-[16px] font-medium text-[var(--color-positive)]"><ShieldCheck className="h-4 w-4" />Temporary and user-controlled</div>
           </div>
         </div>
       </Card>

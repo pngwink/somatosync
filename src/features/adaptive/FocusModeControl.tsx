@@ -7,6 +7,8 @@ import { Progress } from "../../components/ui/progress";
 import { Switch } from "../../components/ui/switch";
 import { cn } from "../../lib/utils";
 import { buildAdaptivePreflightSuggestion } from "./adaptivePreflight";
+import { planAdaptiveIntervention } from "./neuroAdaptiveEngine";
+import { getCurrentAdaptiveCheckIn } from "./symptomContext";
 import { useNeuroAdaptive } from "./NeuroAdaptiveContext";
 
 export function FocusModeControl() {
@@ -18,16 +20,18 @@ export function FocusModeControl() {
   const on = status !== "off" && status !== "error";
   const label = status === "starting" ? "Starting…" : status === "calibrating" ? "Calibrating…" : status === "paused" ? "Resuming…" : status === "break" ? "Focus paused" : status === "active" ? "Watching" : on ? "Focus on" : "Focus Mode";
   const preflight = open ? buildAdaptivePreflightSuggestion(settings) : null;
+  const currentSymptoms = open ? getCurrentAdaptiveCheckIn() : null;
+  const symptomSeed = currentSymptoms ? planAdaptiveIntervention(null, currentSymptoms) : null;
 
   async function start() {
     setOpen(false);
-    await startMonitoring();
+    await startMonitoring(currentSymptoms ?? undefined);
   }
 
   async function startWithPreflight() {
     if (preflight) setSettings(preflight.settings);
     setOpen(false);
-    await startMonitoring();
+    await startMonitoring(currentSymptoms ?? undefined, preflight?.settings);
   }
 
   return (
@@ -35,7 +39,7 @@ export function FocusModeControl() {
       <DialogTrigger asChild>
         <button
           className={cn(
-            "inline-flex h-9 items-center gap-2 rounded-full border px-2.5 text-[14.5px] font-semibold transition-colors sm:px-3",
+            "inline-flex h-9 items-center gap-2 rounded-full border px-2.5 text-[16px] font-semibold transition-colors sm:px-3",
             on
               ? "border-[var(--color-positive)]/35 bg-[var(--color-positive)]/10 text-[var(--color-positive)]"
               : status === "error"
@@ -55,21 +59,37 @@ export function FocusModeControl() {
           Watches for sustained reading difficulty and suggests only the display changes that match the pattern.
         </DialogDescription>
 
+        {!on && symptomSeed && symptomSeed.changes.length > 0 && (
+          <div className="mt-5 rounded-[16px] border border-[var(--color-positive)]/30 bg-[var(--color-positive-soft)] p-4">
+            <div className="flex items-start gap-3">
+              <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-positive)]" />
+              <div>
+                <p className="text-[16px] font-semibold text-[var(--color-text-primary)]">Start from your current symptoms</p>
+                <p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">Focus begins with a symptom-matched accessibility setup, then live camera signals can refine only what still seems difficult.</p>
+                {symptomSeed.reasons.length > 0 && <p className="mt-2 text-[16px] font-medium text-[var(--color-text-secondary)]">Why: {symptomSeed.reasons.slice(0, 3).join(" · ")}</p>}
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {symptomSeed.changes.slice(0, 5).map((change) => <span key={change} className="rounded-full bg-[var(--color-surface)] px-2.5 py-1 text-[16px] font-medium text-[var(--color-text-secondary)]">{change}</span>)}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {!on && preflight && (
           <div className="mt-5 rounded-[16px] border border-[var(--color-accent)]/25 bg-[var(--color-accent-soft)] p-4">
             <div className="flex items-start gap-3">
               <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-accent)]" />
               <div>
-                <p className="text-[15px] font-semibold text-[var(--color-text-primary)]">{preflight.title}</p>
-                <p className="mt-1 text-[15px] leading-relaxed text-[var(--color-text-secondary)]">{preflight.detail}</p>
-                <p className="mt-2 text-[14.5px] text-[var(--color-text-tertiary)]">{preflight.changes.slice(0, 4).join(" · ")}</p>
+                <p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{preflight.title}</p>
+                <p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">{preflight.detail}</p>
+                <p className="mt-2 text-[16px] text-[var(--color-text-tertiary)]">{preflight.changes.slice(0, 4).join(" · ")}</p>
               </div>
             </div>
             <Button className="mt-4" onClick={() => void startWithPreflight()}>Use setup and start</Button>
           </div>
         )}
 
-        <ol className="mt-5 grid gap-2 text-[14.5px] text-[var(--color-text-secondary)] sm:grid-cols-3">
+        <ol className="mt-5 grid gap-2 text-[16px] text-[var(--color-text-secondary)] sm:grid-cols-3">
           <li className="rounded-[var(--radius-md)] bg-[var(--color-surface-sunken)] p-3"><span className="font-semibold text-[var(--color-text-primary)]">1. Set up</span><br />Look at the screen normally for 12 seconds.</li>
           <li className="rounded-[var(--radius-md)] bg-[var(--color-surface-sunken)] p-3"><span className="font-semibold text-[var(--color-text-primary)]">2. Keep reading</span><br />A quick movement never triggers a change.</li>
           <li className="rounded-[var(--radius-md)] bg-[var(--color-surface-sunken)] p-3"><span className="font-semibold text-[var(--color-text-primary)]">3. Stay in control</span><br />Apply, undo, pause, or ignore a suggestion.</li>
@@ -77,35 +97,35 @@ export function FocusModeControl() {
 
         {status === "calibrating" && (
           <div className="mt-5 rounded-[var(--radius-md)] border border-[var(--color-border)] p-4">
-            <div className="flex justify-between text-[14.5px]"><span>Creating same-session reference</span><span>{calibrationProgress}%</span></div>
+            <div className="flex justify-between text-[16px]"><span>Creating same-session reference</span><span>{calibrationProgress}%</span></div>
             <Progress value={calibrationProgress} className="mt-2" />
-            <p className="mt-2 text-[14.5px] text-[var(--color-text-tertiary)]">Sit normally and look at the screen for about 12 seconds.</p>
+            <p className="mt-2 text-[16px] text-[var(--color-text-tertiary)]">Sit normally and look at the screen for about 12 seconds.</p>
           </div>
         )}
 
         {status === "paused" && (
-          <div className="mt-5 rounded-[var(--radius-md)] border border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-4 text-[14.5px]">
+          <div className="mt-5 rounded-[var(--radius-md)] border border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-4 text-[16px]">
             <p className="font-semibold text-[var(--color-text-primary)]">Monitoring paused for tab switching</p>
             <p className="mt-1 text-[var(--color-text-secondary)]">Camera analysis is suspended while the tab is inactive. After returning, SomatoSync waits about 3 seconds before evaluating reading behavior again.</p>
           </div>
         )}
 
         {status === "active" && (
-          <div className="mt-5 rounded-[var(--radius-md)] border border-[var(--color-positive)]/30 bg-[var(--color-positive)]/5 p-4 text-[14.5px]">
+          <div className="mt-5 rounded-[var(--radius-md)] border border-[var(--color-positive)]/30 bg-[var(--color-positive)]/5 p-4 text-[16px]">
             <p className="font-semibold text-[var(--color-text-primary)]">Watching for sustained reading difficulty</p>
             <p className="mt-1 text-[var(--color-text-secondary)]">{trackingQualityPercent < 65 ? "Face tracking is limited—adjust lighting or position." : estimate?.band === "elevated" ? "A sustained reading change is being checked." : estimate?.band === "possible" ? "A few small changes were noticed." : "Reading looks steady right now."}</p>
           </div>
         )}
 
-        {status === "error" && <p className="mt-5 rounded-[var(--radius-md)] bg-[var(--color-risk-soft)] p-3 text-[14.5px] text-[var(--color-risk)]">{error || "Focus Mode could not start."}</p>}
+        {status === "error" && <p className="mt-5 rounded-[var(--radius-md)] bg-[var(--color-risk-soft)] p-3 text-[16px] text-[var(--color-risk)]">{error || "Focus Mode could not start."}</p>}
 
         <div className="mt-5 flex items-start justify-between gap-4 rounded-[var(--radius-md)] border border-[var(--color-border)] p-4">
-          <div><p className="text-[15px] font-semibold">Adapt automatically</p><p className="mt-1 text-[14.5px] leading-relaxed text-[var(--color-text-tertiary)]">Apply only matching changes after a sustained pattern. Undo is always available.</p></div>
+          <div><p className="text-[16px] font-semibold">Adapt automatically</p><p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-tertiary)]">Apply only matching changes after a sustained pattern. Undo is always available.</p></div>
           <Switch checked={settings.autoAdapt} onCheckedChange={(autoAdapt) => setSettings({ ...settings, autoAdapt, updatedAt: new Date().toISOString() })} aria-label="Automatically apply matching reading support" />
         </div>
 
         <div className="mt-5 flex flex-wrap gap-2">
-          {on ? <Button variant="destructive" onClick={() => { stopMonitoring(); setOpen(false); }}>Turn off Focus Mode</Button> : <Button variant={preflight ? "secondary" : "default"} onClick={() => void start()}>{preflight ? "Start without setup" : "Turn on Focus Mode"}</Button>}
+          {on ? <Button variant="destructive" onClick={() => { stopMonitoring(); setOpen(false); }}>Turn off Focus Mode</Button> : <Button variant={preflight ? "secondary" : "default"} onClick={() => void start()}>{preflight ? "Start with symptom setup" : "Turn on Focus Mode"}</Button>}
           <Button variant="ghost" asChild><Link to="/app/neuro-adaptive" onClick={() => setOpen(false)}>Open reading lab</Link></Button>
         </div>
       </DialogContent>

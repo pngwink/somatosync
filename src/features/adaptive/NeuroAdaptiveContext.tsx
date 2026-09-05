@@ -11,7 +11,7 @@ import {
   saveAdaptiveSettings, savePersonalizationModel, DEFAULT_ADAPTIVE_SETTINGS,
 } from "./neuroAdaptiveStorage";
 import { getTensorFlowTrainingStatus, predictConfirmedStrain } from "./tfPersonalization";
-import { getMostRecentPcssResult } from "../assessments/pcss/pcssStorage";
+import { getCurrentAdaptiveCheckIn } from "./symptomContext";
 import { beginAdaptiveResponse, finishAdaptiveResponse } from "../recovery-memory/recoveryMemoryEngine";
 import { broadcastShieldProfile } from "./shieldBridge";
 import type {
@@ -41,24 +41,12 @@ const ZERO_WINDOW: SignalWindow = {
   idleRatio: 0,
 };
 
-function latestSymptomCheckIn(): AdaptiveCheckIn | null {
-  const latest = getMostRecentPcssResult();
-  if (!latest) return null;
-  const ratings = latest.ratings;
-  const clip = (value: number) => Math.max(0, Math.min(5, value));
-  return {
-    lightSensitivity: clip(ratings.sensitivityToLight),
-    visualMotionDiscomfort: clip(Math.max(ratings.visualProblems, ratings.dizziness, ratings.balanceProblems, ratings.nausea)),
-    mentalFatigue: clip(Math.max(ratings.fatigue, ratings.drowsiness, ratings.slowedDown, ratings.mentallyFoggy, ratings.difficultyConcentrating)),
-  };
-}
-
 interface ContextValue extends FocusMonitorSnapshot {
   settings: NeuroAdaptiveSettings;
   setSettings: (settings: NeuroAdaptiveSettings) => void;
   applyProfile: (profile: AdaptiveProfile, enabled?: boolean) => void;
   disable: () => void;
-  startMonitoring: (checkIn?: AdaptiveCheckIn) => Promise<void>;
+  startMonitoring: (checkIn?: AdaptiveCheckIn, baseSettings?: NeuroAdaptiveSettings) => Promise<void>;
   stopMonitoring: () => void;
   applyPromptAdaptation: () => void;
   beginPromptBreak: () => void;
@@ -70,6 +58,7 @@ interface ContextValue extends FocusMonitorSnapshot {
   adaptationReasons: string[];
   adaptationChanges: string[];
   adaptationRecommendBreak: boolean;
+  adaptationSource: "symptoms" | "live" | null;
   revertLastAdaptation: () => void;
 }
 
@@ -84,6 +73,9 @@ function applyToDocument(settings: NeuroAdaptiveSettings) {
   root.classList.toggle("neuro-audio-first", settings.enabled && settings.textToSpeechPreferred);
   root.classList.toggle("neuro-low-density", settings.enabled && settings.reduceDensity);
   root.classList.toggle("neuro-reading-layout", settings.enabled && settings.focusReadingLayout);
+  root.classList.toggle("neuro-calm-media", settings.enabled && settings.calmMedia);
+  root.classList.toggle("neuro-stable-viewport", settings.enabled && settings.stabilizeViewport);
+  root.classList.toggle("neuro-emphasize-structure", settings.enabled && settings.emphasizeStructure);
   root.style.setProperty("--adaptive-text-scale", settings.enabled ? String(settings.textScale) : "1");
   root.style.setProperty("--adaptive-line-spacing", settings.enabled ? String(settings.lineSpacing) : "1");
   root.dataset.neuroAdaptiveProfile = settings.enabled ? settings.profile : "off";
@@ -117,6 +109,7 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
   const [adaptationReasons, setAdaptationReasons] = useState<string[]>([]);
   const [adaptationChanges, setAdaptationChanges] = useState<string[]>([]);
   const [adaptationRecommendBreak, setAdaptationRecommendBreak] = useState(false);
+  const [adaptationSource, setAdaptationSource] = useState<"symptoms" | "live" | null>(null);
 
   const hiddenVideoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -177,6 +170,7 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
     setAdaptationReasons([]);
     setAdaptationChanges([]);
     setAdaptationRecommendBreak(false);
+    setAdaptationSource(null);
   }, [mode, userId]);
 
   useEffect(() => applyToDocument(settings), [settings]);
@@ -212,26 +206,30 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
   }, [setSettings, settings]);
 
   const applyAdaptiveIntervention = useCallback(() => {
-    const symptomContext = latestSymptomCheckIn() ?? monitorCheckInRef.current;
+    const symptomContext = getCurrentAdaptiveCheckIn() ?? monitorCheckInRef.current;
     monitorCheckInRef.current = symptomContext;
     const plan = planAdaptiveIntervention(latestEstimateRef.current, symptomContext);
     if (plan.changes.length === 0) return false;
-    if (!previousSettingsRef.current) previousSettingsRef.current = settings;
+    previousSettingsRef.current = settings;
     setAdaptationReasons(plan.reasons);
     setAdaptationChanges(plan.changes);
     setAdaptationRecommendBreak(plan.recommendBreak);
+    setAdaptationSource("live");
     setAdaptationActive(true);
     setSettings({
       ...settings,
       enabled: true,
-      profile: plan.profile,
-      textScale: plan.textScale,
-      lineSpacing: plan.lineSpacing,
-      reduceMotion: plan.reduceMotion,
-      softContrast: plan.softContrast,
-      textToSpeechPreferred: plan.textToSpeechPreferred,
-      reduceDensity: plan.reduceDensity,
-      focusReadingLayout: plan.focusReadingLayout,
+      profile: settings.profile === "audio-first" || plan.profile === "audio-first" ? "audio-first" : plan.profile,
+      textScale: Math.max(settings.textScale, plan.textScale),
+      lineSpacing: Math.max(settings.lineSpacing, plan.lineSpacing),
+      reduceMotion: settings.reduceMotion || plan.reduceMotion,
+      softContrast: settings.softContrast || plan.softContrast,
+      textToSpeechPreferred: settings.textToSpeechPreferred || plan.textToSpeechPreferred,
+      reduceDensity: settings.reduceDensity || plan.reduceDensity,
+      focusReadingLayout: settings.focusReadingLayout || plan.focusReadingLayout,
+      calmMedia: settings.calmMedia || plan.calmMedia,
+      stabilizeViewport: settings.stabilizeViewport || plan.stabilizeViewport,
+      emphasizeStructure: settings.emphasizeStructure || plan.emphasizeStructure,
       updatedAt: new Date().toISOString(),
     });
 
@@ -273,6 +271,7 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
     setAdaptationReasons([]);
     setAdaptationChanges([]);
     setAdaptationRecommendBreak(false);
+    setAdaptationSource(null);
   }, [setSettings]);
 
   const disable = useCallback(() => {
@@ -377,12 +376,42 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
     animationRef.current = requestAnimationFrame(processMonitorFrame);
   }, [setStatus, stopMonitoring]);
 
-  const startMonitoring = useCallback(async (checkIn?: AdaptiveCheckIn) => {
+  const startMonitoring = useCallback(async (checkIn?: AdaptiveCheckIn, baseSettings?: NeuroAdaptiveSettings) => {
     stopMonitoring();
     setError("");
     setLatestFeedback(null);
     setStatus("starting");
-    monitorCheckInRef.current = checkIn ?? latestSymptomCheckIn() ?? DEFAULT_CHECK_IN;
+    const symptomContext = checkIn ?? getCurrentAdaptiveCheckIn() ?? DEFAULT_CHECK_IN;
+    monitorCheckInRef.current = symptomContext;
+
+    // Seed Focus from the unified, user-confirmed symptom record before camera inference starts.
+    // Live MediaPipe/TensorFlow signals can then refine this baseline rather than replacing it.
+    const seedPlan = planAdaptiveIntervention(null, symptomContext);
+    const startingSettings = baseSettings ?? settings;
+    if (seedPlan.changes.length > 0) {
+      previousSettingsRef.current = startingSettings;
+      setAdaptationReasons(seedPlan.reasons);
+      setAdaptationChanges(seedPlan.changes);
+      setAdaptationRecommendBreak(seedPlan.recommendBreak);
+      setAdaptationSource("symptoms");
+      setAdaptationActive(true);
+      setSettings({
+        ...startingSettings,
+        enabled: true,
+        profile: seedPlan.profile,
+        textScale: Math.max(startingSettings.textScale, seedPlan.textScale),
+        lineSpacing: Math.max(startingSettings.lineSpacing, seedPlan.lineSpacing),
+        reduceMotion: startingSettings.reduceMotion || seedPlan.reduceMotion,
+        softContrast: startingSettings.softContrast || seedPlan.softContrast,
+        textToSpeechPreferred: startingSettings.textToSpeechPreferred || seedPlan.textToSpeechPreferred,
+        reduceDensity: startingSettings.reduceDensity || seedPlan.reduceDensity,
+        focusReadingLayout: startingSettings.focusReadingLayout || seedPlan.focusReadingLayout,
+        calmMedia: startingSettings.calmMedia || seedPlan.calmMedia,
+        stabilizeViewport: startingSettings.stabilizeViewport || seedPlan.stabilizeViewport,
+        emphasizeStructure: startingSettings.emphasizeStructure || seedPlan.emphasizeStructure,
+        updatedAt: new Date().toISOString(),
+      });
+    }
     try {
       if (!navigator.mediaDevices?.getUserMedia) throw new Error("This browser does not provide camera access.");
       const [landmarker, stream] = await Promise.all([
@@ -418,7 +447,7 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
       setError(caught instanceof Error ? caught.message : "Focus Mode could not start.");
       setStatus("error");
     }
-  }, [processMonitorFrame, setStatus, stopMonitoring]);
+  }, [processMonitorFrame, setSettings, setStatus, settings, stopMonitoring]);
 
   useEffect(() => {
     if (status === "active" && animationRef.current == null) animationRef.current = requestAnimationFrame(processMonitorFrame);
@@ -544,7 +573,7 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
         scrollReversalsPerMinute: interactionWindow.scrollReversalsPerMinute,
         idleRatio: interactionWindow.idleRatio,
       };
-      const latestSymptoms = latestSymptomCheckIn();
+      const latestSymptoms = getCurrentAdaptiveCheckIn();
       if (latestSymptoms) monitorCheckInRef.current = latestSymptoms;
       let next = estimateStrain(referenceRef.current, current, personalizationRef.current, monitorCheckInRef.current);
       latestEstimateRef.current = next;
@@ -675,12 +704,13 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
     adaptationReasons,
     adaptationChanges,
     adaptationRecommendBreak,
+    adaptationSource,
     revertLastAdaptation,
   }), [
     settings, setSettings, applyProfile, disable, status, calibrationProgress, trackingQualityPercent,
     estimate, promptVisible, breakSeconds, error, labeledExampleCount, tensorflowReady, startMonitoring,
     stopMonitoring, applyPromptAdaptation, beginPromptBreak, continueWithoutChange, resumeFromBreak,
-    submitPromptFeedback, latestFeedback, adaptationActive, adaptationReasons, adaptationChanges, adaptationRecommendBreak, revertLastAdaptation,
+    submitPromptFeedback, latestFeedback, adaptationActive, adaptationReasons, adaptationChanges, adaptationRecommendBreak, adaptationSource, revertLastAdaptation,
   ]);
 
   return (

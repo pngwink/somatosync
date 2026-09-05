@@ -29,6 +29,8 @@
       lightSensitivity: safeNumber(symptoms.lightSensitivity, 0, 0, 5),
       visualMotionDiscomfort: safeNumber(symptoms.visualMotionDiscomfort, 0, 0, 5),
       mentalFatigue: safeNumber(symptoms.mentalFatigue, 0, 0, 5),
+      headache: safeNumber(symptoms.headache, 0, 0, 5),
+      visualProblems: safeNumber(symptoms.visualProblems, 0, 0, 5),
     };
   }
 
@@ -44,12 +46,12 @@
       textScale: safeNumber(source.textScale, 1, 1, 1.35),
       lineSpacing: safeNumber(source.lineSpacing, 1, 1, 1.4),
       focusReadingLayout: Boolean(source.focusReadingLayout) || cognitiveSupport,
-      reduceMotion: motionSupport,
-      simplifyChrome: cognitiveSupport,
+      reduceMotion: motionSupport || Boolean(source.stabilizeViewport),
+      simplifyChrome: cognitiveSupport || Boolean(source.emphasizeStructure),
       warmPalette: visualCalming,
       strongerCalming: symptoms.lightSensitivity >= 4,
-      calmMedia: visualCalming,
-      readingGuide: cognitiveSupport,
+      calmMedia: visualCalming || Boolean(source.calmMedia),
+      readingGuide: cognitiveSupport || Boolean(source.emphasizeStructure),
       legibleTypeface: safeNumber(source.textScale, 1, 1, 1.35) > 1.02 || Boolean(source.focusReadingLayout),
       symptoms,
     };

@@ -23,7 +23,7 @@ export function PrivacyDataPage() {
       />
 
       <Panel title="How your data is stored" description="A plain description of this prototype's current data handling.">
-        <ul className="space-y-2.5 text-[14px] leading-relaxed text-[var(--color-text-secondary)]">
+        <ul className="space-y-2.5 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
           <li>SomatoSync currently stores prototype data in this browser using local storage (localStorage).</li>
           <li>Data saved in one browser stays on that browser and device -- it will not appear if you open SomatoSync in a different browser or on another device.</li>
           <li>Clearing your browser's site data, cache, or history may permanently remove information stored here.</li>

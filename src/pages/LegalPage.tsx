@@ -21,7 +21,7 @@ export function LegalPage({ type }: { type: "terms" | "privacy" }) {
 }
 
 function PrivacyText() {
-  return <div className="mt-6 space-y-5 text-[14.5px] leading-7 text-[var(--color-text-secondary)]">
+  return <div className="mt-6 space-y-5 text-[16px] leading-7 text-[var(--color-text-secondary)]">
     <section><h2 className="font-semibold text-[var(--color-text-primary)]">Local prototype data</h2><p>SomatoSync stores prototype account settings and recovery records in this browser’s local storage. It does not provide production authentication or a cloud medical record.</p></section>
     <section><h2 className="font-semibold text-[var(--color-text-primary)]">Camera processing</h2><p>Balance and Focus Mode camera frames are processed in memory. Raw video, screenshots, and landmark streams are not intentionally saved. Only summary measurements may be stored locally after a completed task.</p></section>
     <section><h2 className="font-semibold text-[var(--color-text-primary)]">AI explanation</h2><p>The optional AI Recovery Explanation sends an allowlisted, de-identified trend summary to a protected server route only after consent. Names, email addresses, raw camera frames, memory words, and complete symptom-response objects are excluded.</p></section>
@@ -30,7 +30,7 @@ function PrivacyText() {
 }
 
 function TermsText() {
-  return <div className="mt-6 space-y-5 text-[14.5px] leading-7 text-[var(--color-text-secondary)]">
+  return <div className="mt-6 space-y-5 text-[16px] leading-7 text-[var(--color-text-secondary)]">
     <section><h2 className="font-semibold text-[var(--color-text-primary)]">Educational prototype</h2><p>SomatoSync is a hackathon prototype for tracking and explaining recovery patterns. It is not a medical device and does not diagnose concussion, predict an exact recovery date, or provide clearance.</p></section>
     <section><h2 className="font-semibold text-[var(--color-text-primary)]">Emergency care</h2><p>Do not use this application instead of urgent medical evaluation. Seek emergency help for danger signs or rapidly worsening symptoms.</p></section>
     <section><h2 className="font-semibold text-[var(--color-text-primary)]">Appropriate use</h2><p>Use assessments only when safe and stop tasks that meaningfully worsen symptoms. Return-to-learn, work, driving, and sport decisions should follow individualized professional guidance.</p></section>

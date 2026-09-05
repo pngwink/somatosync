@@ -294,7 +294,7 @@ export function BalanceAssessmentPage() {
             <CheckCircle2 className="mt-0.5 h-8 w-8 shrink-0 text-[var(--color-positive)]" aria-hidden="true" />
             <div>
               <h2 className="text-[17px] font-semibold text-[var(--color-text-primary)]">{bandText[result.movementBand]}</h2>
-              <p className="mt-1 text-[14px] text-[var(--color-text-secondary)]">
+              <p className="mt-1 text-[16px] text-[var(--color-text-secondary)]">
                 {result.movementBand === "insufficient"
                   ? "This recording was not saved because too few camera frames could be tracked. Improve lighting, simplify the background, and try again."
                   : "This label uses prototype recording thresholds and should only be compared with your own future recordings under similar conditions."}
@@ -315,16 +315,16 @@ export function BalanceAssessmentPage() {
             const tolerance = taskToleranceSummary(result.preTolerance, result.postTolerance, ["headache", "dizziness", "fatigue"]);
             return tolerance ? (
               <div className="mt-5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-sunken)] p-4">
-                <p className="text-[15px] font-semibold text-[var(--color-text-primary)]">Task tolerance · {tolerance.label}</p>
-                <p className="mt-1 text-[15px] leading-6 text-[var(--color-text-secondary)]">{tolerance.detail}</p>
-                <p className="mt-2 text-[14px] leading-6 text-[var(--color-text-tertiary)]">Movement and symptom cost stay separate; less movement does not automatically mean the task was easier to tolerate.</p>
+                <p className="text-[16px] font-semibold text-[var(--color-text-primary)]">Task tolerance · {tolerance.label}</p>
+                <p className="mt-1 text-[16px] leading-6 text-[var(--color-text-secondary)]">{tolerance.detail}</p>
+                <p className="mt-2 text-[16px] leading-6 text-[var(--color-text-tertiary)]">Movement and symptom cost stay separate; less movement does not automatically mean the task was easier to tolerate.</p>
               </div>
             ) : null;
           })()}
 
           <div className="mt-5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-sunken)] p-4">
-            <h3 className="text-[14.5px] font-medium text-[var(--color-text-primary)]">What the camera measured</h3>
-            <p className="mt-1 text-[15px] leading-relaxed text-[var(--color-text-secondary)]">
+            <h3 className="text-[16px] font-medium text-[var(--color-text-primary)]">What the camera measured</h3>
+            <p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
               SomatoSync estimates body position frame by frame and summarizes the movement visible to the camera. Video and raw body landmarks are not saved.
             </p>
           </div>
@@ -370,15 +370,15 @@ export function BalanceAssessmentPage() {
             {phase === "intro" && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/70 p-6 text-center text-white">
                 <Camera className="h-9 w-9" aria-hidden="true" />
-                <p className="max-w-sm text-[14.5px]">Camera analysis runs in this browser. SomatoSync saves only summary movement measurements—not video or body landmarks.</p>
+                <p className="max-w-sm text-[16px]">Camera analysis runs in this browser. SomatoSync saves only summary movement measurements—not video or body landmarks.</p>
               </div>
             )}
 
             {phase === "requesting" && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/70 text-center text-white">
                 <BrainCircuit className="h-8 w-8" aria-hidden="true" />
-                <p className="text-[15px]">{modelStatus === "loading" ? "Loading camera analysis…" : "Requesting camera permission…"}</p>
-                <p className="max-w-sm text-[14.5px] text-white/70">Camera frames are processed in the browser and are not saved.</p>
+                <p className="text-[16px]">{modelStatus === "loading" ? "Loading camera analysis…" : "Requesting camera permission…"}</p>
+                <p className="max-w-sm text-[16px] text-white/70">Camera frames are processed in the browser and are not saved.</p>
               </div>
             )}
 
@@ -390,16 +390,16 @@ export function BalanceAssessmentPage() {
 
             {(phase === "positioning" || phase === "countdown" || phase === "testing") && (
               <div className="absolute left-3 top-3 rounded-[var(--radius-sm)] bg-black/65 px-3 py-2 text-white">
-                <p className="text-[14px] uppercase tracking-wide text-white/70">{phase === "testing" ? "Recording" : "Positioning"}</p>
+                <p className="text-[16px] uppercase tracking-wide text-white/70">{phase === "testing" ? "Recording" : "Positioning"}</p>
                 <p className="font-mono text-[16px] font-semibold tabular-nums">{phase === "testing" ? `${secondsRemaining}s` : `${landmarkVisibility}% confidence`}</p>
-                <p className="text-[14px] text-white/75">{poseVisible ? (positioningReady ? "Required landmarks visible" : "Step back to show knees") : "Pose not detected"}</p>
+                <p className="text-[16px] text-white/75">{poseVisible ? (positioningReady ? "Required landmarks visible" : "Step back to show knees") : "Pose not detected"}</p>
               </div>
             )}
 
             {phase === "error" && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/80 p-6 text-center text-white">
                 <VideoOff className="h-9 w-9" aria-hidden="true" />
-                <p className="max-w-md text-[14px]">{errorMessage || "The camera could not be opened."}</p>
+                <p className="max-w-md text-[16px]">{errorMessage || "The camera could not be opened."}</p>
               </div>
             )}
           </div>
@@ -414,7 +414,7 @@ export function BalanceAssessmentPage() {
                     onChange={(event) => setSafetyConfirmed(event.target.checked)}
                     className="mt-0.5 h-4 w-4 accent-[var(--color-accent)]"
                   />
-                  <span className="text-[15px] leading-relaxed text-[var(--color-text-secondary)]">
+                  <span className="text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
                     I can stand safely with eyes open, have sturdy support nearby, and will stop immediately if I feel dizzy or unstable.
                   </span>
                 </label>
@@ -424,7 +424,7 @@ export function BalanceAssessmentPage() {
 
             {phase === "positioning" && (
               <div className="space-y-3">
-                <p className="text-[14px] text-[var(--color-text-secondary)]">
+                <p className="text-[16px] text-[var(--color-text-secondary)]">
                   Step back until your head, shoulders, hips, and knees are visible inside the guide. Face forward, keep your eyes open, and stand with feet about hip-width apart.
                 </p>
                 <Button className="w-full" disabled={!positioningReady || modelStatus !== "ready"} onClick={startCountdown}>
@@ -434,7 +434,7 @@ export function BalanceAssessmentPage() {
             )}
 
             {phase === "testing" && (
-              <p className="text-center text-[14.5px] font-medium text-[var(--color-text-primary)]">Stay as still as comfortably possible and keep looking forward.</p>
+              <p className="text-center text-[16px] font-medium text-[var(--color-text-primary)]">Stay as still as comfortably possible and keep looking forward.</p>
             )}
 
             {phase === "error" && (
@@ -451,8 +451,8 @@ export function BalanceAssessmentPage() {
             <div className="flex items-start gap-2.5">
               <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-caution)]" aria-hidden="true" />
               <div>
-                <h2 className="text-[15px] font-semibold text-[var(--color-text-primary)]">Safety first</h2>
-                <ul className="mt-2 space-y-2 text-[15px] leading-relaxed text-[var(--color-text-secondary)]">
+                <h2 className="text-[16px] font-semibold text-[var(--color-text-primary)]">Safety first</h2>
+                <ul className="mt-2 space-y-2 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
                   <li>Use a clear area with a wall, counter, or another person nearby.</li>
                   <li>Keep both feet on the floor and eyes open.</li>
                   <li>Do not continue if symptoms increase or you feel unsafe.</li>
@@ -462,8 +462,8 @@ export function BalanceAssessmentPage() {
           </Card>
 
           <Card className="p-5">
-            <h2 className="text-[15px] font-semibold text-[var(--color-text-primary)]">What is included</h2>
-            <div className="mt-3 space-y-3 text-[15px] text-[var(--color-text-secondary)]">
+            <h2 className="text-[16px] font-semibold text-[var(--color-text-primary)]">What is included</h2>
+            <div className="mt-3 space-y-3 text-[16px] text-[var(--color-text-secondary)]">
               <div>
                 <p className="font-medium text-[var(--color-text-primary)]">Postural movement</p>
                 <p className="mt-0.5">A trained ML model tracks shoulder and hip landmarks; lateral RMS, range, and total path are calculated from their center.</p>
@@ -491,9 +491,9 @@ export function BalanceAssessmentPage() {
 function Metric({ label, value, detail }: { label: string; value: string; detail: string }) {
   return (
     <div className="rounded-[var(--radius-md)] border border-[var(--color-border)] p-3.5">
-      <p className="text-[14.5px] text-[var(--color-text-tertiary)]">{label}</p>
+      <p className="text-[16px] text-[var(--color-text-tertiary)]">{label}</p>
       <p className="mt-1 font-mono text-[19px] font-semibold tabular-nums text-[var(--color-text-primary)]">{value}</p>
-      <p className="mt-0.5 text-[14.5px] text-[var(--color-text-secondary)]">{detail}</p>
+      <p className="mt-0.5 text-[16px] text-[var(--color-text-secondary)]">{detail}</p>
     </div>
   );
 }

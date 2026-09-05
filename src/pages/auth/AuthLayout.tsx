@@ -10,8 +10,8 @@ export function AuthLayout({ title, subtitle, children }: { title: string; subti
           <Wordmark />
         </div>
         <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-7 shadow-[var(--shadow-low)]">
-          <h1 className="text-[19px] font-semibold tracking-tight text-[var(--color-text-primary)]">{title}</h1>
-          <p className="mt-1 text-[14.5px] text-[var(--color-text-secondary)]">{subtitle}</p>
+          <h1 className="text-[26px] font-bold tracking-tight text-[var(--color-text-primary)]">{title}</h1>
+          <p className="mt-1 text-[16px] leading-6 text-[var(--color-text-secondary)]">{subtitle}</p>
           <div className="mt-6">{children}</div>
         </div>
       </div>
@@ -30,9 +30,9 @@ export function DemoAccessButton({ onClick }: { onClick: () => void }) {
         <PlayCircle className="h-4 w-4" aria-hidden="true" />
       </span>
       <span className="min-w-0">
-        <span className="block text-[14.5px] font-semibold text-[var(--color-text-primary)]">Open Maya Chen Demo</span>
-        <span className="mt-0.5 block text-[14.5px] leading-snug text-[var(--color-text-secondary)]">
-          No sign-in required. View the fully populated recovery dashboard.
+        <span className="block text-[16px] font-bold text-[var(--color-text-primary)]">Open Maya Chen Demo</span>
+        <span className="mt-0.5 block text-[16px] leading-6 text-[var(--color-text-secondary)]">
+          Explore the complete Maya demo. No sign-in needed.
         </span>
       </span>
     </button>

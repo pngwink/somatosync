@@ -36,7 +36,7 @@ export function Sidebar() {
           <button
             type="button"
             onClick={() => setMoreOpen((value) => !value)}
-            className="flex w-full items-center gap-3 rounded-[13px] px-3.5 py-3 text-[15px] font-medium text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-sunken)] hover:text-[var(--color-text-primary)]"
+            className="flex w-full items-center gap-3 rounded-[13px] px-3.5 py-3 text-[16px] font-medium text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-sunken)] hover:text-[var(--color-text-primary)]"
             aria-expanded={showMoreItems}
           >
             <MoreHorizontal className="h-[18px] w-[18px] shrink-0 text-[var(--color-text-tertiary)]" />
@@ -55,12 +55,12 @@ export function Sidebar() {
 
       <div className="border-t border-[var(--color-border)] p-3">
         <div className="flex items-center gap-2.5 rounded-[var(--radius-md)] px-2 py-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-[14.5px] font-semibold text-[var(--color-accent)]">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-[16px] font-semibold text-[var(--color-accent)]">
             {initials}
           </div>
           <div className="min-w-0">
-            <p className="truncate text-[14.5px] font-medium text-[var(--color-text-primary)]">{displayName}</p>
-            <p className="truncate text-[14px] text-[var(--color-text-tertiary)]">
+            <p className="truncate text-[16px] font-medium text-[var(--color-text-primary)]">{displayName}</p>
+            <p className="truncate text-[16px] text-[var(--color-text-tertiary)]">
               {mode === "demo" ? `Demo snapshot · Day ${currentPatient.recoveryDay}` : "Private recovery record"}
             </p>
           </div>
@@ -77,8 +77,8 @@ function NavItemLink({ label, href, icon: Icon, end, compact = false }: NavItem 
       end={end}
       className={({ isActive }) =>
         cn(
-          "flex items-center gap-3 rounded-[13px] px-3.5 py-3 text-[15px] font-medium transition-colors",
-          compact && "py-2.5 text-[14.5px]",
+          "flex items-center gap-3 rounded-[13px] px-3.5 py-3 text-[16px] font-medium transition-colors",
+          compact && "py-2.5 text-[16px]",
           isActive
             ? "bg-[var(--color-accent-soft)] text-[var(--color-accent)] shadow-[var(--shadow-low)]"
             : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-sunken)] hover:text-[var(--color-text-primary)]"

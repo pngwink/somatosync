@@ -4,62 +4,105 @@
    Typography changes target reading content rather than browser-zooming the whole product. */
 html.neuro-adaptive-active {
   --adaptive-text-scale: 1;
+  --adaptive-line-spacing: 1;
 }
 
 html.neuro-adaptive-active .app-content p,
 html.neuro-adaptive-active .app-content li,
 html.neuro-adaptive-active .app-content blockquote {
-  font-size: calc(16px * var(--adaptive-text-scale, 1)) !important;
   line-height: calc(1.62 * var(--adaptive-line-spacing, 1)) !important;
 }
 
-html.neuro-adaptive-active .app-content [data-focus-reading-surface="true"] p,
-html.neuro-adaptive-active .app-content [data-focus-reading-surface="true"] li {
-  font-size: calc(16.5px * var(--adaptive-text-scale, 1)) !important;
+/* Text growth is concentrated on long-form reading surfaces so controls and chrome do not
+   feel like a browser zoom. */
+html.neuro-reading-layout .app-content article p,
+html.neuro-reading-layout .app-content article li,
+html.neuro-reading-layout .app-content [data-focus-reading-surface="true"] p,
+html.neuro-reading-layout .app-content [data-focus-reading-surface="true"] li,
+html.neuro-reading-layout .app-content .reading-measure p,
+html.neuro-reading-layout .app-content .reading-measure li {
+  font-size: calc(17px * var(--adaptive-text-scale, 1)) !important;
+  line-height: calc(1.66 * var(--adaptive-line-spacing, 1)) !important;
 }
 
-/* Light-sensitivity support: deliberately obvious warm, lower-intensity palette.
-   This is an accessibility preference, not a claim that one palette treats concussion. */
+/* Distinct low-glare palette for light/visual sensitivity. This remains an optional
+   accessibility presentation, not a treatment claim. Text contrast stays intentionally strong. */
 html.neuro-soft-contrast:not(.dark) {
-  --color-bg: #E8DFD2;
-  --color-surface: #F3ECE3;
-  --color-surface-raised: #FAF5EE;
-  --color-surface-sunken: #DDD2C4;
-  --color-text-primary: #2D2A27;
-  --color-text-secondary: #5C5650;
-  --color-text-tertiary: #756E67;
-  --color-border: #CFC2B4;
-  --color-border-strong: #B8A898;
-  --color-accent: #66515A;
-  --color-accent-hover: #56434B;
-  --color-accent-soft: #E4D6D8;
-  --color-accent-soft-border: #CBB8BC;
+  --color-bg: #D9CDBA;
+  --color-surface: #E9DECC;
+  --color-surface-raised: #F7EEDC;
+  --color-surface-sunken: #CFC1AD;
+  --color-text-primary: #211F1D;
+  --color-text-secondary: #4C4741;
+  --color-text-tertiary: #655E56;
+  --color-border: #B9A995;
+  --color-border-strong: #9E8C77;
+  --color-accent: #6B4C5B;
+  --color-accent-hover: #553B48;
+  --color-accent-soft: #D9C2C9;
+  --color-accent-soft-border: #BFA2AB;
 }
 
 html.neuro-soft-contrast.dark {
-  --color-bg: #17130F;
-  --color-surface: #211B17;
-  --color-surface-raised: #2B231E;
-  --color-surface-sunken: #1C1713;
-  --color-text-primary: #E8E0D6;
-  --color-text-secondary: #BDB1A5;
-  --color-text-tertiary: #94897F;
-  --color-border: #40362E;
-  --color-border-strong: #5A4C41;
-  --color-accent: #C19AA5;
-  --color-accent-soft: #38282E;
+  --color-bg: #101417;
+  --color-surface: #171D21;
+  --color-surface-raised: #20282D;
+  --color-surface-sunken: #0C1012;
+  --color-text-primary: #F0E7DA;
+  --color-text-secondary: #C5B9AA;
+  --color-text-tertiary: #9F9385;
+  --color-border: #384248;
+  --color-border-strong: #59656C;
+  --color-accent: #D4A8B4;
+  --color-accent-soft: #3A2830;
 }
 
-html.neuro-soft-contrast .app-content img,
-html.neuro-soft-contrast .app-content video {
-  filter: saturate(.72) brightness(.93) contrast(.94);
+/* Blink/visual-strain mode: media becomes substantially calmer, not just slightly tinted. */
+html.neuro-calm-media .app-content img,
+html.neuro-calm-media .app-content video {
+  filter: saturate(.38) brightness(.82) contrast(.90) !important;
+  opacity: .86 !important;
 }
+html.neuro-calm-media .app-content [data-focus-secondary="true"] img,
+html.neuro-calm-media .app-content [data-focus-secondary="true"] video { opacity: .55 !important; }
+
+/* Head/gaze-instability mode: remove moving viewport behavior and sticky distractions. */
+html.neuro-stable-viewport,
+html.neuro-stable-viewport * { scroll-behavior: auto !important; }
+html.neuro-stable-viewport .app-content *,
+html.neuro-stable-viewport .app-content *::before,
+html.neuro-stable-viewport .app-content *::after {
+  animation-duration: .001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .001ms !important;
+}
+html.neuro-stable-viewport .app-content [class*="sticky"],
+html.neuro-stable-viewport .app-content [class*="fixed"] {
+  position: static !important;
+  transform: none !important;
+}
+
+/* Cognitive-load mode: make hierarchy more obvious rather than only hiding content. */
+html.neuro-emphasize-structure .app-content h1,
+html.neuro-emphasize-structure .app-content h2,
+html.neuro-emphasize-structure .app-content h3 {
+  letter-spacing: -.015em !important;
+  line-height: 1.18 !important;
+  font-weight: 750 !important;
+}
+html.neuro-emphasize-structure .app-content h2,
+html.neuro-emphasize-structure .app-content h3 {
+  padding-top: .35rem;
+  border-top: 2px solid color-mix(in srgb, var(--color-border-strong) 72%, transparent);
+}
+html.neuro-emphasize-structure .app-content section + section { margin-top: 2.5rem !important; }
+html.neuro-emphasize-structure .app-content p + p { margin-top: 1.05rem !important; }
 
 html.neuro-audio-first main p { max-width: 68ch; }
 
 /* Cognitive simplification removes explicitly secondary material. */
 html.neuro-low-density main [data-focus-secondary="true"],
-html.neuro-low-density main details:not([open]) { display: none !important; }
+html.neuro-low-density main details[data-focus-secondary="true"] { display: none !important; }
 
 html.neuro-low-density main section,
 html.neuro-low-density main article { scroll-margin-top: 3rem; }
@@ -95,7 +138,14 @@ html.neuro-reading-layout .app-content [data-focus-reading-surface="true"] {
 
 /* When a sustained close-viewing + squint pattern calls for both focused layout and
    reduced density, remove the surrounding application chrome for a true reading canvas. */
-html.neuro-reading-layout.neuro-low-density [data-focus-shell] { display: none !important; }
+html.neuro-reading-layout.neuro-low-density [data-focus-shell="sidebar"],
+html.neuro-reading-layout.neuro-low-density [data-focus-shell="demo-banner"] { display: none !important; }
+html.neuro-reading-layout.neuro-low-density [data-focus-shell="header"] {
+  min-height: 52px !important;
+  height: 52px !important;
+  backdrop-filter: none !important;
+  background: var(--color-surface) !important;
+}
 html.neuro-reading-layout.neuro-low-density .app-content {
   padding: clamp(1rem, 3vw, 2rem) !important;
   background: color-mix(in srgb, var(--color-bg) 88%, var(--color-surface) 12%);

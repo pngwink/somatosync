@@ -23,7 +23,7 @@ export function DropdownMenuItem({ className, ...props }: React.ComponentProps<t
   return (
     <DropdownPrimitive.Item
       className={cn(
-        "flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-2.5 py-2 text-[14px] text-[var(--color-text-primary)] outline-none transition-colors data-[highlighted]:bg-[var(--color-surface-sunken)]",
+        "flex cursor-pointer items-center gap-2 rounded-[var(--radius-sm)] px-2.5 py-2 text-[16px] text-[var(--color-text-primary)] outline-none transition-colors data-[highlighted]:bg-[var(--color-surface-sunken)]",
         className
       )}
       {...props}
@@ -32,7 +32,7 @@ export function DropdownMenuItem({ className, ...props }: React.ComponentProps<t
 }
 
 export function DropdownMenuLabel({ className, ...props }: React.ComponentProps<typeof DropdownPrimitive.Label>) {
-  return <DropdownPrimitive.Label className={cn("px-2.5 py-1.5 text-[14.5px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]", className)} {...props} />;
+  return <DropdownPrimitive.Label className={cn("px-2.5 py-1.5 text-[16px] font-medium uppercase tracking-wide text-[var(--color-text-tertiary)]", className)} {...props} />;
 }
 
 export function DropdownMenuSeparator({ className, ...props }: React.ComponentProps<typeof DropdownPrimitive.Separator>) {

@@ -40,7 +40,7 @@ export function TaskToleranceCheck({
 
   return (
     <div>
-      <p className="text-[15.5px] leading-7 text-[var(--color-text-secondary)]">
+      <p className="text-[16px] leading-7 text-[var(--color-text-secondary)]">
         {mode === "pre"
           ? "Before the task, rate how you feel right now. SomatoSync keeps this separate from performance so it can track what the task costs you symptom-wise."
           : "Now rate the same symptoms again. This helps distinguish task performance from task tolerance."}

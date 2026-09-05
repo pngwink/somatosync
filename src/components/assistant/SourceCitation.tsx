@@ -21,13 +21,13 @@ export function SourceCitation({ source }: { source: ResearchSource }) {
       <BookOpen className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--color-text-tertiary)]" aria-hidden="true" />
       <div className="min-w-0 flex-1">
         <div className="flex items-start gap-2">
-          <p className="flex-1 text-[14.5px] font-medium leading-snug text-[var(--color-text-primary)]">{source.title}</p>
+          <p className="flex-1 text-[16px] font-medium leading-snug text-[var(--color-text-primary)]">{source.title}</p>
           <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--color-text-tertiary)] group-hover:text-[var(--color-accent)]" aria-hidden="true" />
         </div>
-        <p className="mt-1 text-[14.5px] text-[var(--color-text-tertiary)]">
+        <p className="mt-1 text-[16px] text-[var(--color-text-tertiary)]">
           {source.publisher} · {source.year}
         </p>
-        <p className="mt-1.5 text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">{source.evidenceNote}</p>
+        <p className="mt-1.5 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">{source.evidenceNote}</p>
         <Badge tone="neutral" className="mt-2">
           {typeLabels[source.type]}
         </Badge>

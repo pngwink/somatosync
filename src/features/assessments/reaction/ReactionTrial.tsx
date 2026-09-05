@@ -36,7 +36,7 @@ export function ReactionTrial({ displayPhase, trialKind, trialNumber, totalForKi
           aria-label={displayPhase === "trialFeedback" ? "Trial feedback" : "Response area. Press when the shape changes."}
           onClick={displayPhase === "trialFeedback" ? undefined : onRespond}
           className={cn(
-            "flex h-52 w-52 select-none items-center justify-center rounded-full border-2 text-[15px] font-medium transition-none sm:h-64 sm:w-64",
+            "flex h-52 w-52 select-none items-center justify-center rounded-full border-2 text-[16px] font-medium transition-none sm:h-64 sm:w-64",
             displayPhase === "waiting" &&
               "cursor-pointer border-[var(--color-border-strong)] bg-[var(--color-surface)] text-[var(--color-text-secondary)]",
             displayPhase === "stimulus" && "cursor-pointer border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-accent-foreground)]",
@@ -47,7 +47,7 @@ export function ReactionTrial({ displayPhase, trialKind, trialNumber, totalForKi
           {stateText}
         </div>
 
-        <p className="text-[14.5px] text-[var(--color-text-tertiary)]">
+        <p className="text-[16px] text-[var(--color-text-tertiary)]">
           {displayPhase === "trialFeedback"
             ? "Continuing shortly."
             : "Press the spacebar, press Enter, or select the shape when it changes."}

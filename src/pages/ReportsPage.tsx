@@ -81,13 +81,13 @@ export function ReportsPage() {
           <div className="space-y-4">
             <div className="space-y-1.5"><Label>Date range</Label><Select value={range} onValueChange={(value) => setRange(value as ReportRange)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="7d">Last 7 days</SelectItem><SelectItem value="14d">Last 14 days</SelectItem><SelectItem value="30d">Last 30 days</SelectItem><SelectItem value="all">Entire recovery</SelectItem></SelectContent></Select></div>
             <div className="space-y-1.5"><Label>Audience</Label><Select value={audience} onValueChange={setAudience}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{audienceOptions.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent></Select></div>
-            <div className="space-y-2"><Label>Included sections</Label>{metricOptions.map((metric) => <label key={metric.id} className="flex items-center gap-2.5 text-[14px] text-[var(--color-text-primary)]"><input type="checkbox" checked={metrics.includes(metric.id)} onChange={() => toggleMetric(metric.id)} className="h-3.5 w-3.5 rounded border-[var(--color-border-strong)] accent-[var(--color-accent)]" />{metric.label}</label>)}</div>
+            <div className="space-y-2"><Label>Included sections</Label>{metricOptions.map((metric) => <label key={metric.id} className="flex items-center gap-2.5 text-[16px] text-[var(--color-text-primary)]"><input type="checkbox" checked={metrics.includes(metric.id)} onChange={() => toggleMetric(metric.id)} className="h-3.5 w-3.5 rounded border-[var(--color-border-strong)] accent-[var(--color-accent)]" />{metric.label}</label>)}</div>
           </div>
 
           <div className="mt-5 space-y-2.5 border-t border-[var(--color-border)] pt-5">
             <Button className="w-full" onClick={printReport}><FileText className="h-4 w-4" /> Print / Save as PDF</Button>
             <Button variant="secondary" className="w-full" onClick={() => { downloadDataExport(); show({ title: "Data downloaded", description: "A local JSON copy of SomatoSync data was created.", tone: "success" }); }}><Download className="h-4 w-4" /> Download raw data</Button>
-            <p className="flex items-start gap-1.5 pt-1 text-[14.5px] leading-snug text-[var(--color-text-tertiary)]"><Lock className="mt-[2px] h-3 w-3 shrink-0" />Reports include health information. Only share with people you trust.</p>
+            <p className="flex items-start gap-1.5 pt-1 text-[16px] leading-snug text-[var(--color-text-tertiary)]"><Lock className="mt-[2px] h-3 w-3 shrink-0" />Reports include health information. Only share with people you trust.</p>
           </div>
         </Panel>
 

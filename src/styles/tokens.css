@@ -128,8 +128,8 @@
     background-color: var(--color-bg);
     color: var(--color-text-primary);
     font-family: var(--font-body);
-    font-size: 16px;
-    line-height: 1.6;
+    font-size: 17px;
+    line-height: 1.65;
     font-feature-settings: "tnum" 1;
   }
   .tabular-nums { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }

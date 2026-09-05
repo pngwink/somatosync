@@ -21,6 +21,9 @@ export const DEFAULT_ADAPTIVE_SETTINGS: NeuroAdaptiveSettings = {
   textToSpeechPreferred: false,
   reduceDensity: false,
   focusReadingLayout: false,
+  calmMedia: false,
+  stabilizeViewport: false,
+  emphasizeStructure: false,
   autoAdapt: false,
   updatedAt: new Date(0).toISOString(),
 };

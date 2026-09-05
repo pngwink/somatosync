@@ -20,20 +20,20 @@ export function AssessmentRow({ definition, latestResult, onStart }: AssessmentR
           <h3 className="text-[17px] font-semibold text-[var(--color-text-primary)]">{definition.name}</h3>
           {definition.requiresDevice && <Badge tone="neutral">{definition.requiresDevice === "camera" ? "Camera" : "Device"}</Badge>}
         </div>
-        <p className="mt-1.5 max-w-[62ch] text-[15px] leading-6 text-[var(--color-text-secondary)]">{definition.purpose}</p>
-        <p className="mt-2 text-[14px] text-[var(--color-text-tertiary)]">{definition.estimatedDurationMinutes} min · {definition.suggestedCadence ?? "As directed"}</p>
+        <p className="mt-1.5 max-w-[62ch] text-[16px] leading-6 text-[var(--color-text-secondary)]">{definition.purpose}</p>
+        <p className="mt-2 text-[16px] text-[var(--color-text-tertiary)]">{definition.estimatedDurationMinutes} min · {definition.suggestedCadence ?? "As directed"}</p>
 
         {latestResult && interpretation ? (
           <div className="mt-4 rounded-[14px] bg-[var(--color-surface-sunken)] px-4 py-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-[15px] font-semibold tabular-nums text-[var(--color-text-primary)]">{latestResult.value} {latestResult.unit}</span>
+              <span className="font-mono text-[16px] font-semibold tabular-nums text-[var(--color-text-primary)]">{latestResult.value} {latestResult.unit}</span>
               <Badge tone={interpretation.tone} showDot>{interpretation.label}</Badge>
             </div>
-            <p className="mt-1.5 text-[14.5px] leading-6 text-[var(--color-text-secondary)]">{interpretation.detail}</p>
-            <p className="mt-1 text-[14px] text-[var(--color-text-tertiary)]">{formatDate(latestResult.date)}</p>
+            <p className="mt-1.5 text-[16px] leading-6 text-[var(--color-text-secondary)]">{interpretation.detail}</p>
+            <p className="mt-1 text-[16px] text-[var(--color-text-tertiary)]">{formatDate(latestResult.date)}</p>
           </div>
         ) : (
-          <p className="mt-3 text-[14.5px] text-[var(--color-text-tertiary)]">No result recorded yet.</p>
+          <p className="mt-3 text-[16px] text-[var(--color-text-tertiary)]">No result recorded yet.</p>
         )}
       </div>
 

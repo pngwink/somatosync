@@ -47,7 +47,7 @@ export function ReactionSymptomCheck({ mode, onSubmitPre, onSubmitPost }: Reacti
 
   return (
     <div className="space-y-1">
-      <p className="mb-3 text-[14.5px] text-[var(--color-text-secondary)]">
+      <p className="mb-3 text-[16px] text-[var(--color-text-secondary)]">
         {mode === "pre"
           ? "Rate how you feel right now, before starting the test."
           : "Rate how you feel now, after completing the test."}

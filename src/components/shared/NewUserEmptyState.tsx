@@ -26,7 +26,7 @@ export function NewUserEmptyState({
         <div className="rounded-full bg-[var(--color-accent-soft)] p-3 text-[var(--color-accent)]">
           <ClipboardList className="h-5 w-5" />
         </div>
-        <p className="max-w-xl text-[14.5px] leading-relaxed text-[var(--color-text-secondary)]">
+        <p className="max-w-xl text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
           Your account starts blank. Your first completed assessment becomes the starting point, and later results are
           compared with your earlier assessments.
         </p>

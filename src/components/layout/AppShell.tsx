@@ -22,7 +22,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <TopHeader />
         {mode === "demo" && (
-          <div data-focus-shell="demo-banner" className="border-b border-[var(--color-accent-soft-border)] bg-[var(--color-accent-soft)] px-4 py-1.5 text-center text-[14.5px] font-semibold text-[var(--color-accent)] sm:px-6">
+          <div data-focus-shell="demo-banner" className="border-b border-[var(--color-accent-soft-border)] bg-[var(--color-accent-soft)] px-4 py-1.5 text-center text-[16px] font-semibold text-[var(--color-accent)] sm:px-6">
             Maya Chen demo · sample recovery data
           </div>
         )}
