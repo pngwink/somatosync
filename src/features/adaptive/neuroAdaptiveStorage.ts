@@ -19,6 +19,7 @@ export const DEFAULT_ADAPTIVE_SETTINGS: NeuroAdaptiveSettings = {
   reduceMotion: false,
   softContrast: false,
   textToSpeechPreferred: false,
+  plainLanguage: false,
   reduceDensity: false,
   focusReadingLayout: false,
   calmMedia: false,

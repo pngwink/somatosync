@@ -14,6 +14,7 @@ import { getTensorFlowTrainingStatus, predictConfirmedStrain } from "./tfPersona
 import { getCurrentAdaptiveCheckIn } from "./symptomContext";
 import { beginAdaptiveResponse, finishAdaptiveResponse } from "../recovery-memory/recoveryMemoryEngine";
 import { broadcastShieldProfile } from "./shieldBridge";
+import { applyPlainLanguage, restorePlainLanguage, stopReadingAloud } from "./focusReadingTools";
 import type {
   AdaptiveCheckIn, AdaptiveProfile, FaceSignalSample, FocusMonitorSnapshot, FocusMonitorStatus,
   NeuroAdaptiveSessionSummary, NeuroAdaptiveSettings, PersonalizationModel, SignalWindow, StrainEstimate,
@@ -72,6 +73,7 @@ function applyToDocument(settings: NeuroAdaptiveSettings) {
   root.classList.toggle("reduce-motion", settings.enabled && settings.reduceMotion);
   root.classList.toggle("neuro-soft-contrast", settings.enabled && settings.softContrast);
   root.classList.toggle("neuro-audio-first", settings.enabled && settings.textToSpeechPreferred);
+  root.classList.toggle("neuro-plain-language", settings.enabled && settings.plainLanguage);
   root.classList.toggle("neuro-low-density", settings.enabled && settings.reduceDensity);
   root.classList.toggle("neuro-reading-layout", settings.enabled && settings.focusReadingLayout);
   root.classList.toggle("neuro-calm-media", settings.enabled && settings.calmMedia);
@@ -179,6 +181,27 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
 
 
   useEffect(() => applyToDocument(settings), [settings]);
+
+  useEffect(() => {
+    if (!settings.enabled || !settings.plainLanguage) {
+      restorePlainLanguage();
+      return;
+    }
+    applyPlainLanguage();
+    const content = document.querySelector(".app-content");
+    if (!content) return;
+    let queued = false;
+    const observer = new MutationObserver(() => {
+      if (queued) return;
+      queued = true;
+      window.requestAnimationFrame(() => {
+        queued = false;
+        applyPlainLanguage(content);
+      });
+    });
+    observer.observe(content, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [settings.enabled, settings.plainLanguage]);
 
   // Pause only media that was actually playing when Focus requested sensory reduction.
   // Navigation and controls remain untouched; disabling the support restores prior playback.
@@ -343,6 +366,7 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
       reduceMotion: settings.reduceMotion || plan.reduceMotion,
       softContrast: settings.softContrast || plan.softContrast,
       textToSpeechPreferred: settings.textToSpeechPreferred || plan.textToSpeechPreferred,
+      plainLanguage: settings.plainLanguage,
       reduceDensity: settings.reduceDensity || plan.reduceDensity,
       focusReadingLayout: settings.focusReadingLayout || plan.focusReadingLayout,
       calmMedia: settings.calmMedia || plan.calmMedia,
@@ -426,6 +450,8 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
   }, [setPromptVisible, setStatus]);
 
   const turnOffFocus = useCallback(() => {
+    stopReadingAloud();
+    restorePlainLanguage();
     stopMonitoring();
     previousSettingsRef.current = null;
     setAdaptationActive(false);
@@ -542,6 +568,7 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
         reduceMotion: seedPlan.reduceMotion,
         softContrast: seedPlan.softContrast,
         textToSpeechPreferred: seedPlan.textToSpeechPreferred,
+        plainLanguage: startingSettings.plainLanguage,
         reduceDensity: seedPlan.reduceDensity,
         focusReadingLayout: seedPlan.focusReadingLayout,
         calmMedia: seedPlan.calmMedia,

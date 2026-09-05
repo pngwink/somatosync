@@ -1,17 +1,16 @@
-# Version Notes — Version 5: Focus UX Simplification
+# Version Notes — Version 6: Focus Accessibility Tools
 
-Building on Version 4, this version simplifies how people enter, use, and leave Focus Mode without changing its core symptom-informed adaptation logic.
+Building on Version 5, this version adds practical reading supports and makes cognitive-load reduction more concrete while preserving important information and user control.
 
 ## Changes in this version
 
-- Made Focus a single sitewide accessibility mode: turn it on once, then continue using SomatoSync normally.
-- Removed the separate guided-reading workflow, reading-lab/reset controls, and demo-only page flow.
-- Added a clear starting-setup preview showing the supports matched from the latest confirmed symptoms before activation.
-- Turning Focus off now stops camera monitoring and restores the standard interface in one action.
-- Simplified adaptation prompts and controls to reduce decision load during use.
-- Kept Shield as the external-site extension of the same Focus accessibility setup, with site approval required before changes are applied.
-- Updated the Overview label to describe Focus as adaptive interface support rather than a separate reading task.
+- Added Plain Language, a reversible local simplifier for a curated set of difficult UI and medical terms; controls, links, warnings, code, and form elements are excluded.
+- Expanded the earlier Read Aloud support into a sitewide Focus tool that uses the browser's local Speech Synthesis API for visible headings and body content.
+- Added true low-density decluttering: only helper text explicitly marked as secondary can be hidden, while navigation, controls, warnings, cards, metrics, and primary content remain visible.
+- Added the new reading-tool state to Focus settings/storage so these supports can be turned on and restored cleanly.
+- Simplified the Focus page into a clearer activation/setup/tools flow and collapsed secondary technical details by default.
+- Disabled automatic in-app reading-ruler behavior so Focus relies on spacing, typography, selective decluttering, Plain Language, and Read Aloud; Shield retains a user-controlled reading spotlight for external pages.
 
 ## Safety / scope
 
-Focus remains reversible and user-controlled. Local camera signals can refine accessibility supports only after sustained patterns; they are not interpreted as concussion biomarkers or medical findings.
+These are reversible accessibility supports, not treatment or diagnostic features. The build preserves safety-critical and primary information while allowing the user to restore original wording or turn Focus off.

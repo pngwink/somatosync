@@ -152,17 +152,10 @@ html.neuro-emphasize-structure .app-content p + p { margin-top: 1.2rem !importan
 
 html.neuro-audio-first main p { max-width: 62ch; }
 
-/* Low-density mode NEVER removes navigation or information. Secondary blocks are visually
-   de-emphasized and return to full prominence on hover/focus so content remains accessible. */
-html.neuro-low-density main [data-focus-secondary="true"] {
-  opacity: .78 !important;
-  filter: saturate(.68) contrast(.96) !important;
-  transition: opacity .12s linear, filter .12s linear !important;
-}
-html.neuro-low-density main [data-focus-secondary="true"]:hover,
-html.neuro-low-density main [data-focus-secondary="true"]:focus-within {
-  opacity: 1 !important;
-  filter: none !important;
+/* Low-density mode removes only text that components explicitly mark as optional helper copy.
+   Navigation, controls, cards, values, warnings, and primary content are never targeted here. */
+html.neuro-low-density .app-content [data-focus-secondary="true"] {
+  display: none !important;
 }
 html.neuro-low-density main section,
 html.neuro-low-density main article { scroll-margin-top: 3rem; }
@@ -216,19 +209,6 @@ html.neuro-low-density .app-content [data-focus-reading-surface="true"] p {
 html.neuro-low-density .app-content article > *,
 html.neuro-low-density .app-content [data-focus-reading-surface="true"] > * {
   scroll-margin-top: 4rem;
-}
-
-/* The active reading anchor receives a clear ruler/highlight. Surrounding dimming is provided
-   by the non-interactive overlay created in NeuroAdaptiveContext. */
-html.neuro-reading-spotlight [data-focus-anchor-current="true"] {
-  position: relative !important;
-  z-index: 28 !important;
-  opacity: 1 !important;
-  background: color-mix(in srgb, var(--color-accent-soft) 34%, transparent) !important;
-  border-left: 4px solid var(--color-accent) !important;
-  border-radius: 10px !important;
-  padding: .45em .75em !important;
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 35%, transparent) !important;
 }
 
 /* Calm layout primitives: favor readable measure and generous vertical rhythm. */

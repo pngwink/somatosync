@@ -24,22 +24,22 @@ export function profileSettings(profile: AdaptiveProfile) {
   if (profile === "audio-first") {
     return {
       textScale: 1.12, lineSpacing: 1.14, reduceMotion: true, softContrast: true,
-      textToSpeechPreferred: true, reduceDensity: true, focusReadingLayout: true,
+      textToSpeechPreferred: true, plainLanguage: false, reduceDensity: true, focusReadingLayout: true,
       calmMedia: true, stabilizeViewport: true, emphasizeStructure: true,
-      photophobiaMode: false, readingSpotlight: true, pauseMedia: true,
+      photophobiaMode: false, readingSpotlight: false, pauseMedia: true,
     };
   }
   if (profile === "reduced-stimulation") {
     return {
       textScale: 1.06, lineSpacing: 1.08, reduceMotion: true, softContrast: true,
-      textToSpeechPreferred: false, reduceDensity: true, focusReadingLayout: true,
+      textToSpeechPreferred: false, plainLanguage: false, reduceDensity: true, focusReadingLayout: true,
       calmMedia: true, stabilizeViewport: false, emphasizeStructure: true,
       photophobiaMode: false, readingSpotlight: false, pauseMedia: false,
     };
   }
   return {
     textScale: 1, lineSpacing: 1, reduceMotion: false, softContrast: false,
-    textToSpeechPreferred: false, reduceDensity: false, focusReadingLayout: false,
+    textToSpeechPreferred: false, plainLanguage: false, reduceDensity: false, focusReadingLayout: false,
     calmMedia: false, stabilizeViewport: false, emphasizeStructure: false,
     photophobiaMode: false, readingSpotlight: false, pauseMedia: false,
   };
@@ -193,10 +193,9 @@ export function planAdaptiveIntervention(
   const needsFocusedReadingLayout = needsTextSupport || visualProblems >= 3 || headache >= 4 || needsCognitiveSimplification;
   const needsStructure = combinedVisualStrain || needsCognitiveSimplification || visualProblems >= 3;
   const needsCalmMedia = needsVisualCalming || visualInstability;
-  // Spotlight/ruler is useful as an optional visual anchor, but should not automatically darken
-  // most of the page solely because fatigue was reported. Reserve it for repeated rereading or
-  // combined live visual strain, where the user can still turn it off instantly.
-  const needsReadingSpotlight = rereading || (combinedVisualStrain && (visualProblems >= 3 || mentalFatigue >= 3));
+  // Reading-ruler mode is intentionally disabled in this demo build. Focus relies on spacing,
+  // typography, decluttering, plain-language support, and read-aloud instead.
+  const needsReadingSpotlight = false;
   const needsPausedMedia = motionDiscomfort >= 4 || headMovement || (strongLightSensitivity && visualInstability);
   const needsAudio = mentalFatigue >= 4 && (rereading || longPauses || visualInstability);
 
@@ -208,7 +207,6 @@ export function planAdaptiveIntervention(
   if (needsTextSupport) changes.push(strongReadingDifficulty ? "Larger reading typography" : "Readable text sizing");
   if (needsTextSupport || rereading || headache >= 4) changes.push("More reading spacing");
   if (needsFocusedReadingLayout) changes.push(combinedVisualStrain ? "Reading lane" : "Focused reading width");
-  if (needsReadingSpotlight) changes.push("Optional reading ruler");
   if (needsCognitiveSimplification) changes.push("Simplified information hierarchy");
   if (needsStructure) changes.push("Stronger visual hierarchy");
   if (needsMotionReduction) changes.push("Motion reduced");
@@ -237,6 +235,7 @@ export function planAdaptiveIntervention(
     reduceMotion: needsMotionReduction,
     softContrast: needsVisualCalming,
     textToSpeechPreferred: needsAudio,
+    plainLanguage: false,
     reduceDensity: needsCognitiveSimplification,
     focusReadingLayout: needsFocusedReadingLayout,
     calmMedia: needsCalmMedia,

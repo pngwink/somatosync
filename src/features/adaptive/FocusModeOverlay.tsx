@@ -1,32 +1,24 @@
-import { Check, Eye, Pause, ShieldCheck, Volume2, X } from "lucide-react";
+import { Check, Eye, Pause, ShieldCheck, Type, Volume2, X } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
 import { Progress } from "../../components/ui/progress";
 import { useNeuroAdaptive } from "./NeuroAdaptiveContext";
+import { readCurrentPageAloud, stopReadingAloud } from "./focusReadingTools";
 
 export function FocusModeOverlay() {
   const {
     status, calibrationProgress, trackingQualityPercent, estimate, promptVisible, breakSeconds,
     latestFeedback, applyPromptAdaptation, beginPromptBreak, continueWithoutChange, resumeFromBreak,
-    submitPromptFeedback, turnOffFocus, adaptationActive, adaptationReasons, adaptationChanges, adaptationRecommendBreak, adaptationSource, revertLastAdaptation, settings, setSettings,
+    submitPromptFeedback, turnOffFocus, adaptationActive, adaptationReasons, adaptationChanges,
+    adaptationRecommendBreak, adaptationSource, revertLastAdaptation, settings, setSettings,
   } = useNeuroAdaptive();
 
-
-
-  function readPageAloud() {
-    if (!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const main = document.querySelector("main");
-    const text = main?.textContent?.replace(/\s+/g, " ").trim().slice(0, 6_000) ?? "";
-    if (!text) return;
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.92;
-    utterance.pitch = 1;
-    window.speechSynthesis.speak(utterance);
+  function togglePlainLanguage() {
+    setSettings({ ...settings, plainLanguage: !settings.plainLanguage, updatedAt: new Date().toISOString() });
   }
 
   function undoAdaptation() {
-    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    stopReadingAloud();
     revertLastAdaptation();
   }
 
@@ -72,7 +64,7 @@ export function FocusModeOverlay() {
             {estimate?.reasons.slice(0, 4).map((reason) => <div key={reason.key} className="rounded-[var(--radius-md)] bg-[var(--color-surface-sunken)] p-2.5"><p className="text-[16px] font-semibold">{reason.label}</p><p className="mt-0.5 text-[16px] text-[var(--color-text-tertiary)]">{reason.detail}</p></div>)}
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Button size="sm" onClick={applyPromptAdaptation}>Apply support</Button>
+            <Button size="sm" onClick={applyPromptAdaptation}>Adapt interface</Button>
             <Button size="sm" variant="secondary" onClick={() => { submitPromptFeedback(false); continueWithoutChange(); }}>Doesn’t match</Button>
             {adaptationRecommendBreak && <Button size="sm" variant="ghost" onClick={beginPromptBreak}><Pause />Take a break</Button>}
           </div>
@@ -83,60 +75,53 @@ export function FocusModeOverlay() {
 
   if (adaptationActive) {
     return (
-      <div className="fixed bottom-5 right-5 z-50 w-[min(430px,calc(100vw-2rem))]">
+      <div className="fixed bottom-5 right-5 z-50 w-[min(440px,calc(100vw-2rem))]">
         <Card className="border-[var(--color-positive)]/35 p-4 shadow-[var(--shadow-med)]">
           <div className="flex items-start gap-3">
             <div className="rounded-full bg-[var(--color-positive-soft)] p-2"><Eye className="h-4 w-4 text-[var(--color-positive)]" /></div>
             <div className="min-w-0 flex-1">
-              <h2 className="text-[16px] font-semibold">{adaptationSource === "symptoms" ? "Starting view matched to current symptoms" : "Focus Mode refined the reading environment"}</h2>
+              <h2 className="text-[16px] font-semibold">{adaptationSource === "symptoms" ? "Starting view matched to current symptoms" : "Focus Mode refined the interface"}</h2>
               <p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
                 {adaptationSource === "symptoms"
-                  ? "SomatoSync used the latest confirmed symptom record to choose a starting accessibility setup. Live signals can refine it further."
+                  ? "Your confirmed symptoms set the starting view. Live signals can refine it further as you use SomatoSync."
                   : settings.photophobiaMode
-                    ? "Light-sensitivity support lowered page luminance and media intensity using a muted slate sensory theme while preserving readable contrast and navigation."
-                    : settings.readingSpotlight
-                      ? "Sustained reading difficulty added a gentle reading ruler while strengthening typography, spacing, and hierarchy."
-                      : settings.stabilizeViewport
-                        ? "Head or gaze instability froze motion and steadied the viewport without removing the app's navigation."
-                        : settings.softContrast && settings.calmMedia
-                          ? "Visual-strain signals lowered luminance and saturation while calming bright media."
-                          : settings.reduceDensity && settings.focusReadingLayout
-                            ? "Cognitive-load signals simplified hierarchy, increased separation, and focused the reading lane without hiding information."
-                            : "Reading typography, spacing, and hierarchy were adjusted without zooming the entire application."}
+                    ? "Light-sensitivity support lowered page luminance and media intensity while preserving readable contrast and navigation."
+                    : settings.stabilizeViewport
+                      ? "Head or gaze changes reduced motion and steadied the viewport without removing navigation."
+                      : settings.softContrast && settings.calmMedia
+                        ? "Visual-use signals lowered luminance and saturation while calming bright media."
+                        : settings.reduceDensity && settings.focusReadingLayout
+                          ? "Cognitive-load signals removed optional helper copy, strengthened hierarchy, and focused the reading area."
+                          : "Reading typography, spacing, and hierarchy were adjusted without zooming the whole app."}
               </p>
             </div>
           </div>
+
           {adaptationChanges.length > 0 && (
-            <div className="mt-3">
-              <p className="text-[16px] font-semibold uppercase tracking-wide text-[var(--color-text-tertiary)]">Changed</p>
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
-                {adaptationChanges.map((change) => <span key={change} className="rounded-full bg-[var(--color-positive-soft)] px-2.5 py-1 text-[16px] font-medium text-[var(--color-positive)]">{change}</span>)}
-              </div>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {adaptationChanges.slice(0, 5).map((change) => <span key={change} className="rounded-full bg-[var(--color-positive-soft)] px-2.5 py-1 text-[16px] font-medium text-[var(--color-positive)]">{change}</span>)}
             </div>
           )}
+
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <Button size="sm" variant={settings.plainLanguage ? "secondary" : "ghost"} onClick={togglePlainLanguage}><Type />{settings.plainLanguage ? "Restore wording" : "Plain language"}</Button>
+            <Button size="sm" variant="ghost" onClick={readCurrentPageAloud}><Volume2 />Read aloud</Button>
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {latestFeedback == null && adaptationSource !== "symptoms" && <Button size="sm" onClick={() => submitPromptFeedback(true)}><Check />Keep this setup</Button>}
+            <Button size="sm" variant="secondary" onClick={undoAdaptation}>Undo changes</Button>
+            {status === "active" && <Button size="sm" variant="ghost" onClick={beginPromptBreak}><Pause />Take a break</Button>}
+          </div>
+
           {adaptationReasons.length > 0 && (
             <details className="mt-3 text-[16px] text-[var(--color-text-secondary)]">
               <summary className="cursor-pointer font-semibold">Why these changes?</summary>
               <ul className="mt-1.5 space-y-1 pl-4">{adaptationReasons.map((reason) => <li key={reason} className="list-disc">{reason}</li>)}</ul>
             </details>
           )}
-          {adaptationRecommendBreak && <p className="mt-3 text-[16px] font-medium text-[var(--color-caution)]">A short screen break may also help this pattern.</p>}
-          <div className="mt-4 flex flex-wrap gap-2">
-            {latestFeedback == null && adaptationSource !== "symptoms" && <Button size="sm" onClick={() => submitPromptFeedback(true)}><Check />Keep this setup</Button>}
-            <Button size="sm" variant="secondary" onClick={undoAdaptation}>Undo changes</Button>
-            {adaptationRecommendBreak && status === "active" && <Button size="sm" variant="ghost" onClick={beginPromptBreak}><Pause />Take a break</Button>}
-          </div>
-          {adaptationSource !== "symptoms" && (settings.readingSpotlight || settings.textToSpeechPreferred || settings.reduceDensity || settings.focusReadingLayout) && (
-            <details className="mt-3 text-[16px] text-[var(--color-text-secondary)]">
-              <summary className="cursor-pointer font-semibold">Other supports</summary>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {settings.readingSpotlight && <Button size="sm" variant="secondary" onClick={() => setSettings({ ...settings, readingSpotlight: false, updatedAt: new Date().toISOString() })}><Eye />Turn off reading guide</Button>}
-                {settings.textToSpeechPreferred && <Button size="sm" variant="secondary" onClick={readPageAloud}><Volume2 />Read page aloud</Button>}
-              </div>
-            </details>
-          )}
 
-          <p className="mt-3 text-[16px] text-[var(--color-text-tertiary)]">Every change is reversible. These adjustments respond to a sustained session pattern, not a diagnosis.</p>
+          <p className="mt-3 text-[16px] text-[var(--color-text-tertiary)]">Local, reversible accessibility support—not a diagnosis.</p>
         </Card>
       </div>
     );

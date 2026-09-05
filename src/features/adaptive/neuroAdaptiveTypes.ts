@@ -9,6 +9,7 @@ export interface NeuroAdaptiveSettings {
   reduceMotion: boolean;
   softContrast: boolean;
   textToSpeechPreferred: boolean;
+  plainLanguage: boolean;
   reduceDensity: boolean;
   focusReadingLayout: boolean;
   calmMedia: boolean;
@@ -39,6 +40,7 @@ export interface AdaptiveInterventionPlan {
   reduceMotion: boolean;
   softContrast: boolean;
   textToSpeechPreferred: boolean;
+  plainLanguage: boolean;
   reduceDensity: boolean;
   focusReadingLayout: boolean;
   calmMedia: boolean;
