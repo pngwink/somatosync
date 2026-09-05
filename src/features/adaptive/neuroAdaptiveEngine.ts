@@ -23,7 +23,7 @@ export function recommendProfile(checkIn: AdaptiveCheckIn): AdaptiveProfile {
 export function profileSettings(profile: AdaptiveProfile) {
   if (profile === "audio-first") {
     return {
-      textScale: 1.12, lineSpacing: 1.32, reduceMotion: true, softContrast: true,
+      textScale: 1.12, lineSpacing: 1.14, reduceMotion: true, softContrast: true,
       textToSpeechPreferred: true, reduceDensity: true, focusReadingLayout: true,
       calmMedia: true, stabilizeViewport: true, emphasizeStructure: true,
       photophobiaMode: false, readingSpotlight: true, pauseMedia: true,
@@ -31,7 +31,7 @@ export function profileSettings(profile: AdaptiveProfile) {
   }
   if (profile === "reduced-stimulation") {
     return {
-      textScale: 1.08, lineSpacing: 1.22, reduceMotion: true, softContrast: true,
+      textScale: 1.06, lineSpacing: 1.08, reduceMotion: true, softContrast: true,
       textToSpeechPreferred: false, reduceDensity: true, focusReadingLayout: true,
       calmMedia: true, stabilizeViewport: false, emphasizeStructure: true,
       photophobiaMode: false, readingSpotlight: false, pauseMedia: false,
@@ -177,12 +177,15 @@ export function planAdaptiveIntervention(
   const headache = checkIn.headache ?? 0;
   const visualProblems = checkIn.visualProblems ?? 0;
 
-  // Presentation support is symptom-informed but never diagnostic. Different patterns
-  // deliberately create visibly different support modes instead of one generic zoom.
+  // Presentation support is symptom-informed but never diagnostic. The mappings below favor
+  // reversible accommodations supported by concussion guidance: lower screen luminance for light
+  // sensitivity, paced/simplified cognitive work, readable text/spacing for visual difficulty, and
+  // reduced motion for vestibular or motion-provoked symptoms. We intentionally avoid prescribing
+  // a universal high-contrast color scheme because color preference is individual.
   const combinedVisualStrain = closeViewing && squintOrTension;
-  const severePhotophobia = lightSensitivity >= 4 || (lightSensitivity >= 3 && blinkChange && squintOrTension);
-  const severeVisualDifficulty = visualProblems >= 4 || combinedVisualStrain;
-  const needsTextSupport = closeViewing || squintOrTension || visualProblems >= 3 || headache >= 4;
+  const strongLightSensitivity = lightSensitivity >= 4 || (lightSensitivity >= 3 && blinkChange && squintOrTension);
+  const strongReadingDifficulty = visualProblems >= 4 || combinedVisualStrain;
+  const needsTextSupport = closeViewing || squintOrTension || visualProblems >= 3;
   const needsVisualCalming = lightSensitivity >= 2 || (blinkChange && (squintOrTension || headache >= 3 || visualProblems >= 2));
   const needsMotionReduction = motionDiscomfort >= 3 || visualInstability;
   const needsViewportStability = motionDiscomfort >= 3 || headMovement || (gazeChange && blinkChange);
@@ -190,22 +193,25 @@ export function planAdaptiveIntervention(
   const needsFocusedReadingLayout = needsTextSupport || visualProblems >= 3 || headache >= 4 || needsCognitiveSimplification;
   const needsStructure = combinedVisualStrain || needsCognitiveSimplification || visualProblems >= 3;
   const needsCalmMedia = needsVisualCalming || visualInstability;
-  const needsReadingSpotlight = mentalFatigue >= 4 || rereading || (combinedVisualStrain && (visualProblems >= 3 || mentalFatigue >= 3));
-  const needsPausedMedia = motionDiscomfort >= 4 || headMovement || (severePhotophobia && needsCalmMedia);
+  // Spotlight/ruler is useful as an optional visual anchor, but should not automatically darken
+  // most of the page solely because fatigue was reported. Reserve it for repeated rereading or
+  // combined live visual strain, where the user can still turn it off instantly.
+  const needsReadingSpotlight = rereading || (combinedVisualStrain && (visualProblems >= 3 || mentalFatigue >= 3));
+  const needsPausedMedia = motionDiscomfort >= 4 || headMovement || (strongLightSensitivity && visualInstability);
   const needsAudio = mentalFatigue >= 4 && (rereading || longPauses || visualInstability);
 
   const changes: string[] = [];
-  if (severePhotophobia) changes.push("Photophobia dark mode");
-  else if (needsVisualCalming) changes.push("Low-glare palette");
+  if (strongLightSensitivity) changes.push("Low-luminance sensory theme");
+  else if (needsVisualCalming) changes.push("Reduced-luminance palette");
   if (needsCalmMedia) changes.push("Calmer media");
   if (needsPausedMedia) changes.push("Moving media paused");
-  if (needsTextSupport) changes.push(severeVisualDifficulty ? "Heavy reading typography" : "Readable text sizing");
+  if (needsTextSupport) changes.push(strongReadingDifficulty ? "Larger reading typography" : "Readable text sizing");
   if (needsTextSupport || rereading || headache >= 4) changes.push("More reading spacing");
   if (needsFocusedReadingLayout) changes.push(combinedVisualStrain ? "Reading lane" : "Focused reading width");
-  if (needsReadingSpotlight) changes.push("Reading spotlight");
-  if (needsCognitiveSimplification) changes.push("Secondary content de-emphasized");
+  if (needsReadingSpotlight) changes.push("Optional reading ruler");
+  if (needsCognitiveSimplification) changes.push("Simplified information hierarchy");
   if (needsStructure) changes.push("Stronger visual hierarchy");
-  if (needsMotionReduction) changes.push("Motion frozen");
+  if (needsMotionReduction) changes.push("Motion reduced");
   if (needsViewportStability) changes.push("Stable viewport");
   if (needsAudio) changes.push("Read-aloud support");
 
@@ -219,8 +225,10 @@ export function planAdaptiveIntervention(
   for (const reason of estimate?.reasons.slice(0, 3) ?? []) reasons.push(reason.label);
 
   const profile: AdaptiveProfile = needsAudio ? "audio-first" : changes.length ? "reduced-stimulation" : "standard";
-  const textScale = severeVisualDifficulty ? 1.42 : needsTextSupport ? 1.24 : headache >= 4 ? 1.12 : 1;
-  const lineSpacing = severeVisualDifficulty ? 1.48 : needsTextSupport || rereading || headache >= 4 ? 1.3 : 1;
+  // Keep text changes meaningful but not enormous. A 1.42x font with a 1.48 multiplier on an
+  // already generous base line-height was visually exhausting and could create more scrolling.
+  const textScale = strongReadingDifficulty ? 1.25 : needsTextSupport ? 1.14 : 1;
+  const lineSpacing = strongReadingDifficulty ? 1.18 : needsTextSupport || rereading || headache >= 4 ? 1.1 : 1;
 
   return {
     profile,
@@ -234,12 +242,12 @@ export function planAdaptiveIntervention(
     calmMedia: needsCalmMedia,
     stabilizeViewport: needsViewportStability,
     emphasizeStructure: needsStructure,
-    photophobiaMode: severePhotophobia,
+    photophobiaMode: strongLightSensitivity,
     readingSpotlight: needsReadingSpotlight,
     pauseMedia: needsPausedMedia,
     changes: [...new Set(changes)],
     reasons: [...new Set(reasons)].slice(0, 7),
-    recommendBreak: longPauses || mentalFatigue >= 4 || (estimate?.reasons.length ?? 0) >= 4,
+    recommendBreak: longPauses || mentalFatigue >= 4 || headache >= 4 || (estimate?.reasons.length ?? 0) >= 4,
   };
 }
 

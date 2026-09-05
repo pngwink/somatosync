@@ -5,7 +5,7 @@
 3. Open **Focus → SomatoSync Shield** and confirm the extension is connected.
 4. Open the built-in Shield demo page or a long Wikipedia article.
 5. Apply the setup.
-6. Point out that the change is not just zoom: page palette, media intensity, motion, preserved navigation, line length, typography and the reading spotlight can change independently based on the profile.
+6. Point out that the change is not just zoom: page palette, media intensity, motion, preserved navigation, line length, typography and the reading ruler can change independently based on the profile.
 7. Open the in-page **Adjust** control and toggle one support live.
 8. Turn on **Always use on this site** to demonstrate site memory.
 9. Restore the page.

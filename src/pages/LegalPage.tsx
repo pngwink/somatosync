@@ -13,7 +13,7 @@ export function LegalPage({ type }: { type: "terms" | "privacy" }) {
         <Card className="mt-8 p-6 sm:p-8">
           <ShieldCheck className="h-6 w-6 text-[var(--color-accent)]" />
           <h1 className="mt-3 text-[26px] font-semibold text-[var(--color-text-primary)]">{privacy ? "Prototype Privacy Policy" : "Prototype Terms of Use"}</h1>
-          {privacy ? <PrivacyText /> : <TermsText />}
+{privacy ? <PrivacyText /> : <TermsText />}
         </Card>
       </div>
     </main>

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "SomatoSync Shield",
   "version": "1.2.0",
-  "description": "Consent-first adaptive reading supports for concussion recovery: typography, anti-glare, motion, media and visual focus.",
+  "description": "Consent-first adaptive reading supports for concussion recovery: typography, low-luminance color, motion, media and visual focus.",
   "permissions": [
     "storage",
     "activeTab",

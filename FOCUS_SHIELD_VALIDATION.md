@@ -5,11 +5,11 @@ Focus presentation changes are accessibility supports, not diagnostic conclusion
 
 ## Adaptation cases tested
 - Baseline/no relevant symptoms: no transformation.
-- Severe light sensitivity: black + amber photophobia mode, strong media calming, moving media paused.
-- Severe visual difficulty: ~1.42x reading typography, ~1.48 line-spacing multiplier, focused reading lane.
-- Mental fatigue/rereading: stronger hierarchy, secondary content de-emphasized (not removed), paragraph reading spotlight.
+- Severe light sensitivity: muted low-luminance slate theme and calmer media; moving media is only paused when motion sensitivity or live motion instability also supports it.
+- Severe visual difficulty: up to ~1.25x reading typography and ~1.18 line-spacing multiplier, with a focused reading lane.
+- Mental fatigue: stronger hierarchy, narrower reading lane, pacing support, and secondary content visually de-emphasized (not removed). Repeated rereading can add an optional gentle reading ruler.
 - Dizziness/head-gaze instability: motion frozen, viewport stabilized, moving media paused; text is not enlarged unless visual-strain signals also support it.
-- Sustained close-viewing + squint: heavy reading typography + reading lane rather than whole-page zoom.
+- Sustained close-viewing + squint: stronger reading typography + a focused reading lane rather than whole-page zoom.
 - Changed blinking + squint with light sensitivity: escalates anti-glare support.
 
 ## External-site guardrails tested in Chromium

@@ -233,7 +233,7 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
       Object.assign(pane.style, {
         position: "fixed",
         pointerEvents: "none",
-        background: settings.photophobiaMode ? "rgba(0,0,0,.82)" : "rgba(10,15,16,.58)",
+        background: settings.photophobiaMode ? "rgba(10,18,20,.34)" : "rgba(16,25,27,.24)",
         transition: "top .08s linear,left .08s linear,width .08s linear,height .08s linear",
       });
       overlay.appendChild(pane);
@@ -519,19 +519,21 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
         ...startingSettings,
         enabled: true,
         profile: seedPlan.profile,
-        textScale: Math.max(startingSettings.textScale, seedPlan.textScale),
-        lineSpacing: Math.max(startingSettings.lineSpacing, seedPlan.lineSpacing),
-        reduceMotion: startingSettings.reduceMotion || seedPlan.reduceMotion,
-        softContrast: startingSettings.softContrast || seedPlan.softContrast,
-        textToSpeechPreferred: startingSettings.textToSpeechPreferred || seedPlan.textToSpeechPreferred,
-        reduceDensity: startingSettings.reduceDensity || seedPlan.reduceDensity,
-        focusReadingLayout: startingSettings.focusReadingLayout || seedPlan.focusReadingLayout,
-        calmMedia: startingSettings.calmMedia || seedPlan.calmMedia,
-        stabilizeViewport: startingSettings.stabilizeViewport || seedPlan.stabilizeViewport,
-        emphasizeStructure: startingSettings.emphasizeStructure || seedPlan.emphasizeStructure,
-        photophobiaMode: startingSettings.photophobiaMode || seedPlan.photophobiaMode,
-        readingSpotlight: startingSettings.readingSpotlight || seedPlan.readingSpotlight,
-        pauseMedia: startingSettings.pauseMedia || seedPlan.pauseMedia,
+        // Recompute symptom-driven presentation at the start of each session. This prevents
+        // a stale high-intensity mode from a prior session from leaking into a new symptom state.
+        textScale: seedPlan.textScale,
+        lineSpacing: seedPlan.lineSpacing,
+        reduceMotion: seedPlan.reduceMotion,
+        softContrast: seedPlan.softContrast,
+        textToSpeechPreferred: seedPlan.textToSpeechPreferred,
+        reduceDensity: seedPlan.reduceDensity,
+        focusReadingLayout: seedPlan.focusReadingLayout,
+        calmMedia: seedPlan.calmMedia,
+        stabilizeViewport: seedPlan.stabilizeViewport,
+        emphasizeStructure: seedPlan.emphasizeStructure,
+        photophobiaMode: seedPlan.photophobiaMode,
+        readingSpotlight: seedPlan.readingSpotlight,
+        pauseMedia: seedPlan.pauseMedia,
         updatedAt: new Date().toISOString(),
       });
     }

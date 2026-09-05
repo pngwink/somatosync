@@ -111,15 +111,15 @@ export function FocusModeOverlay() {
                 {adaptationSource === "symptoms"
                   ? "SomatoSync used the latest confirmed symptom record to choose a starting accessibility setup. Live signals can refine it further."
                   : settings.photophobiaMode
-                    ? "Severe light-sensitivity support switched the app to a black-and-amber anti-glare view, suppressed bright media, and preserved navigation."
+                    ? "Light-sensitivity support lowered page luminance and media intensity using a muted slate sensory theme while preserving readable contrast and navigation."
                     : settings.readingSpotlight
-                      ? "Sustained visual or cognitive strain isolated the current reading block while strengthening typography, spacing, and hierarchy."
+                      ? "Sustained reading difficulty added a gentle reading ruler while strengthening typography, spacing, and hierarchy."
                       : settings.stabilizeViewport
                         ? "Head or gaze instability froze motion and steadied the viewport without removing the app's navigation."
                         : settings.softContrast && settings.calmMedia
-                          ? "Visual-strain signals triggered a distinct low-glare palette and substantially calmer media."
+                          ? "Visual-strain signals lowered luminance and saturation while calming bright media."
                           : settings.reduceDensity && settings.focusReadingLayout
-                            ? "Cognitive-load signals de-emphasized secondary content and isolated a clearer reading lane without hiding information."
+                            ? "Cognitive-load signals simplified hierarchy, increased separation, and focused the reading lane without hiding information."
                             : "Reading typography, spacing, and hierarchy were adjusted without zooming the entire application."}
               </p>
             </div>

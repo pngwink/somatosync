@@ -42,23 +42,23 @@
     if (!profile) return null;
     const source = recommended && profile.recommended ? profile.recommended : profile;
     const symptoms = symptomsFrom(profile);
-    const severePhotophobia = Boolean(source.photophobiaMode) || symptoms.lightSensitivity >= 4;
-    const visualCalming = severePhotophobia || Boolean(source.softContrast) || symptoms.lightSensitivity >= 2;
-    const severeVisualDifficulty = symptoms.visualProblems >= 4 || safeNumber(source.textScale, 1, 1, 1.5) >= 1.35;
+    const strongLightSensitivity = Boolean(source.photophobiaMode) || symptoms.lightSensitivity >= 4;
+    const visualCalming = strongLightSensitivity || Boolean(source.softContrast) || symptoms.lightSensitivity >= 2;
+    const severeVisualDifficulty = symptoms.visualProblems >= 4 || safeNumber(source.textScale, 1, 1, 1.5) >= 1.2;
     const cognitiveSupport = Boolean(source.reduceDensity) || symptoms.mentalFatigue >= 3;
     const motionSupport = Boolean(source.reduceMotion) || Boolean(source.stabilizeViewport) || symptoms.visualMotionDiscomfort >= 3;
-    const readingSpotlight = Boolean(source.readingSpotlight) || symptoms.mentalFatigue >= 4;
-    const pauseMedia = Boolean(source.pauseMedia) || symptoms.visualMotionDiscomfort >= 4 || severePhotophobia;
-    const symptomTextFloor = symptoms.visualProblems >= 4 ? 1.42 : symptoms.visualProblems >= 3 || symptoms.headache >= 4 ? 1.24 : 1;
+    const readingSpotlight = Boolean(source.readingSpotlight);
+    const pauseMedia = Boolean(source.pauseMedia) || symptoms.visualMotionDiscomfort >= 4;
+    const symptomTextFloor = symptoms.visualProblems >= 4 ? 1.25 : symptoms.visualProblems >= 3 || symptoms.headache >= 4 ? 1.14 : 1;
 
     return {
       textScale: Math.max(symptomTextFloor, safeNumber(source.textScale, 1, 1, 1.5)),
-      lineSpacing: Math.max(severeVisualDifficulty ? 1.42 : 1, safeNumber(source.lineSpacing, 1, 1, 1.55)),
+      lineSpacing: Math.max(severeVisualDifficulty ? 1.18 : 1, safeNumber(source.lineSpacing, 1, 1, 1.4)),
       focusReadingLayout: Boolean(source.focusReadingLayout) || cognitiveSupport || symptoms.visualProblems >= 3,
       reduceMotion: motionSupport,
       simplifyChrome: cognitiveSupport,
-      warmPalette: visualCalming && !severePhotophobia,
-      photophobiaMode: severePhotophobia,
+      warmPalette: visualCalming && !strongLightSensitivity,
+      photophobiaMode: strongLightSensitivity,
       strongerCalming: symptoms.lightSensitivity >= 3,
       calmMedia: visualCalming || Boolean(source.calmMedia),
       readingGuide: readingSpotlight || cognitiveSupport || Boolean(source.emphasizeStructure),
@@ -72,17 +72,17 @@
   function visibleChanges(settings) {
     if (!settings) return [];
     const changes = [];
-    if (settings.photophobiaMode) changes.push("black + amber anti-glare");
-    else if (settings.warmPalette) changes.push("low-glare colors");
-    if (settings.textScale >= 1.2) changes.push("heavy typography");
+    if (settings.photophobiaMode) changes.push("low-luminance sensory theme");
+    else if (settings.warmPalette) changes.push("reduced-luminance colors");
+    if (settings.textScale >= 1.2) changes.push("larger reading typography");
     else if (settings.textScale > 1.02) changes.push("larger text");
     if (settings.lineSpacing > 1.06) changes.push("more spacing");
     if (settings.focusReadingLayout) changes.push("focused article width");
     if (settings.calmMedia) changes.push("dimmed media");
     if (settings.pauseMedia) changes.push("paused moving media");
     if (settings.reduceMotion) changes.push("motion frozen");
-    if (settings.simplifyChrome) changes.push("distractions reduced");
-    if (settings.readingSpotlight) changes.push("reading spotlight");
+    if (settings.simplifyChrome) changes.push("information hierarchy simplified");
+    if (settings.readingSpotlight) changes.push("reading ruler");
     else if (settings.readingGuide) changes.push("reading guide");
     return changes;
   }
@@ -145,7 +145,7 @@
       pane.dataset.pane = name;
       Object.assign(pane.style, {
         position: "fixed", pointerEvents: "none",
-        background: activeSettings.photophobiaMode ? "rgba(0,0,0,.88)" : "rgba(8,12,14,.68)",
+        background: activeSettings.photophobiaMode ? "rgba(11,20,22,.34)" : "rgba(14,24,25,.24)",
       });
       overlay.appendChild(pane);
     }
@@ -270,25 +270,25 @@
 
     if (settings.photophobiaMode) {
       rules.push(
-        `html[data-somatosync-shield="on"],html[data-somatosync-shield="on"] body { background:#000 !important; color:#f4d98b !important; background-image:none !important; }`,
+        `html[data-somatosync-shield="on"],html[data-somatosync-shield="on"] body { background:#11181b !important; color:#d8e2de !important; background-image:none !important; }`,
         `html[data-somatosync-shield="on"] body *:not(img):not(video):not(svg):not(canvas) { background-image:none !important; }`,
-        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] { background:#080704 !important; color:#f4d98b !important; border-color:#6d592b !important; box-shadow:0 18px 54px rgba(0,0,0,.42) !important; }`,
-        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] p,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] li,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] dd,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] blockquote { color:#e7ca7d !important; }`,
-        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h1,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h2,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h3,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h4 { color:#ffe39a !important; }`,
-        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] a { color:#f0bd5a !important; text-decoration-thickness:2px !important; text-underline-offset:3px !important; }`,
-        `html[data-somatosync-shield="on"] header,html[data-somatosync-shield="on"] nav,html[data-somatosync-shield="on"] aside,html[data-somatosync-shield="on"] footer,html[data-somatosync-shield="on"] [role="navigation"],html[data-somatosync-shield="on"] [role="complementary"] { background-color:#050503 !important; color:#d7bd78 !important; border-color:#3c321c !important; }`
+        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] { background:#1d2a2f !important; color:#d8e2de !important; border-color:#33464a !important; box-shadow:0 16px 46px rgba(0,0,0,.26) !important; }`,
+        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] p,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] li,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] dd,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] blockquote { color:#c7d3cf !important; }`,
+        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h1,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h2,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h3,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] h4 { color:#e5ece9 !important; }`,
+        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] a { color:#9bc4bb !important; text-decoration-thickness:2px !important; text-underline-offset:3px !important; }`,
+        `html[data-somatosync-shield="on"] header,html[data-somatosync-shield="on"] nav,html[data-somatosync-shield="on"] aside,html[data-somatosync-shield="on"] footer,html[data-somatosync-shield="on"] [role="navigation"],html[data-somatosync-shield="on"] [role="complementary"] { background-color:#172126 !important; color:#aebdb7 !important; border-color:#33464a !important; }`
       );
     } else if (settings.warmPalette) {
       rules.push(
-        `html[data-somatosync-shield="on"] body { background:#cdbd9f !important; color:#212421 !important; background-image:none !important; }`,
-        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] { background:#eee3cb !important; color:#242723 !important; border-color:#a18f72 !important; box-shadow:0 16px 50px rgba(66,49,33,.18) !important; }`,
-        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] p,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] li { color:#303a35 !important; }`
+        `html[data-somatosync-shield="on"] body { background:#d4d6d2 !important; color:#202a2a !important; background-image:none !important; }`,
+        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] { background:#eceeea !important; color:#202a2a !important; border-color:#abb4af !important; box-shadow:0 14px 42px rgba(37,49,48,.14) !important; }`,
+        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] p,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] li { color:#34413f !important; }`
       );
     }
 
     if (settings.calmMedia) {
-      const brightness = settings.photophobiaMode ? ".42" : settings.strongerCalming ? ".58" : ".7";
-      rules.push(`html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] img,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] video,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] svg:not(svg[aria-hidden="true"]) { filter:grayscale(.28) saturate(.28) brightness(${brightness}) contrast(.88) !important; opacity:.72 !important; }`);
+      const brightness = settings.photophobiaMode ? ".66" : settings.strongerCalming ? ".72" : ".8";
+      rules.push(`html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] img,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] video,html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] svg:not(svg[aria-hidden="true"]) { filter:saturate(.52) brightness(${brightness}) contrast(.94) !important; opacity:.84 !important; }`);
     }
 
     if (settings.pauseMedia) {
@@ -306,14 +306,14 @@
       // Never hide generic navigation or sidebars. Only clearly non-essential promotional/recommendation chrome is removed.
       rules.push(
         `html[data-somatosync-shield="on"] [class*="advert" i],html[data-somatosync-shield="on"] [id*="advert" i],html[data-somatosync-shield="on"] [aria-label*="advert" i],html[data-somatosync-shield="on"] [class*="promo" i],html[data-somatosync-shield="on"] [class*="recommend" i],html[data-somatosync-shield="on"] [aria-label*="related" i],html[data-somatosync-shield="on"] [class*="social-share" i] { display:none !important; }`,
-        `html[data-somatosync-shield="on"] aside,html[data-somatosync-shield="on"] [role="complementary"],html[data-somatosync-shield="on"] [class*="sidebar" i],html[data-somatosync-shield="on"] [id*="sidebar" i] { opacity:.58 !important; filter:saturate(.35) contrast(.9) !important; transition:opacity .1s linear,filter .1s linear !important; }`,
+        `html[data-somatosync-shield="on"] aside,html[data-somatosync-shield="on"] [role="complementary"],html[data-somatosync-shield="on"] [class*="sidebar" i],html[data-somatosync-shield="on"] [id*="sidebar" i] { opacity:.82 !important; filter:saturate(.72) contrast(.96) !important; transition:opacity .1s linear,filter .1s linear !important; }`,
         `html[data-somatosync-shield="on"] aside:hover,html[data-somatosync-shield="on"] aside:focus-within,html[data-somatosync-shield="on"] [role="complementary"]:hover,html[data-somatosync-shield="on"] [role="complementary"]:focus-within,html[data-somatosync-shield="on"] [class*="sidebar" i]:hover,html[data-somatosync-shield="on"] [class*="sidebar" i]:focus-within { opacity:1 !important; filter:none !important; }`
       );
     }
 
     if (settings.readingGuide) {
       rules.push(
-        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] [${GUIDE_ATTR}="true"] { position:relative !important; z-index:2147482100 !important; opacity:1 !important; background:${settings.photophobiaMode ? "#171307" : "rgba(117,145,135,.2)"} !important; border-left:5px solid ${settings.photophobiaMode ? "#e1b952" : "#4c7770"} !important; border-radius:9px !important; padding:.5em .8em !important; box-shadow:0 0 0 1px ${settings.photophobiaMode ? "#4e3d12" : "rgba(76,119,112,.28)"} !important; }`
+        `html[data-somatosync-shield="on"] [${READING_SURFACE_ATTR}] [${GUIDE_ATTR}="true"] { position:relative !important; z-index:2147482100 !important; opacity:1 !important; background:${settings.photophobiaMode ? "#213336" : "rgba(117,145,135,.16)"} !important; border-left:5px solid ${settings.photophobiaMode ? "#7faea4" : "#4c7770"} !important; border-radius:9px !important; padding:.5em .8em !important; box-shadow:0 0 0 1px ${settings.photophobiaMode ? "#3f625d" : "rgba(76,119,112,.24)"} !important; }`
       );
     }
 
@@ -416,7 +416,7 @@
         <div class="panel" id="panel">
           <div class="why">${reasonText(activeSettings)}</div>
           <div class="grid">
-            <label class="row"><span>Black + amber anti-glare</span><input data-key="photophobiaMode" type="checkbox" ${activeSettings.photophobiaMode ? "checked" : ""}></label>
+            <label class="row"><span>Low-luminance sensory theme</span><input data-key="photophobiaMode" type="checkbox" ${activeSettings.photophobiaMode ? "checked" : ""}></label>
             <label class="row"><span>Calm images</span><input data-key="calmMedia" type="checkbox" ${activeSettings.calmMedia ? "checked" : ""}></label>
             <label class="row"><span>Pause moving media</span><input data-key="pauseMedia" type="checkbox" ${activeSettings.pauseMedia ? "checked" : ""}></label>
             <label class="row"><span>Focus article</span><input data-key="simplifyChrome" type="checkbox" ${activeSettings.simplifyChrome ? "checked" : ""}></label>

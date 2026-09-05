@@ -107,7 +107,7 @@ Relevant guidance:
 - Living Concussion Guidelines vision section: post-concussion visual symptoms may include photosensitivity, reading difficulty, headache, and fatigue, and require appropriate clinical evaluation when persistent.
 - PedsConcussion school accommodations: short breaks, quieter spaces, reduced workload, extended time, and supportive technology such as audiobooks or text-to-speech may be appropriate.
 
-## 2026 assessment audit update
+## Assessment evidence audit update
 
 The memory feature now uses three learning trials with one original 10-word list followed by delayed free recall after at least five minutes. This better reflects a learning-and-delayed-recall construct than the earlier one-shot memory game while remaining an original, non-diagnostic task rather than a reproduction of SCAT6 or SCOAT6.
 
