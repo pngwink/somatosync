@@ -1,0 +1,61 @@
+import { useEffect, useState } from "react";
+import { ExternalLink, ShieldCheck } from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { Card } from "../../components/ui/card";
+import { broadcastShieldProfile, requestShieldStatus } from "./shieldBridge";
+import { useNeuroAdaptive } from "./NeuroAdaptiveContext";
+
+export function SomatoSyncShieldPanel() {
+  const { settings } = useNeuroAdaptive();
+  const [connected, setConnected] = useState(false);
+  const [synced, setSynced] = useState(false);
+
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      if (event.source !== window) return;
+      const data = event.data as { source?: string; type?: string } | null;
+      if (data?.source === "somatosync-shield-extension" && (data.type === "SOMATOSYNC_SHIELD_READY" || data.type === "SOMATOSYNC_SHIELD_SAVED")) {
+        setConnected(true);
+        if (data.type === "SOMATOSYNC_SHIELD_SAVED") setSynced(true);
+      }
+    };
+    window.addEventListener("message", onMessage);
+    requestShieldStatus();
+    const timer = window.setTimeout(requestShieldStatus, 450);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("message", onMessage);
+    };
+  }, []);
+
+  function sync() {
+    setSynced(false);
+    broadcastShieldProfile(settings);
+  }
+
+  return (
+    <Card className="p-6 sm:p-7">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 items-start gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-[var(--color-accent-soft)] text-[var(--color-accent)]"><ShieldCheck className="h-5 w-5" /></span>
+          <div>
+            <div className="flex flex-wrap items-center gap-2"><h2 className="text-[20px] font-semibold text-[var(--color-text-primary)]">SomatoSync Shield</h2>{connected && <span className="rounded-full bg-[var(--color-positive-soft)] px-2.5 py-1 text-[14px] font-semibold text-[var(--color-positive)]">Connected</span>}</div>
+            <p className="mt-1 max-w-[62ch] text-[15.5px] leading-7 text-[var(--color-text-secondary)]">Carry your symptom-matched reading environment onto other websites.</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2 sm:shrink-0">
+          {connected ? <Button onClick={sync}>{synced ? "Setup synced" : "Sync setup"}</Button> : <Button variant="secondary" disabled>Not connected</Button>}
+          <Button variant="ghost" asChild><a href="/shield-demo.html" target="_blank" rel="noreferrer">Try demo page <ExternalLink /></a></Button>
+        </div>
+      </div>
+
+      <details className="mt-5 rounded-[14px] border border-[var(--color-border)] px-4 py-3">
+        <summary className="cursor-pointer text-[14.5px] font-semibold text-[var(--color-accent)]">Shield details</summary>
+        <div className="mt-3 space-y-3 text-[15px] leading-6 text-[var(--color-text-secondary)]">
+          <p>Shield can change typography, reading width, page colors, image intensity, motion, sticky elements, secondary clutter, and a paragraph reading guide based on the supports currently matched to you. Once applied, a small control stays on the webpage so you can adjust or restore it there.</p>
+          {!connected && <p>The ZIP includes <strong className="text-[var(--color-text-primary)]">somatosync-shield-extension</strong>. Load that folder as an unpacked Chrome extension, then reopen SomatoSync.</p>}
+        </div>
+      </details>
+    </Card>
+  );
+}

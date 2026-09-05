@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/app/:path*", "destination": "/index.html" },
+    { "source": "/sign-in", "destination": "/index.html" },
+    { "source": "/create-account", "destination": "/index.html" },
+    { "source": "/terms", "destination": "/index.html" },
+    { "source": "/privacy-policy", "destination": "/index.html" },
+    { "source": "/share/supports", "destination": "/index.html" }
+  ]
+}

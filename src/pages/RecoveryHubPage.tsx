@@ -1,0 +1,375 @@
+import { useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import type { LucideIcon } from "lucide-react";
+import {
+  Activity,
+  ArrowRight,
+  BookOpenCheck,
+  CheckCircle2,
+  ClipboardList,
+  QrCode,
+  Sparkles,
+} from "lucide-react";
+import { PageHeader } from "../components/shared/PageHeader";
+import { Panel } from "../components/shared/Panel";
+import { Card } from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { MetricLineChart } from "../components/charts/MetricLineChart";
+import { Disclaimer } from "../components/shared/Disclaimer";
+import { NewUserEmptyState } from "../components/shared/NewUserEmptyState";
+import { useAppMode } from "../context/AppModeContext";
+import { buildRecoveryEvidenceSummary, type RecoveryEvidenceSummary } from "../features/recovery/evidenceSummary";
+import { loadPcssHistory } from "../features/assessments/pcss/pcssStorage";
+import { loadReactionHistory } from "../features/assessments/reaction/reactionStorage";
+import { loadMemoryHistory } from "../features/assessments/memory/memoryStorage";
+import { loadBalanceHistory } from "../features/assessments/balance/balanceStorage";
+import { buildSymptomGuidance, type SymptomGuidanceItem } from "../features/guidance/guidanceEngine";
+import { loadRecoveryProfile } from "../features/recovery/recoveryProfile";
+import { buildRecoveryOutlook, type RecoveryOutlook } from "../features/outlook/recoveryOutlook";
+import { buildRecoveryStory, buildSupportPatterns } from "../features/recovery-memory/recoveryMemoryEngine";
+import type { RecoveryStoryItem, SupportPattern } from "../features/recovery-memory/recoveryMemoryTypes";
+import { currentStage, loadProtocolProgress, type ProtocolPathway } from "../features/protocols/protocolEngine";
+
+const tabs = ["summary", "progress", "plan"] as const;
+type RecoveryTab = (typeof tabs)[number];
+
+const pathwayNames: Record<ProtocolPathway, string> = {
+  learn: "Learning",
+  "daily-life": "Work / daily life",
+  play: "Sport",
+};
+
+const demoPcssSeries = [
+  { date: "2026-07-15", value: 62 }, { date: "2026-07-18", value: 50 }, { date: "2026-07-21", value: 39 }, { date: "2026-07-25", value: 26 }, { date: "2026-07-28", value: 18 },
+];
+const demoReactionSeries = [
+  { date: "2026-07-16", value: 402 }, { date: "2026-07-19", value: 368 }, { date: "2026-07-22", value: 341 }, { date: "2026-07-25", value: 318 }, { date: "2026-07-28", value: 299 },
+];
+const demoMemorySeries = [
+  { date: "2026-07-16", value: 4 }, { date: "2026-07-19", value: 5 }, { date: "2026-07-23", value: 7 }, { date: "2026-07-27", value: 7 },
+];
+const demoBalanceSeries = [
+  { date: "2026-07-15", value: 1.46 }, { date: "2026-07-21", value: 1.06 }, { date: "2026-07-26", value: 0.82 },
+];
+
+const demoPatterns: SupportPattern[] = [
+  { id: "readability", title: "Readability adjustments", detail: "3 of 4 recent follow-ups were followed by better reading tolerance.", helpfulCount: 3, observedCount: 4 },
+  { id: "lower-load", title: "Lower reading load", detail: "2 of 3 recent follow-ups were followed by better tolerance.", helpfulCount: 2, observedCount: 3 },
+];
+
+const demoStory: RecoveryStoryItem[] = [
+  { id: "demo-story-1", completedAt: "2026-07-28T18:20:00.000Z", title: "Reading environment adapted", detail: "Moving closer + squinting → readability adjustments → observed strain settled afterward", tone: "positive" },
+  { id: "demo-story-2", completedAt: "2026-07-28T17:52:00.000Z", title: "Voice check-in", detail: "Light sensitivity 4/6 · Fatigue 3/6", tone: "neutral" },
+  { id: "demo-story-3", completedAt: "2026-07-28T16:40:00.000Z", title: "Memory assessment", detail: "Delayed recall 7/10 · fatigue +1 during task", tone: "neutral" },
+];
+
+export function RecoveryHubPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedTab = searchParams.get("tab") as RecoveryTab | null;
+  const activeTab: RecoveryTab = requestedTab && tabs.includes(requestedTab) ? requestedTab : "summary";
+  const { mode } = useAppMode();
+
+  const pcssHistory = loadPcssHistory();
+  const reactionHistory = loadReactionHistory().filter((result) => result.medianMs != null);
+  const memoryHistory = loadMemoryHistory();
+  const balanceHistory = loadBalanceHistory().filter((result) => result.trackingQualityPercent >= 60);
+  const latestPcss = pcssHistory[0] ?? null;
+
+  const evidence = useMemo(() => mode === "demo" ? demoEvidence() : buildRecoveryEvidenceSummary(), [mode, pcssHistory.length, reactionHistory.length, memoryHistory.length, balanceHistory.length]);
+  const guidance = useMemo(() => mode === "demo" ? demoGuidance() : buildSymptomGuidance(latestPcss), [mode, latestPcss]);
+  const outlook = useMemo(() => mode === "demo" ? demoOutlook() : buildRecoveryOutlook(loadRecoveryProfile()), [mode, pcssHistory.length, reactionHistory.length, memoryHistory.length, balanceHistory.length]);
+  const patterns = useMemo(() => mode === "demo" ? demoPatterns : buildSupportPatterns(), [mode, evidence.generatedAt]);
+  const story = useMemo(() => mode === "demo" ? demoStory : buildRecoveryStory(), [mode, evidence.generatedAt]);
+
+  const pcssSeries = mode === "demo" ? demoPcssSeries : [...pcssHistory].reverse().map((result) => ({ date: result.completedAt.slice(0, 10), value: result.totalSeverity }));
+  const reactionSeries = mode === "demo" ? demoReactionSeries : [...reactionHistory].reverse().map((result) => ({ date: result.completedAt.slice(0, 10), value: result.medianMs ?? 0 }));
+  const memorySeries = mode === "demo" ? demoMemorySeries : [...memoryHistory].reverse().map((result) => ({ date: result.completedAt.slice(0, 10), value: result.delayedCorrect }));
+  const balanceSeries = mode === "demo" ? demoBalanceSeries : [...balanceHistory].reverse().map((result) => ({ date: result.completedAt.slice(0, 10), value: result.lateralRmsPercent }));
+  const hasAnyData = evidence.measuredCount > 0;
+  const planPathway: ProtocolPathway = loadRecoveryProfile().focuses.includes("school") ? "learn" : loadRecoveryProfile().focuses.includes("sport") ? "play" : "daily-life";
+  const planStage = currentStage(planPathway, loadProtocolProgress(planPathway));
+  const measuredDomains = evidence.domains.filter((domain) => domain.sampleCount > 0);
+
+  function changeTab(value: string) {
+    const next = value as RecoveryTab;
+    setSearchParams(next === "summary" ? {} : { tab: next }, { replace: true });
+  }
+
+  return (
+    <div className="space-y-7">
+      <PageHeader
+        eyebrow="Recovery center"
+        title="Recovery"
+        context="Start with the big picture. Open details only when you need them."
+      />
+
+      <Tabs value={activeTab} onValueChange={changeTab}>
+        <TabsList className="grid w-full grid-cols-3 rounded-[16px] bg-[var(--color-surface-sunken)] p-1 sm:w-[430px]">
+          <TabsTrigger value="summary">Overview</TabsTrigger>
+          <TabsTrigger value="progress">Trends</TabsTrigger>
+          <TabsTrigger value="plan">Plan</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="summary" className="space-y-6">
+          {!hasAnyData && mode !== "demo" ? (
+            <NewUserEmptyState
+              title="Complete a check-in to build your recovery overview"
+              description="SomatoSync keeps symptoms, reaction time, memory, balance, and real-world tolerance separate."
+              primaryHref="/app/check-in"
+              primaryLabel="Start check-in"
+              secondaryHref="/app/check-in?tab=schedule"
+              secondaryLabel="See this week"
+            />
+          ) : (
+            <>
+              <Card className="overflow-hidden border-0 bg-[var(--color-positive-soft)] p-0">
+                <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end">
+                  <div className="max-w-[720px]">
+                    <p className="text-[14px] font-bold uppercase tracking-[0.16em] text-[var(--color-positive)]">Right now</p>
+                    <h2 className="mt-3 text-[28px] font-semibold tracking-[-0.025em] text-[var(--color-text-primary)] sm:text-[32px]">{evidence.overallLabel}</h2>
+                    <p className="mt-3 text-[17px] leading-8 text-[var(--color-text-secondary)]">{evidence.overallDetail}</p>
+                  </div>
+                  <div className="rounded-[18px] bg-[var(--color-surface)]/80 px-5 py-4 lg:min-w-[190px]">
+                    <p className="text-[14px] font-medium text-[var(--color-text-tertiary)]">Recovery snapshot</p>
+                    <p className="mt-1 text-[20px] font-semibold text-[var(--color-text-primary)]">{evidence.measuredCount} areas tracked</p>
+                    <Badge tone={outlook.summaryTone} showDot className="mt-3">{outlook.phaseLabel}</Badge>
+                  </div>
+                </div>
+              </Card>
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <Card className="border-0 bg-[var(--color-accent-soft)] p-6">
+                  <div className="flex items-start gap-4">
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[var(--color-surface)] text-[var(--color-accent)]"><Sparkles className="h-5 w-5" /></span>
+                    <div>
+                      <p className="text-[14px] font-bold uppercase tracking-[0.14em] text-[var(--color-accent)]">What seems to help</p>
+                      <h3 className="mt-2 text-[22px] font-semibold tracking-tight text-[var(--color-text-primary)]">{patterns[0]?.title ?? "Still learning your patterns"}</h3>
+                      <p className="mt-2 text-[15.5px] leading-7 text-[var(--color-text-secondary)]">{patterns[0]?.detail ?? "Focus sessions and shared-support feedback will gradually build this insight."}</p>
+                      {patterns.length > 1 && <p className="mt-3 text-[14.5px] font-medium text-[var(--color-accent)]">Also noticed: {patterns.slice(1, 3).map((item) => item.title).join(" · ")}</p>}
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="border-0 bg-[var(--color-info-soft)] p-6">
+                  <div className="flex items-start gap-4">
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[var(--color-surface)] text-[var(--color-info)]"><BookOpenCheck className="h-5 w-5" /></span>
+                    <div>
+                      <p className="text-[14px] font-bold uppercase tracking-[0.14em] text-[var(--color-info)]">Latest recovery event</p>
+                      <h3 className="mt-2 text-[22px] font-semibold tracking-tight text-[var(--color-text-primary)]">{story[0]?.title ?? "Your story will build here"}</h3>
+                      <p className="mt-2 text-[15.5px] leading-7 text-[var(--color-text-secondary)]">{story[0]?.detail ?? "Check-ins, assessments, Focus sessions, and support feedback will appear as a simple timeline."}</p>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+
+              {(evidence.changeAlerts?.length ?? 0) > 0 && (
+                <Card className="border-[var(--color-caution)]/30 bg-[var(--color-caution-soft)] p-5 sm:p-6">
+                  <div className="flex items-start gap-4">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-[var(--color-surface)] text-[var(--color-caution)]"><Activity className="h-5 w-5" /></span>
+                    <div>
+                      <h3 className="text-[18px] font-semibold text-[var(--color-text-primary)]">One result looked different</h3>
+                      <p className="mt-1 text-[15.5px] leading-7 text-[var(--color-text-secondary)]">Repeat it under similar conditions before reading too much into a single result.</p>
+                      <p className="mt-3 text-[15px] font-medium text-[var(--color-caution)]">{evidence.changeAlerts?.[0]?.title}</p>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              <details className="group rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-4 sm:px-6">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-1 text-[16px] font-semibold text-[var(--color-text-primary)]">
+                  <span>Recovery story & supporting evidence</span>
+                  <span className="text-[14px] font-medium text-[var(--color-accent)] group-open:hidden">Open details</span>
+                  <span className="hidden text-[14px] font-medium text-[var(--color-accent)] group-open:inline">Hide details</span>
+                </summary>
+                <div className="mt-5 grid gap-7 border-t border-[var(--color-border)] pt-5 lg:grid-cols-2">
+                  <div>
+                    <h3 className="text-[18px] font-semibold text-[var(--color-text-primary)]">Recent story</h3>
+                    <div className="mt-4 space-y-4">
+                      {story.slice(0, 3).map((item) => (
+                        <div key={item.id} className="flex gap-3">
+                          <span className={`mt-2 h-2.5 w-2.5 shrink-0 rounded-full ${item.tone === "positive" ? "bg-[var(--color-positive)]" : item.tone === "caution" ? "bg-[var(--color-caution)]" : "bg-[var(--color-accent)]"}`} />
+                          <div><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{item.title}</p><p className="mt-1 text-[15px] leading-6 text-[var(--color-text-secondary)]">{item.detail}</p></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-[18px] font-semibold text-[var(--color-text-primary)]">Measured areas</h3>
+                    <div className="mt-4 space-y-3">
+                      {measuredDomains.slice(0, 6).map((domain) => (
+                        <div key={domain.id} className="rounded-[14px] bg-[var(--color-surface-sunken)] px-4 py-3">
+                          <p className="text-[15.5px] font-semibold text-[var(--color-text-primary)]">{domain.label}</p>
+                          <p className="mt-0.5 text-[14.5px] leading-6 text-[var(--color-text-secondary)]">{domain.headline}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </details>
+            </>
+          )}
+        </TabsContent>
+
+        <TabsContent value="progress" className="space-y-6">
+          {!hasAnyData && mode !== "demo" ? (
+            <NewUserEmptyState title="No progress history yet" primaryHref="/app/check-in" primaryLabel="Start check-in" />
+          ) : (
+            <>
+              {pcssSeries.length > 0 && (
+                <Panel title="Symptoms over time" description="Your main trend first. Lower PCSS severity means fewer or less-severe reported symptoms.">
+                  <MetricLineChart data={pcssSeries} unit="of 132" reference={pcssSeries[0].value} referenceLabel="Starting assessment" height={250} />
+                </Panel>
+              )}
+
+              <div>
+                <div className="mb-3 flex items-end justify-between gap-4">
+                  <div><p className="text-[14px] font-bold uppercase tracking-[0.14em] text-[var(--color-text-tertiary)]">Other signals</p><h2 className="mt-1 text-[22px] font-semibold tracking-tight text-[var(--color-text-primary)]">Quick trend check</h2></div>
+                  <Button variant="ghost" asChild><Link to="/app/recovery/progress-details">See all trends<ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
+                </div>
+                <div className="grid gap-4 md:grid-cols-3">
+                  {reactionSeries.length > 0 && <MetricPreview tone="accent" title="Reaction time" start={`${Math.round(reactionSeries[0].value)} ms`} latest={`${Math.round(reactionSeries.at(-1)?.value ?? 0)} ms`} note="Tracked separately from symptoms" />}
+                  {memorySeries.length > 0 && <MetricPreview tone="positive" title="Delayed recall" start={`${memorySeries[0].value}/10`} latest={`${memorySeries.at(-1)?.value ?? 0}/10`} note="Performance + task tolerance stay separate" />}
+                  {balanceSeries.length > 0 && <MetricPreview tone="info" title="Camera movement" start={`${balanceSeries[0].value.toFixed(2)}%`} latest={`${(balanceSeries.at(-1)?.value ?? 0).toFixed(2)}%`} note="Movement is not treated as a clearance score" />}
+                </div>
+              </div>
+
+              <div className="flex justify-end"><Button variant="secondary" asChild><Link to="/app/check-in?tab=history">Open individual results</Link></Button></div>
+            </>
+          )}
+        </TabsContent>
+
+        <TabsContent value="plan" className="space-y-6">
+          <Card className="border-0 bg-[var(--color-accent-soft)] p-6 sm:p-7">
+            <div className="flex items-start gap-4">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[var(--color-surface)] text-[var(--color-accent)]"><CheckCircle2 className="h-5 w-5" /></span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[14px] font-bold uppercase tracking-[0.14em] text-[var(--color-accent)]">Today</p>
+                <h2 className="mt-2 text-[24px] font-semibold tracking-tight text-[var(--color-text-primary)]">Keep today’s support simple</h2>
+                {guidance.length > 0 ? (
+                  <div className="mt-4 space-y-3">
+                    {guidance.slice(0, 2).map((item) => (
+                      <div key={item.id} className="rounded-[15px] bg-[var(--color-surface)]/85 px-4 py-3.5">
+                        <p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{item.title}</p>
+                        <p className="mt-1 text-[15px] leading-6 text-[var(--color-text-secondary)]">{item.suggestions[0]}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : <p className="mt-3 text-[15.5px] text-[var(--color-text-secondary)]">Complete a symptom check-in to get today’s evidence-linked supports.</p>}
+              </div>
+            </div>
+          </Card>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <RecoveryActionCard
+              tone="info"
+              icon={ClipboardList}
+              eyebrow="Return plan"
+              title="Update a pathway or log an activity"
+              description={`${pathwayNames[planPathway]} is currently at Step ${planStage.step}: ${planStage.title}. Open one focused screen to change the step or record how an activity felt.`}
+              href="/app/recovery/plan-details"
+              action="Open recovery plan"
+            />
+            <RecoveryActionCard
+              tone="positive"
+              icon={QrCode}
+              eyebrow="Recovery Relay"
+              title="Share only the supports someone needs"
+              description="Create a temporary teacher, parent, or coach link without putting the QR workflow on this page."
+              href="/app/recovery/share"
+              action="Share supports"
+            />
+          </div>
+
+          <Card className="flex flex-col gap-4 border-[var(--color-border)] p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">Need the clinical detail?</p><p className="mt-1 text-[15px] leading-6 text-[var(--color-text-secondary)]">Sources, recovery outlook, context settings, and deeper guidance live inside the focused Recovery Plan screen instead of crowding this page.</p></div>
+            <Button variant="secondary" asChild className="shrink-0"><Link to="/app/recovery/plan-details">Open details</Link></Button>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      <Disclaimer variant="block">SomatoSync supports tracking and informed conversations. It does not diagnose concussion, grant clearance, or replace individualized care.</Disclaimer>
+    </div>
+  );
+}
+
+function MetricPreview({ tone, title, start, latest, note }: { tone: "accent" | "positive" | "info"; title: string; start: string; latest: string; note: string }) {
+  const toneClass = tone === "positive" ? "bg-[var(--color-positive-soft)]" : tone === "info" ? "bg-[var(--color-info-soft)]" : "bg-[var(--color-accent-soft)]";
+  return (
+    <Card className={`border-0 p-5 ${toneClass}`}>
+      <p className="text-[14px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-tertiary)]">{title}</p>
+      <div className="mt-4 flex items-end gap-3"><span className="text-[15px] text-[var(--color-text-tertiary)]">{start}</span><ArrowRight className="mb-1 h-4 w-4 text-[var(--color-text-tertiary)]" /><span className="text-[25px] font-semibold tracking-tight text-[var(--color-text-primary)]">{latest}</span></div>
+      <p className="mt-3 text-[14.5px] leading-6 text-[var(--color-text-secondary)]">{note}</p>
+    </Card>
+  );
+}
+
+function RecoveryActionCard({ tone, icon: Icon, eyebrow, title, description, href, action }: { tone: "positive" | "info"; icon: LucideIcon; eyebrow: string; title: string; description: string; href: string; action: string }) {
+  const toneClass = tone === "positive" ? "bg-[var(--color-positive-soft)] text-[var(--color-positive)]" : "bg-[var(--color-info-soft)] text-[var(--color-info)]";
+  return (
+    <Card className="group p-6 sm:p-7">
+      <div className={`flex h-12 w-12 items-center justify-center rounded-[16px] ${toneClass}`}><Icon className="h-5 w-5" /></div>
+      <p className="mt-5 text-[14px] font-bold uppercase tracking-[0.14em] text-[var(--color-text-tertiary)]">{eyebrow}</p>
+      <h3 className="mt-2 text-[22px] font-semibold tracking-tight text-[var(--color-text-primary)]">{title}</h3>
+      <p className="mt-2 text-[15.5px] leading-7 text-[var(--color-text-secondary)]">{description}</p>
+      <Button variant="ghost" asChild className="mt-4 px-0 text-[var(--color-accent)]"><Link to={href}>{action}<ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
+    </Card>
+  );
+}
+
+function demoEvidence(): RecoveryEvidenceSummary {
+  return {
+    overallLabel: "Several domains are improving",
+    overallDetail: "Maya’s symptoms, reaction time, delayed recall, and camera-measured movement improved from her starting assessments. Light sensitivity and fatigue still affect school and screen use.",
+    overallTone: "positive",
+    improvingCount: 5,
+    worseningCount: 0,
+    measuredCount: 6,
+    generatedAt: new Date().toISOString(),
+    domains: [
+      { id: "symptoms", label: "Reported symptoms", direction: "improving", headline: "Symptom burden is trending lower", detail: "PCSS severity changed from 62 to 18 across the demo timeline.", tone: "positive", sampleCount: 7 },
+      { id: "reaction", label: "Reaction time", direction: "improving", headline: "Reaction time is faster", detail: "Median reaction time changed from 402 ms to 299 ms.", tone: "positive", sampleCount: 5 },
+      { id: "memory", label: "Learning & recall", direction: "improving", headline: "Delayed recall increased", detail: "Delayed recall changed from 4 to 7 of 10 words. The latest demo task also records fatigue +1, so performance and task tolerance stay separate.", tone: "positive", sampleCount: 4 },
+      { id: "balance", label: "Camera balance", direction: "improving", headline: "Recorded movement decreased", detail: "Lateral movement changed from 1.46% to 0.82% of frame width. The latest demo task also records dizziness +1, so less movement is not treated as automatic symptom improvement.", tone: "positive", sampleCount: 5 },
+      { id: "activity", label: "Activity tolerance", direction: "similar", headline: "Most recent activities were tolerated with pacing", detail: "The sample record includes one tolerated aerobic session and one mild, brief school-related symptom increase.", tone: "info", sampleCount: 2 },
+      { id: "focus", label: "Cognitive pacing", direction: "improving", headline: "Confirmed strain patterns decreased", detail: "Reduced-stimulation display and planned breaks were the most helpful sample adaptations.", tone: "positive", sampleCount: 4 },
+    ],
+  };
+}
+
+function demoGuidance(): SymptomGuidanceItem[] {
+  return [
+    {
+      id: "demo-light",
+      title: "Light sensitivity support",
+      trigger: "Light sensitivity remains elevated",
+      tone: "caution",
+      suggestions: ["Use shorter screen sessions, reduce visual clutter, and consider text-to-speech when reading becomes uncomfortable."],
+      sourceIds: ["ontario-return", "peds-guideline"],
+    },
+    {
+      id: "demo-fatigue",
+      title: "Cognitive pacing",
+      trigger: "Fatigue and concentration symptoms remain present",
+      tone: "info",
+      suggestions: ["Break demanding schoolwork into shorter blocks with planned low-stimulation pauses."],
+      sourceIds: ["amsterdam-2022", "ontario-return"],
+    },
+  ];
+}
+
+function demoOutlook(): RecoveryOutlook {
+  return {
+    phaseLabel: "Follow-up window",
+    daysPostInjury: 14,
+    summary: "The demo shows improvement with some ongoing activity-sensitive symptoms.",
+    summaryTone: "info",
+    signals: [
+      { id: "demo-fatigue-signal", title: "Fatigue still affects activity tolerance", detail: "Maya’s sample record shows improvement overall, while longer screen and school sessions still need pacing.", tone: "caution", sourceIds: [] },
+    ],
+    dataCoverage: "4 measured domains",
+    noDateReason: "Recovery varies by person and domain, so the app does not generate an exact recovery date.",
+    generatedAt: new Date().toISOString(),
+  };
+}

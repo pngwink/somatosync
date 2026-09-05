@@ -1,0 +1,150 @@
+import { Link } from "react-router-dom";
+import {
+  ArrowRight,
+  BrainCog,
+  CalendarDays,
+  ChevronRight,
+  FileText,
+  MessagesSquare,
+  Mic,
+  Play,
+  RotateCcw,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
+import { PageHeader } from "../components/shared/PageHeader";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import { Card } from "../components/ui/card";
+import { currentPatient } from "../data/patient";
+import { useAppMode } from "../context/AppModeContext";
+import { buildRecoveryEvidenceSummary } from "../features/recovery/evidenceSummary";
+import { getMostRecentPcssResult } from "../features/assessments/pcss/pcssStorage";
+
+export function OverviewPage() {
+  const { mode, userName } = useAppMode();
+  const evidence = buildRecoveryEvidenceSummary();
+  const latestPcss = getMostRecentPcssResult();
+  const isDemo = mode === "demo";
+  const firstName = isDemo ? currentPatient.name.split(" ")[0] : userName.split(" ")[0];
+  const hasData = isDemo || evidence.measuredCount > 0;
+  const today = new Date();
+
+  function resetDemo() {
+    try {
+      const keys: string[] = [];
+      for (let index = 0; index < localStorage.length; index += 1) {
+        const key = localStorage.key(index);
+        if (key?.startsWith("somatosync.demo.")) keys.push(key);
+      }
+      keys.forEach((key) => localStorage.removeItem(key));
+    } catch {
+      // Reloading still restores the built-in sample journey.
+    }
+    window.location.assign("/app");
+  }
+
+  return (
+    <div className="space-y-9">
+      <PageHeader
+        eyebrow={today.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
+        title={`Hi, ${firstName}`}
+        context={isDemo ? "A sample recovery journey with the important actions kept up front." : "Start with one useful action. Open more detail only when you need it."}
+      />
+
+      <Card className="border-[var(--color-accent-soft-border)] bg-[var(--color-accent-soft)] p-7 sm:p-9">
+        <p className="text-[15px] font-semibold text-[var(--color-accent)]">Today</p>
+        <h2 className="mt-2 max-w-2xl text-balance text-[27px] font-semibold leading-tight text-[var(--color-text-primary)] sm:text-[32px]">
+          {latestPcss || isDemo ? "How are you feeling today?" : "Start your recovery record"}
+        </h2>
+        <p className="mt-3 max-w-[64ch] text-[16px] leading-7 text-[var(--color-text-secondary)]">
+          {latestPcss || isDemo
+            ? "Talk through what changed. SomatoSync will organize the symptoms and context, and you can correct anything before saving."
+            : "Begin with a short symptom check-in. You can add other assessments later instead of doing everything at once."}
+        </p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button asChild size="lg">
+            <Link to="/app/assessments/voice-check-in"><Mic />Talk through check-in<ArrowRight /></Link>
+          </Button>
+          <Button asChild variant="secondary">
+            <Link to="/app/check-in?tab=schedule"><CalendarDays />See this week</Link>
+          </Button>
+        </div>
+      </Card>
+
+      {hasData && (
+        <section aria-labelledby="recovery-overview-heading">
+          <div className="mb-3 flex items-center justify-between gap-4">
+            <h2 id="recovery-overview-heading" className="text-[20px] font-semibold text-[var(--color-text-primary)]">Current recovery</h2>
+            <Button variant="ghost" size="sm" asChild><Link to="/app/recovery">Open recovery <ChevronRight /></Link></Button>
+          </div>
+          <Card className="p-6 sm:p-7">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="max-w-[68ch]">
+                <div className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-[var(--color-accent)]" /><p className="text-[18px] font-semibold text-[var(--color-text-primary)]">{isDemo ? "Several areas are improving" : evidence.overallLabel}</p></div>
+                <p className="mt-2 text-[15.5px] leading-7 text-[var(--color-text-secondary)]">
+                  {isDemo
+                    ? "Fatigue and light sensitivity still affect longer school and screen sessions, while several tracked areas are moving in a better direction."
+                    : evidence.overallDetail}
+                </p>
+              </div>
+              <Badge tone={isDemo ? "positive" : evidence.overallTone} showDot>{isDemo ? "Improving pattern" : `${evidence.measuredCount} areas tracked`}</Badge>
+            </div>
+          </Card>
+        </section>
+      )}
+
+      <section aria-labelledby="continue-heading">
+        <h2 id="continue-heading" className="mb-3 text-[20px] font-semibold text-[var(--color-text-primary)]">Continue</h2>
+        <Card className="divide-y divide-[var(--color-border)] overflow-hidden">
+          <ActionRow icon={BrainCog} title="Focus" detail="Adaptive reading support when screens become harder to tolerate." href="/app/neuro-adaptive" />
+          <ActionRow icon={MessagesSquare} title="Assistant" detail="Ask a recovery question and see the evidence behind the answer." href="/app/research" />
+          <ActionRow icon={FileText} title="Reports" detail="Prepare a concise summary when you need to share progress." href="/app/reports" />
+        </Card>
+      </section>
+
+      {isDemo && (
+        <details className="rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-5">
+          <summary className="cursor-pointer list-none">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3"><Play className="h-5 w-5 text-[var(--color-accent)]" /><div><p className="text-[18px] font-semibold text-[var(--color-text-primary)]">Judge demo path</p><p className="mt-0.5 text-[15px] text-[var(--color-text-secondary)]">Four moments that explain the product.</p></div></div>
+              <ChevronRight className="h-5 w-5 text-[var(--color-text-tertiary)]" />
+            </div>
+          </summary>
+          <div className="mt-5 divide-y divide-[var(--color-border)] border-t border-[var(--color-border)] pt-2">
+            {demoPath.map((step, index) => (
+              <Link key={step.title} to={step.href} className="group flex items-start gap-4 py-4">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-[15px] font-bold text-[var(--color-accent)]">{index + 1}</span>
+                <div className="min-w-0 flex-1"><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{step.title}</p><p className="mt-1 text-[15px] leading-6 text-[var(--color-text-secondary)]">{step.detail}</p></div>
+                <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-[var(--color-text-tertiary)]" />
+              </Link>
+            ))}
+          </div>
+          <Button variant="ghost" size="sm" onClick={resetDemo} className="mt-2"><RotateCcw />Reset demo</Button>
+        </details>
+      )}
+
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-border)] pt-5 text-[14.5px] text-[var(--color-text-secondary)]">
+        <span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-[var(--color-positive)]" />Private by default. You choose what to share.</span>
+        <Link to="/app/privacy" className="font-semibold text-[var(--color-accent)] hover:underline">Privacy details</Link>
+      </div>
+    </div>
+  );
+}
+
+function ActionRow({ icon: Icon, title, detail, href }: { icon: typeof BrainCog; title: string; detail: string; href: string }) {
+  return (
+    <Link to={href} className="group flex items-center gap-4 px-5 py-5 transition-colors hover:bg-[var(--color-surface-sunken)] sm:px-6">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-[var(--color-accent-soft)] text-[var(--color-accent)]"><Icon className="h-5 w-5" /></span>
+      <div className="min-w-0 flex-1"><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{title}</p><p className="mt-0.5 text-[15px] leading-6 text-[var(--color-text-secondary)]">{detail}</p></div>
+      <ChevronRight className="h-5 w-5 shrink-0 text-[var(--color-text-tertiary)] transition-transform group-hover:translate-x-0.5" />
+    </Link>
+  );
+}
+
+const demoPath = [
+  { title: "Natural voice check-in", detail: "Describe the problem naturally and correct one extracted rating before saving.", href: "/app/assessments/voice-check-in" },
+  { title: "Adaptive reading", detail: "Show sustained close-viewing and squinting triggering matched reading support.", href: "/app/neuro-adaptive" },
+  { title: "Learning across sessions", detail: "Show what seems to help, the Recovery Story, and the one-tap reading preflight.", href: "/app/recovery" },
+  { title: "Carry and share support", detail: "Open Shield from Focus, then use Recovery → Plan for the teacher/parent/coach handoff.", href: "/app/neuro-adaptive" },
+];

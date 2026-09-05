@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "SomatoSync Shield",
+  "version": "1.1.0",
+  "description": "Carries symptom-matched SomatoSync reading supports\u2014typography, color, motion, focus and clutter reduction\u2014to everyday websites.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_title": "SomatoSync Shield",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "bridge.js",
+        "shield.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

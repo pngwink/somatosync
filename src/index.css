@@ -1,0 +1,108 @@
+@import "./styles/tokens.css";
+
+/* Neuro-Adaptive Mode applies only user-approved, reversible presentation changes.
+   Typography changes target reading content rather than browser-zooming the whole product. */
+html.neuro-adaptive-active {
+  --adaptive-text-scale: 1;
+}
+
+html.neuro-adaptive-active .app-content p,
+html.neuro-adaptive-active .app-content li,
+html.neuro-adaptive-active .app-content blockquote {
+  font-size: calc(16px * var(--adaptive-text-scale, 1)) !important;
+  line-height: calc(1.62 * var(--adaptive-line-spacing, 1)) !important;
+}
+
+html.neuro-adaptive-active .app-content [data-focus-reading-surface="true"] p,
+html.neuro-adaptive-active .app-content [data-focus-reading-surface="true"] li {
+  font-size: calc(16.5px * var(--adaptive-text-scale, 1)) !important;
+}
+
+/* Light-sensitivity support: deliberately obvious warm, lower-intensity palette.
+   This is an accessibility preference, not a claim that one palette treats concussion. */
+html.neuro-soft-contrast:not(.dark) {
+  --color-bg: #E8DFD2;
+  --color-surface: #F3ECE3;
+  --color-surface-raised: #FAF5EE;
+  --color-surface-sunken: #DDD2C4;
+  --color-text-primary: #2D2A27;
+  --color-text-secondary: #5C5650;
+  --color-text-tertiary: #756E67;
+  --color-border: #CFC2B4;
+  --color-border-strong: #B8A898;
+  --color-accent: #66515A;
+  --color-accent-hover: #56434B;
+  --color-accent-soft: #E4D6D8;
+  --color-accent-soft-border: #CBB8BC;
+}
+
+html.neuro-soft-contrast.dark {
+  --color-bg: #17130F;
+  --color-surface: #211B17;
+  --color-surface-raised: #2B231E;
+  --color-surface-sunken: #1C1713;
+  --color-text-primary: #E8E0D6;
+  --color-text-secondary: #BDB1A5;
+  --color-text-tertiary: #94897F;
+  --color-border: #40362E;
+  --color-border-strong: #5A4C41;
+  --color-accent: #C19AA5;
+  --color-accent-soft: #38282E;
+}
+
+html.neuro-soft-contrast .app-content img,
+html.neuro-soft-contrast .app-content video {
+  filter: saturate(.72) brightness(.93) contrast(.94);
+}
+
+html.neuro-audio-first main p { max-width: 68ch; }
+
+/* Cognitive simplification removes explicitly secondary material. */
+html.neuro-low-density main [data-focus-secondary="true"],
+html.neuro-low-density main details:not([open]) { display: none !important; }
+
+html.neuro-low-density main section,
+html.neuro-low-density main article { scroll-margin-top: 3rem; }
+
+html.neuro-low-density main .focus-adaptive-compact {
+  max-height: 7.5rem; overflow: hidden; position: relative;
+}
+html.neuro-low-density main .focus-adaptive-compact::after {
+  content: ""; position: absolute; inset: auto 0 0; height: 2.5rem;
+  background: linear-gradient(to bottom, transparent, var(--color-surface)); pointer-events: none;
+}
+
+.app-content { font-size: 16px; line-height: 1.62; }
+@media (min-width: 1280px) { .app-content { font-size: 16.25px; } }
+
+/* Reading spotlight: a genuine layout mode, not zoom. */
+html.neuro-reading-layout .app-content > div {
+  max-width: 840px !important;
+}
+html.neuro-reading-layout .app-content p,
+html.neuro-reading-layout .app-content li { max-width: 66ch; }
+html.neuro-reading-layout .app-content p + p { margin-top: 1em; }
+html.neuro-reading-layout .app-content article,
+html.neuro-reading-layout .app-content [data-focus-reading-surface="true"] {
+  max-width: 760px !important;
+  margin-inline: auto !important;
+  padding: clamp(1.5rem, 4vw, 2.75rem) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 24px !important;
+  background: var(--color-surface-raised) !important;
+  box-shadow: 0 18px 54px rgba(47, 38, 32, .10) !important;
+}
+
+/* When a sustained close-viewing + squint pattern calls for both focused layout and
+   reduced density, remove the surrounding application chrome for a true reading canvas. */
+html.neuro-reading-layout.neuro-low-density [data-focus-shell] { display: none !important; }
+html.neuro-reading-layout.neuro-low-density .app-content {
+  padding: clamp(1rem, 3vw, 2rem) !important;
+  background: color-mix(in srgb, var(--color-bg) 88%, var(--color-surface) 12%);
+}
+html.neuro-reading-layout.neuro-low-density .app-content > div { max-width: 820px !important; }
+
+/* Calm layout primitives: favor readable measure and generous vertical rhythm. */
+.app-content p, .app-content li { line-height: 1.62; }
+.app-content .reading-measure { max-width: 70ch; }
+.app-content .section-stack > * + * { margin-top: 2rem; }

@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+/* SomatoSync calm-health design system.
+   The default palette avoids bright cyan surfaces and pure-white-on-neon
+   combinations. Dark mode uses warm charcoal and muted rose accents. There is
+   no single clinically proven "concussion color," so users retain control. */
+:root {
+  color-scheme: light;
+
+  --color-bg: #F4F2EF;
+  --color-surface: #FFFDFC;
+  --color-surface-raised: #FFFFFF;
+  --color-surface-sunken: #EDE9E5;
+
+  --color-text-primary: #26292B;
+  --color-text-secondary: #5D6264;
+  --color-text-tertiary: #707577;
+  --color-text-inverse: #FFFFFF;
+
+  --color-accent: #74485A;
+  --color-accent-hover: #603A49;
+  --color-accent-foreground: #FFFFFF;
+  --color-accent-soft: #F0E5E9;
+  --color-accent-soft-border: #D9C3CC;
+
+  --color-border: #E0DCD8;
+  --color-border-strong: #C9C2BD;
+
+  --color-positive: #3F7256;
+  --color-positive-soft: #E7F0EA;
+  --color-caution: #8B6221;
+  --color-caution-soft: #F5ECD9;
+  --color-risk: #984747;
+  --color-risk-soft: #F5E7E6;
+  --color-info: #5D6870;
+  --color-info-soft: #E9EBEC;
+
+  --color-chart-primary: #74485A;
+  --color-chart-secondary: #8B777F;
+  --color-chart-baseline: #CCC4C1;
+
+  --radius-sm: 10px;
+  --radius-md: 15px;
+  --radius-lg: 22px;
+
+  --shadow-low: 0 2px 10px rgba(66, 48, 55, 0.035);
+  --shadow-med: 0 14px 40px rgba(47, 32, 38, 0.16);
+
+  --font-display: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Consolas", "SFMono-Regular", ui-monospace, monospace;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --color-bg: #151314;
+  --color-surface: #1D1A1B;
+  --color-surface-raised: #252122;
+  --color-surface-sunken: #191617;
+
+  --color-text-primary: #EEE8E4;
+  --color-text-secondary: #BEB5B1;
+  --color-text-tertiary: #9F9894;
+  --color-text-inverse: #1B1517;
+
+  --color-accent: #C08CA2;
+  --color-accent-hover: #D0A0B2;
+  --color-accent-foreground: #21171B;
+  --color-accent-soft: #33252B;
+  --color-accent-soft-border: #59414B;
+
+  --color-border: #353031;
+  --color-border-strong: #50484A;
+
+  --color-positive: #8BB59A;
+  --color-positive-soft: #1E2D24;
+  --color-caution: #D2AF72;
+  --color-caution-soft: #302719;
+  --color-risk: #D68D8B;
+  --color-risk-soft: #321F21;
+  --color-info: #AEB7BC;
+  --color-info-soft: #262C30;
+
+  --color-chart-primary: #C08CA2;
+  --color-chart-secondary: #8D777F;
+  --color-chart-baseline: #50484A;
+
+  --shadow-low: 0 2px 12px rgba(0, 0, 0, 0.14);
+  --shadow-med: 0 16px 42px rgba(0, 0, 0, 0.44);
+}
+
+@theme {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-raised: var(--color-surface-raised);
+  --color-surface-sunken: var(--color-surface-sunken);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-tertiary: var(--color-text-tertiary);
+  --color-text-inverse: var(--color-text-inverse);
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-foreground: var(--color-accent-foreground);
+  --color-accent-soft: var(--color-accent-soft);
+  --color-accent-soft-border: var(--color-accent-soft-border);
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+  --color-positive: var(--color-positive);
+  --color-positive-soft: var(--color-positive-soft);
+  --color-caution: var(--color-caution);
+  --color-caution-soft: var(--color-caution-soft);
+  --color-risk: var(--color-risk);
+  --color-risk-soft: var(--color-risk-soft);
+  --color-info: var(--color-info);
+  --color-info-soft: var(--color-info-soft);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+}
+
+@layer base {
+  html { -webkit-font-smoothing: antialiased; }
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    font-feature-settings: "tnum" 1;
+  }
+  .tabular-nums { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; border-radius: 8px; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  .reduce-motion * { animation: none !important; transition: none !important; }
+  .text-balance { text-wrap: balance; }
+  .content-fade { mask-image: linear-gradient(to bottom, black 78%, transparent); }
+
+  .low-intensity {
+    --color-bg: #F0EDE9;
+    --color-surface: #F8F5F2;
+    --color-surface-raised: #FBF8F5;
+    --color-surface-sunken: #E7E2DE;
+    --color-text-primary: #303032;
+    --color-text-secondary: #686567;
+    --color-text-tertiary: #8A8687;
+    --color-accent: #6F5962;
+    --color-accent-hover: #5C4850;
+    --color-accent-foreground: #FFFFFF;
+    --color-accent-soft: #EAE3E5;
+    --color-accent-soft-border: #D3C8CC;
+    --color-border: #D6D0CC;
+    --color-border-strong: #BDB6B2;
+  }
+
+  .dark.low-intensity {
+    --color-bg: #191718;
+    --color-surface: #211E1F;
+    --color-surface-raised: #282425;
+    --color-surface-sunken: #1C191A;
+    --color-text-primary: #E4DEDA;
+    --color-text-secondary: #B2AAA6;
+    --color-text-tertiary: #847D7A;
+    --color-accent: #B994A3;
+    --color-accent-hover: #CAA6B4;
+    --color-accent-foreground: #20171A;
+    --color-accent-soft: #30272A;
+    --color-accent-soft-border: #4D4145;
+    --color-border: #373233;
+    --color-border-strong: #4A4445;
+  }
+
+  .low-intensity img,
+  .low-intensity video,
+  .low-intensity canvas { filter: saturate(0.72) contrast(0.92); }
+
+  .medical-copy {
+    max-width: 68ch;
+    line-height: 1.65;
+  }
+}

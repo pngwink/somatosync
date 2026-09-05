@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SomatoSync Shield</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <main>
+    <header>
+      <div class="mark">S</div>
+      <div><h1>SomatoSync Shield</h1><p id="sync-status">Open SomatoSync once to sync your setup.</p></div>
+    </header>
+
+    <label class="toggle-row">
+      <div><strong>Shield enabled</strong><span>Allow your reading supports on websites.</span></div>
+      <input id="enabled" type="checkbox" checked />
+    </label>
+
+    <section id="learned" hidden>
+      <h2>What SomatoSync learned</h2>
+      <div id="chips" class="chips"></div>
+    </section>
+
+    <section class="page-state">
+      <h2>On this page</h2>
+      <p id="page-status">No Shield changes are active.</p>
+      <div id="page-changes" class="chips" hidden></div>
+    </section>
+
+    <div class="actions">
+      <button id="recommended" class="primary">Use learned setup</button>
+      <button id="current">Apply current setup</button>
+      <button id="restore" class="quiet">Restore this page</button>
+    </div>
+
+    <label class="toggle-row compact">
+      <div><strong>Reading preflight</strong><span>Offer your learned setup on reading-heavy pages.</span></div>
+      <input id="preflight" type="checkbox" checked />
+    </label>
+
+    <p class="tip">After Shield is applied, use the small control on the webpage to adjust colors, motion, clutter and the reading guide.</p>
+    <p class="foot">Shield changes only presentation. It does not diagnose symptoms or send the page's content to SomatoSync.</p>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>
