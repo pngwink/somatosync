@@ -180,9 +180,19 @@ html.neuro-reading-spotlight .app-content [aria-live="assertive"] {
   z-index: 25;
   opacity: 1 !important;
 }
-html.neuro-reading-spotlight [data-focus-anchor-current="true"] {
+/* Keep page structure visible for orientation while the surrounding body copy is dimmed.
+   The active reading block itself stays in normal stacking order so a long paragraph can be
+   spotlighted a few lines at a time instead of lifting the entire paragraph above the overlay. */
+html.neuro-reading-spotlight .app-content h1,
+html.neuro-reading-spotlight .app-content h2,
+html.neuro-reading-spotlight .app-content h3,
+html.neuro-reading-spotlight .app-content [data-focus-reading-orientation="true"] {
   position: relative;
   z-index: 25;
+  opacity: .92 !important;
+}
+html.neuro-reading-spotlight [data-focus-anchor-current="true"] {
+  position: relative;
 }
 
 .app-content { font-size: 16px; line-height: 1.62; }

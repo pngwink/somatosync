@@ -234,16 +234,34 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Reading Spotlight is a manual accessibility aid. It uses pointer/focus/viewport context
-  // rather than claiming eye tracking. Safety content always stays above the dimming overlay.
+  // rather than claiming eye tracking. Long paragraphs receive a smaller line-window spotlight,
+  // transitions use hysteresis to avoid flicker, and safety/orientation content remains readable.
   useEffect(() => {
     const OVERLAY_ID = "somatosync-focus-reading-spotlight";
     const ACTIVE_ATTR = "data-focus-anchor-current";
     const SAFETY_SELECTOR = '[data-focus-preserve-text="true"], [data-focus-safety="true"], [role="alert"], [aria-live="assertive"]';
-    let preferredTarget: HTMLElement | null = null;
+    const BLOCK_SELECTOR = '.app-content p, .app-content li, .app-content blockquote, .app-content [data-focus-reading-block="true"]';
+    const SWITCH_MARGIN_PX = 72;
+    const POINTER_PREFERENCE_MS = 1_200;
+    const KEYBOARD_PREFERENCE_MS = 2_500;
+    const LONG_BLOCK_LINE_THRESHOLD = 6;
+    const LONG_BLOCK_WINDOW_LINES = 3;
 
+    let pointerTarget: HTMLElement | null = null;
+    let pointerY: number | null = null;
+    let pointerPreferredUntil = 0;
+    let focusTarget: HTMLElement | null = null;
+    let keyboardTarget: HTMLElement | null = null;
+    let keyboardPreferredUntil = 0;
+    let activeTarget: HTMLElement | null = null;
+
+    const clearActiveTarget = () => {
+      document.querySelectorAll(`[${ACTIVE_ATTR}]`).forEach((node) => node.removeAttribute(ACTIVE_ATTR));
+      activeTarget = null;
+    };
     const clear = () => {
       document.getElementById(OVERLAY_ID)?.remove();
-      document.querySelectorAll(`[${ACTIVE_ATTR}]`).forEach((node) => node.removeAttribute(ACTIVE_ATTR));
+      clearActiveTarget();
     };
     if (!settings.enabled || !settings.readingSpotlight) {
       clear();
@@ -255,32 +273,138 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
     overlay.id = OVERLAY_ID;
     overlay.setAttribute("aria-hidden", "true");
     Object.assign(overlay.style, { position: "fixed", inset: "0", pointerEvents: "none", zIndex: "24" });
+
+    const paneBackground = settings.photophobiaMode ? "rgba(8,16,18,.42)" : "rgba(16,25,27,.30)";
     const panes = ["top", "bottom", "left", "right"].map((name) => {
       const pane = document.createElement("div");
       pane.dataset.pane = name;
       Object.assign(pane.style, {
         position: "fixed",
         pointerEvents: "none",
-        background: settings.photophobiaMode ? "rgba(10,18,20,.32)" : "rgba(16,25,27,.22)",
-        transition: "top .2s ease-out,left .2s ease-out,width .2s ease-out,height .2s ease-out",
+        background: paneBackground,
+        transition: "top .18s ease-out,left .18s ease-out,width .18s ease-out,height .18s ease-out,background .18s ease-out",
       });
       overlay.appendChild(pane);
       return pane;
     });
+
+    const frame = document.createElement("div");
+    frame.dataset.focusSpotlightFrame = "true";
+    Object.assign(frame.style, {
+      position: "fixed",
+      pointerEvents: "none",
+      borderRadius: "12px",
+      border: "1px solid color-mix(in srgb, var(--color-border) 74%, transparent)",
+      boxShadow: "0 7px 24px rgba(0,0,0,.08)",
+      transition: "top .18s ease-out,left .18s ease-out,width .18s ease-out,height .18s ease-out,opacity .12s linear",
+      opacity: "0",
+    });
+    overlay.appendChild(frame);
     document.body.appendChild(overlay);
 
     let raf = 0;
     const eligibleBlock = (node: Element | null): HTMLElement | null => {
       if (!(node instanceof HTMLElement)) return null;
-      const block = node.closest<HTMLElement>(".app-content p, .app-content li, .app-content blockquote, .app-content [data-focus-reading-block=\"true\"]");
+      const block = node.closest<HTMLElement>(BLOCK_SELECTOR);
       if (!block || block.closest(SAFETY_SELECTOR)) return null;
       if ((block.textContent?.trim().length ?? 0) < 20) return null;
       return block;
     };
 
+    const visibleRatio = (node: HTMLElement) => {
+      const rect = node.getBoundingClientRect();
+      const viewportTop = 72;
+      const viewportBottom = window.innerHeight - 40;
+      const visible = Math.max(0, Math.min(rect.bottom, viewportBottom) - Math.max(rect.top, viewportTop));
+      return rect.height > 0 ? Math.min(1, visible / rect.height) : 0;
+    };
+
+    const mergedLineRects = (node: HTMLElement) => {
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      const fragments = Array.from(range.getClientRects())
+        .filter((rect) => rect.width > 4 && rect.height > 8)
+        .sort((a, b) => a.top - b.top || a.left - b.left);
+      range.detach();
+      const lines: Array<{ top: number; bottom: number; left: number; right: number }> = [];
+      for (const rect of fragments) {
+        const line = lines.find((candidate) => Math.abs(candidate.top - rect.top) <= 3);
+        if (line) {
+          line.top = Math.min(line.top, rect.top);
+          line.bottom = Math.max(line.bottom, rect.bottom);
+          line.left = Math.min(line.left, rect.left);
+          line.right = Math.max(line.right, rect.right);
+        } else {
+          lines.push({ top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right });
+        }
+      }
+      return lines;
+    };
+
+    const spotlightRect = (target: HTMLElement, preferredY: number | null) => {
+      const blockRect = target.getBoundingClientRect();
+      const lines = mergedLineRects(target);
+      if (lines.length < LONG_BLOCK_LINE_THRESHOLD) return blockRect;
+
+      const anchorY = preferredY != null && preferredY >= blockRect.top && preferredY <= blockRect.bottom
+        ? preferredY
+        : Math.min(blockRect.bottom, Math.max(blockRect.top, window.innerHeight * 0.48));
+      let nearestIndex = 0;
+      let nearestDistance = Number.POSITIVE_INFINITY;
+      lines.forEach((line, index) => {
+        const distance = Math.abs((line.top + line.bottom) / 2 - anchorY);
+        if (distance < nearestDistance) {
+          nearestIndex = index;
+          nearestDistance = distance;
+        }
+      });
+      const maxStart = Math.max(0, lines.length - LONG_BLOCK_WINDOW_LINES);
+      const start = Math.min(maxStart, Math.max(0, nearestIndex - 1));
+      const selected = lines.slice(start, start + LONG_BLOCK_WINDOW_LINES);
+      return {
+        left: blockRect.left,
+        right: blockRect.right,
+        top: selected[0]?.top ?? blockRect.top,
+        bottom: selected[selected.length - 1]?.bottom ?? blockRect.bottom,
+        width: blockRect.width,
+        height: Math.max(1, (selected[selected.length - 1]?.bottom ?? blockRect.bottom) - (selected[0]?.top ?? blockRect.top)),
+        x: blockRect.x,
+        y: selected[0]?.top ?? blockRect.y,
+        toJSON: () => ({}),
+      } as DOMRect;
+    };
+
+    const chooseTarget = (blocks: HTMLElement[]) => {
+      const now = performance.now();
+      if (focusTarget && blocks.includes(focusTarget)) return focusTarget;
+      if (keyboardTarget && now < keyboardPreferredUntil && blocks.includes(keyboardTarget)) return keyboardTarget;
+      if (pointerTarget && now < pointerPreferredUntil && blocks.includes(pointerTarget)) return pointerTarget;
+
+      const center = window.innerHeight * 0.48;
+      const candidate = blocks.reduce((best, node) => {
+        const rect = node.getBoundingClientRect();
+        const distance = Math.abs((rect.top + rect.bottom) / 2 - center);
+        return distance < best.distance ? { node, distance } : best;
+      }, { node: blocks[0], distance: Number.POSITIVE_INFINITY });
+
+      if (activeTarget && blocks.includes(activeTarget) && visibleRatio(activeTarget) >= 0.32) {
+        const activeRect = activeTarget.getBoundingClientRect();
+        const activeDistance = Math.abs((activeRect.top + activeRect.bottom) / 2 - center);
+        // Hysteresis: keep the current block until the next block is clearly more central.
+        if (candidate.distance + SWITCH_MARGIN_PX >= activeDistance) return activeTarget;
+      }
+      return candidate.node;
+    };
+
+    const hideOverlay = () => {
+      overlay.style.opacity = "0";
+      frame.style.opacity = "0";
+      clearActiveTarget();
+    };
+
     const update = () => {
       raf = 0;
-      const blocks = Array.from(document.querySelectorAll<HTMLElement>(".app-content p, .app-content li, .app-content blockquote, .app-content [data-focus-reading-block=\"true\"]"))
+      const blocks = Array.from(document.querySelectorAll<HTMLElement>(BLOCK_SELECTOR))
         .filter((node) => !node.closest(SAFETY_SELECTOR))
         .filter((node) => (node.textContent?.trim().length ?? 0) >= 20)
         .filter((node) => {
@@ -288,23 +412,26 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
           return rect.bottom > 72 && rect.top < window.innerHeight - 40;
         });
       if (!blocks.length) {
-        clear();
+        hideOverlay();
         return;
       }
-      const center = window.innerHeight * 0.48;
-      const visiblePreferred = preferredTarget && blocks.includes(preferredTarget) ? preferredTarget : null;
-      const target = visiblePreferred ?? blocks.reduce((best, node) => {
-        const rect = node.getBoundingClientRect();
-        const distance = Math.abs((rect.top + rect.bottom) / 2 - center);
-        return distance < best.distance ? { node, distance } : best;
-      }, { node: blocks[0], distance: Number.POSITIVE_INFINITY }).node;
 
-      document.querySelectorAll(`[${ACTIVE_ATTR}]`).forEach((node) => { if (node !== target) node.removeAttribute(ACTIVE_ATTR); });
-      target.setAttribute(ACTIVE_ATTR, "true");
-      const rect = target.getBoundingClientRect();
+      const target = chooseTarget(blocks);
+      if (activeTarget !== target) {
+        document.querySelectorAll(`[${ACTIVE_ATTR}]`).forEach((node) => node.removeAttribute(ACTIVE_ATTR));
+        target.setAttribute(ACTIVE_ATTR, "true");
+        activeTarget = target;
+      }
+
+      const preferredY = focusTarget === target
+        ? target.getBoundingClientRect().top + target.getBoundingClientRect().height / 2
+        : pointerTarget === target && performance.now() < pointerPreferredUntil
+          ? pointerY
+          : null;
+      const rect = spotlightRect(target, preferredY);
       const contentRect = document.querySelector<HTMLElement>(".app-content")?.getBoundingClientRect() ?? { left: 0, right: window.innerWidth, top: 0, bottom: window.innerHeight };
-      const padX = 14;
-      const padY = 12;
+      const padX = 16;
+      const padY = 10;
       const surfaceLeft = Math.max(0, contentRect.left);
       const surfaceRight = Math.min(window.innerWidth, contentRect.right);
       const surfaceTop = Math.max(0, contentRect.top);
@@ -318,27 +445,77 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
       Object.assign(bottomPane.style, { left: `${surfaceLeft}px`, top: `${bottom}px`, width: `${Math.max(0, surfaceRight - surfaceLeft)}px`, height: `${Math.max(0, surfaceBottom - bottom)}px` });
       Object.assign(leftPane.style, { left: `${surfaceLeft}px`, top: `${top}px`, width: `${Math.max(0, left - surfaceLeft)}px`, height: `${Math.max(0, bottom - top)}px` });
       Object.assign(rightPane.style, { left: `${right}px`, top: `${top}px`, width: `${Math.max(0, surfaceRight - right)}px`, height: `${Math.max(0, bottom - top)}px` });
+      Object.assign(frame.style, {
+        left: `${left}px`,
+        top: `${top}px`,
+        width: `${Math.max(0, right - left)}px`,
+        height: `${Math.max(0, bottom - top)}px`,
+        opacity: "1",
+      });
+      overlay.style.opacity = "1";
     };
+
     const schedule = () => { if (!raf) raf = requestAnimationFrame(update); };
     const onPointerMove = (event: PointerEvent) => {
       const next = eligibleBlock(document.elementFromPoint(event.clientX, event.clientY));
-      if (next) { preferredTarget = next; schedule(); }
+      if (!next) return;
+      pointerTarget = next;
+      pointerY = event.clientY;
+      pointerPreferredUntil = performance.now() + POINTER_PREFERENCE_MS;
+      schedule();
     };
     const onFocusIn = (event: FocusEvent) => {
       const next = eligibleBlock(event.target as Element | null);
-      if (next) { preferredTarget = next; schedule(); }
+      focusTarget = next;
+      if (next) schedule();
     };
+    const onFocusOut = () => {
+      focusTarget = null;
+      schedule();
+    };
+    const isEditableTarget = (node: EventTarget | null) => {
+      if (!(node instanceof HTMLElement)) return false;
+      return node.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(node.tagName);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      // Optional keyboard reading navigation without hijacking ordinary arrow-key scrolling.
+      if (!event.altKey || (event.key !== "ArrowDown" && event.key !== "ArrowUp") || isEditableTarget(event.target)) return;
+      const blocks = Array.from(document.querySelectorAll<HTMLElement>(BLOCK_SELECTOR))
+        .filter((node) => !node.closest(SAFETY_SELECTOR))
+        .filter((node) => (node.textContent?.trim().length ?? 0) >= 20);
+      if (!blocks.length) return;
+      const current = activeTarget && blocks.includes(activeTarget) ? activeTarget : blocks[0];
+      const index = Math.max(0, blocks.indexOf(current));
+      const nextIndex = event.key === "ArrowDown" ? Math.min(blocks.length - 1, index + 1) : Math.max(0, index - 1);
+      const next = blocks[nextIndex];
+      if (!next || next === current) return;
+      event.preventDefault();
+      keyboardTarget = next;
+      keyboardPreferredUntil = performance.now() + KEYBOARD_PREFERENCE_MS;
+      next.scrollIntoView({ block: "center", behavior: document.documentElement.classList.contains("reduce-motion") ? "auto" : "smooth" });
+      schedule();
+    };
+
+    const content = document.querySelector(".app-content");
+    const observer = content ? new MutationObserver(schedule) : null;
+    observer?.observe(content!, { childList: true, subtree: true, characterData: true });
+
     update();
     window.addEventListener("scroll", schedule, true);
     window.addEventListener("resize", schedule);
     document.addEventListener("pointermove", onPointerMove, { passive: true });
     document.addEventListener("focusin", onFocusIn);
+    document.addEventListener("focusout", onFocusOut);
+    document.addEventListener("keydown", onKeyDown);
     return () => {
       if (raf) cancelAnimationFrame(raf);
+      observer?.disconnect();
       window.removeEventListener("scroll", schedule, true);
       window.removeEventListener("resize", schedule);
       document.removeEventListener("pointermove", onPointerMove);
       document.removeEventListener("focusin", onFocusIn);
+      document.removeEventListener("focusout", onFocusOut);
+      document.removeEventListener("keydown", onKeyDown);
       clear();
     };
   }, [settings.enabled, settings.photophobiaMode, settings.readingSpotlight]);

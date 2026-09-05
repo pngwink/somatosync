@@ -151,7 +151,7 @@ export function NeuroAdaptivePage() {
           <SettingGroup label="Content density" description="Reduce optional explanations without hiding safety information.">
             <Segmented choices={["standard", "reduced", "minimal"]} value={density} onChange={(value) => setDensity(value as DensityChoice)} />
           </SettingGroup>
-          <SettingGroup label="Reading Spotlight" description="Fades surrounding body text using pointer, keyboard-focus, and viewport position—not eye tracking.">
+          <SettingGroup label="Reading Spotlight" description="Keeps the current section clear and gently fades surrounding body text. Uses pointer, keyboard focus, and viewport position—not eye tracking. Alt+↑/↓ moves between reading blocks.">
             <Button size="sm" variant={settings.readingSpotlight ? "secondary" : "ghost"} onClick={() => update({ readingSpotlight: !settings.readingSpotlight })} disabled={!on} aria-pressed={settings.readingSpotlight}><Eye />{settings.readingSpotlight ? "On" : "Off"}</Button>
           </SettingGroup>
           <SettingGroup label="Motion" description="Reduce unnecessary motion while keeping controls usable.">
