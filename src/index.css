@@ -27,64 +27,62 @@ html.neuro-reading-layout .app-content .reading-measure li {
   word-spacing: .035em !important;
 }
 
-/* Light sensitivity: reduce page luminance and saturation without forcing extreme contrast.
-   The stronger mode uses deep slate + soft neutral text rather than pure black/yellow. */
+/* Light sensitivity: lower luminance and saturation without claiming a therapeutic hue.
+   These neutral stone/graphite palettes support calmer presentation while preserving contrast. */
 html.neuro-soft-contrast:not(.neuro-photophobia) {
-  --color-bg: #B7BFBC;
-  --color-surface: #C3CAC7;
-  --color-surface-raised: #D0D6D3;
-  --color-surface-sunken: #A8B2AE;
-  --color-text-primary: #202A2A;
-  --color-text-secondary: #465452;
-  --color-text-tertiary: #64716E;
-  --color-border: #ABB4AF;
-  --color-border-strong: #7E908A;
-  --color-accent: #4D7770;
-  --color-accent-hover: #3D635D;
-  --color-accent-soft: #C8D8D2;
-  --color-accent-soft-border: #9FBAB1;
+  --color-bg: #C6C5C1;
+  --color-surface: #D2D1CD;
+  --color-surface-raised: #DEDDD9;
+  --color-surface-sunken: #B7B6B2;
+  --color-text-primary: #26282A;
+  --color-text-secondary: #4F5356;
+  --color-text-tertiary: #707477;
+  --color-border: #B1B0AC;
+  --color-border-strong: #858683;
+  --color-accent: #65727C;
+  --color-accent-hover: #53616B;
+  --color-accent-soft: #CFD4D7;
+  --color-accent-soft-border: #AAB4BA;
 }
 
 html.neuro-soft-contrast.dark:not(.neuro-photophobia) {
   color-scheme: dark;
-  --color-bg: #151C1E;
-  --color-surface: #1C2629;
-  --color-surface-raised: #243034;
-  --color-surface-sunken: #101619;
-  --color-text-primary: #DEE6E3;
-  --color-text-secondary: #B7C4BF;
-  --color-text-tertiary: #8FA29B;
-  --color-border: #35474A;
-  --color-border-strong: #52686A;
-  --color-accent: #82AEA5;
-  --color-accent-hover: #9BC1B9;
-  --color-accent-soft: #243A38;
-  --color-accent-soft-border: #43635E;
+  --color-bg: #18191B;
+  --color-surface: #202225;
+  --color-surface-raised: #282B2F;
+  --color-surface-sunken: #121315;
+  --color-text-primary: #E2E2DF;
+  --color-text-secondary: #BCBDB9;
+  --color-text-tertiary: #939691;
+  --color-border: #393C40;
+  --color-border-strong: #565B60;
+  --color-accent: #9AA8B2;
+  --color-accent-hover: #B1BBC2;
+  --color-accent-soft: #2D343A;
+  --color-accent-soft-border: #4F5C65;
 }
 
-/* Strong light sensitivity: a low-luminance sensory theme. It is intentionally not pure black
-   and does not use amber/yellow text. The goal is lower emitted luminance and calmer contrast,
-   while preserving readable contrast and the user's navigation. */
+/* Strong light sensitivity: low-luminance graphite rather than a concussion-specific color. */
 html.neuro-photophobia,
 html.neuro-photophobia.dark {
   color-scheme: dark;
-  --color-bg: #11181B;
-  --color-surface: #172126;
-  --color-surface-raised: #1D2A2F;
-  --color-surface-sunken: #0D1417;
-  --color-text-primary: #D8E2DE;
-  --color-text-secondary: #AEBDB7;
-  --color-text-tertiary: #879A93;
-  --color-border: #33464A;
-  --color-border-strong: #4D6667;
-  --color-accent: #7FAEA4;
-  --color-accent-hover: #98C1B8;
-  --color-accent-soft: #213A39;
-  --color-accent-soft-border: #3F625D;
-  --color-positive: #91B6A3;
-  --color-positive-soft: #172921;
-  --color-caution: #C9AE7B;
-  --color-caution-soft: #2A2419;
+  --color-bg: #141517;
+  --color-surface: #1B1D20;
+  --color-surface-raised: #23262A;
+  --color-surface-sunken: #0F1012;
+  --color-text-primary: #DFE0DD;
+  --color-text-secondary: #B7BAB6;
+  --color-text-tertiary: #8D918D;
+  --color-border: #34383C;
+  --color-border-strong: #4E545A;
+  --color-accent: #9AA8B2;
+  --color-accent-hover: #B4BEC5;
+  --color-accent-soft: #2A3035;
+  --color-accent-soft-border: #4B565F;
+  --color-positive: #A6B8AA;
+  --color-positive-soft: #202823;
+  --color-caution: #C5B18A;
+  --color-caution-soft: #2B261D;
 }
 html.neuro-photophobia body,
 html.neuro-photophobia .app-content,
@@ -97,8 +95,8 @@ html.neuro-photophobia [data-focus-shell="mobile-nav"] {
 html.neuro-photophobia .app-content img,
 html.neuro-photophobia .app-content video,
 html.neuro-photophobia .app-content svg:not([aria-hidden="true"]) {
-  filter: saturate(.52) brightness(.68) contrast(.92) !important;
-  opacity: .82 !important;
+  filter: saturate(.42) brightness(.64) contrast(.9) !important;
+  opacity: .8 !important;
 }
 
 /* Visual-strain mode: media becomes substantially calmer, not just tinted. */
@@ -214,18 +212,22 @@ html.neuro-reading-layout .app-content [data-focus-reading-surface="true"] {
   box-shadow: 0 20px 58px rgba(0, 0, 0, .16) !important;
 }
 
-/* Strong cognitive simplification de-emphasizes shell chrome, but never hides it. */
+/* Strong Focus becomes a true single-task layout rather than a recolored version of the page.
+   The desktop sidebar and nonessential chrome collapse, while navigation remains available through
+   the header menu and safety/Focus controls stay visible. */
 html.neuro-reading-layout.neuro-low-density [data-focus-shell="sidebar"] {
-  opacity: .82;
-  filter: saturate(.72) contrast(.96);
-  transition: opacity .12s linear, filter .12s linear !important;
+  display: none !important;
 }
-html.neuro-reading-layout.neuro-low-density [data-focus-shell="sidebar"]:hover,
-html.neuro-reading-layout.neuro-low-density [data-focus-shell="sidebar"]:focus-within {
-  opacity: 1;
-  filter: none;
+html.neuro-reading-layout.neuro-low-density [data-focus-shell="demo-banner"],
+html.neuro-reading-layout.neuro-low-density [data-focus-header-secondary="true"] {
+  display: none !important;
 }
-html.neuro-reading-layout.neuro-low-density [data-focus-shell="demo-banner"] { opacity: .55; }
+html.neuro-reading-layout.neuro-low-density [data-focus-navigation-menu="true"] {
+  display: inline-flex !important;
+}
+html.neuro-reading-layout.neuro-low-density [data-focus-navigation-drawer="true"] {
+  display: block !important;
+}
 html.neuro-reading-layout.neuro-low-density [data-focus-shell="header"] {
   backdrop-filter: none !important;
   background: var(--color-surface) !important;
@@ -233,17 +235,56 @@ html.neuro-reading-layout.neuro-low-density [data-focus-shell="header"] {
 html.neuro-reading-layout.neuro-low-density .app-content {
   padding: clamp(1rem, 3vw, 2rem) !important;
   background-image: none !important;
-  background-color: color-mix(in srgb, var(--color-bg) 90%, var(--color-surface) 10%) !important;
+  background-color: color-mix(in srgb, var(--color-bg) 94%, var(--color-surface) 6%) !important;
 }
-html.neuro-reading-layout.neuro-low-density .app-content > div { max-width: 780px !important; }
+html.neuro-reading-layout.neuro-low-density .app-content > div { max-width: 720px !important; }
+html.neuro-reading-layout.neuro-low-density .app-content .grid {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+html.neuro-reading-layout.neuro-low-density .app-content p,
+html.neuro-reading-layout.neuro-low-density .app-content li {
+  max-width: 54ch !important;
+}
+html.neuro-reading-layout.neuro-low-density .app-content article,
+html.neuro-reading-layout.neuro-low-density .app-content [data-focus-reading-surface="true"] {
+  max-width: 680px !important;
+  border-radius: 18px !important;
+  box-shadow: none !important;
+}
 html.neuro-low-density .app-content article p,
 html.neuro-low-density .app-content [data-focus-reading-surface="true"] p {
-  max-width: 58ch !important;
-  margin-bottom: 1.35em !important;
+  margin-bottom: 1.45em !important;
 }
 html.neuro-low-density .app-content article > *,
 html.neuro-low-density .app-content [data-focus-reading-surface="true"] > * {
   scroll-margin-top: 4rem;
+}
+
+/* Generic progressive disclosure for long ordinary body copy in strong Focus. */
+html.neuro-reading-layout.neuro-low-density .app-content p[data-focus-collapsible="true"][data-focus-expanded="false"] {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden !important;
+  max-height: calc(3.4em * var(--adaptive-line-spacing, 1));
+}
+html.neuro-reading-layout.neuro-low-density .app-content .focus-disclosure-control {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  margin: .25rem 0 1.25rem;
+  padding: .42rem .78rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface-sunken);
+  color: var(--color-text-primary);
+  font-size: 15px;
+  font-weight: 700;
+}
+html.neuro-reading-layout.neuro-low-density .app-content .focus-disclosure-control:hover,
+html.neuro-reading-layout.neuro-low-density .app-content .focus-disclosure-control:focus-visible {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface);
 }
 
 /* Calm layout primitives: favor readable measure and generous vertical rhythm. */
