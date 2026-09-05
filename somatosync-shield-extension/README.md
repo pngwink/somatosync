@@ -35,7 +35,7 @@ If SomatoSync syncs a newer setup while an already-adapted page is open, Shield 
 
 1. In SomatoSync, open **Focus → SomatoSync Shield**.
 2. Confirm the extension shows **Connected** and sync the setup if needed.
-3. Open `/shield-demo.html` or a reading-heavy site such as Wikipedia.
+3. Open a reading-heavy site such as Wikipedia.
 4. Use the preflight prompt or the extension popup to apply the learned/current setup.
 5. Once applied, use the small **SomatoSync Shield active** control directly on the webpage to turn calm colors, calm images, focus article, reading guide, or reduced motion on/off.
 6. Optionally enable **Always use on this site**.

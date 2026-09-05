@@ -48,6 +48,7 @@ interface ContextValue extends FocusMonitorSnapshot {
   disable: () => void;
   startMonitoring: (checkIn?: AdaptiveCheckIn, baseSettings?: NeuroAdaptiveSettings) => Promise<void>;
   stopMonitoring: () => void;
+  turnOffFocus: () => void;
   applyPromptAdaptation: () => void;
   beginPromptBreak: () => void;
   continueWithoutChange: () => void;
@@ -423,6 +424,21 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
     setBreakSeconds(BREAK_SECONDS);
     elevatedHistoryRef.current = [];
   }, [setPromptVisible, setStatus]);
+
+  const turnOffFocus = useCallback(() => {
+    stopMonitoring();
+    previousSettingsRef.current = null;
+    setAdaptationActive(false);
+    setAdaptationReasons([]);
+    setAdaptationChanges([]);
+    setAdaptationRecommendBreak(false);
+    setAdaptationSource(null);
+    setSettings({
+      ...DEFAULT_ADAPTIVE_SETTINGS,
+      autoAdapt: settings.autoAdapt,
+      updatedAt: new Date().toISOString(),
+    });
+  }, [setSettings, settings.autoAdapt, stopMonitoring]);
 
   useEffect(() => {
     if (mode === "signed-out") stopMonitoring();
@@ -819,6 +835,7 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
     tensorflowReady,
     startMonitoring,
     stopMonitoring,
+    turnOffFocus,
     applyPromptAdaptation,
     beginPromptBreak,
     continueWithoutChange,
@@ -834,7 +851,7 @@ export function NeuroAdaptiveProvider({ children }: { children: ReactNode }) {
   }), [
     settings, setSettings, applyProfile, disable, status, calibrationProgress, trackingQualityPercent,
     estimate, promptVisible, breakSeconds, error, labeledExampleCount, tensorflowReady, startMonitoring,
-    stopMonitoring, applyPromptAdaptation, beginPromptBreak, continueWithoutChange, resumeFromBreak,
+    stopMonitoring, turnOffFocus, applyPromptAdaptation, beginPromptBreak, continueWithoutChange, resumeFromBreak,
     submitPromptFeedback, latestFeedback, adaptationActive, adaptationReasons, adaptationChanges, adaptationRecommendBreak, adaptationSource, revertLastAdaptation,
   ]);
 

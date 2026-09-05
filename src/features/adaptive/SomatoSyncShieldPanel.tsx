@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ExternalLink, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
 import { broadcastShieldProfile, requestShieldStatus } from "./shieldBridge";
@@ -40,12 +40,11 @@ export function SomatoSyncShieldPanel() {
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] bg-[var(--color-accent-soft)] text-[var(--color-accent)]"><ShieldCheck className="h-5 w-5" /></span>
           <div>
             <div className="flex flex-wrap items-center gap-2"><h2 className="text-[20px] font-semibold text-[var(--color-text-primary)]">SomatoSync Shield</h2>{connected && <span className="rounded-full bg-[var(--color-positive-soft)] px-2.5 py-1 text-[16px] font-semibold text-[var(--color-positive)]">Connected</span>}</div>
-            <p className="mt-1 max-w-[62ch] text-[16px] leading-7 text-[var(--color-text-secondary)]">Carry your symptom-matched reading environment onto other websites—with per-site approval before anything changes.</p>
+            <p className="mt-1 max-w-[62ch] text-[16px] leading-7 text-[var(--color-text-secondary)]">Carry your current Focus accessibility setup onto other websites—with per-site approval before anything changes.</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2 sm:shrink-0">
           {connected ? <Button onClick={sync}>{synced ? "Setup synced" : "Sync setup"}</Button> : <Button variant="secondary" disabled>Not connected</Button>}
-          <Button variant="ghost" asChild><a href="/shield-demo.html" target="_blank" rel="noreferrer">Try demo page <ExternalLink /></a></Button>
         </div>
       </div>
 

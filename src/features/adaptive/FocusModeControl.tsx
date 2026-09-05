@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { BrainCircuit, Loader2, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "../../components/ui/dialog";
 import { Progress } from "../../components/ui/progress";
 import { Switch } from "../../components/ui/switch";
 import { cn } from "../../lib/utils";
-import { buildAdaptivePreflightSuggestion } from "./adaptivePreflight";
 import { planAdaptiveIntervention } from "./neuroAdaptiveEngine";
 import { getCurrentAdaptiveCheckIn } from "./symptomContext";
 import { useNeuroAdaptive } from "./NeuroAdaptiveContext";
@@ -15,11 +13,10 @@ export function FocusModeControl() {
   const [open, setOpen] = useState(false);
   const {
     status, calibrationProgress, trackingQualityPercent, estimate, error,
-    settings, setSettings, startMonitoring, stopMonitoring,
+    settings, setSettings, startMonitoring, turnOffFocus,
   } = useNeuroAdaptive();
   const on = status !== "off" && status !== "error";
-  const label = status === "starting" ? "Starting…" : status === "calibrating" ? "Calibrating…" : status === "paused" ? "Resuming…" : status === "break" ? "Focus paused" : status === "active" ? "Watching" : on ? "Focus on" : "Focus Mode";
-  const preflight = open ? buildAdaptivePreflightSuggestion(settings) : null;
+  const label = status === "starting" ? "Starting…" : status === "calibrating" ? "Calibrating…" : status === "paused" ? "Resuming…" : status === "break" ? "Focus paused" : status === "active" ? "Focus on" : on ? "Focus on" : "Focus Mode";
   const currentSymptoms = open ? getCurrentAdaptiveCheckIn() : null;
   const symptomSeed = currentSymptoms ? planAdaptiveIntervention(null, currentSymptoms) : null;
 
@@ -28,11 +25,6 @@ export function FocusModeControl() {
     await startMonitoring(currentSymptoms ?? undefined);
   }
 
-  async function startWithPreflight() {
-    if (preflight) setSettings(preflight.settings);
-    setOpen(false);
-    await startMonitoring(currentSymptoms ?? undefined, preflight?.settings);
-  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -56,7 +48,7 @@ export function FocusModeControl() {
       <DialogContent className="max-w-lg">
         <DialogTitle>Focus Mode</DialogTitle>
         <DialogDescription>
-          Watches for sustained reading difficulty and suggests only the display changes that match the pattern.
+          Turn it on, then use SomatoSync normally. Focus starts from confirmed symptoms and can refine the interface when sustained visual difficulty appears.
         </DialogDescription>
 
         {!on && symptomSeed && symptomSeed.changes.length > 0 && (
@@ -75,25 +67,10 @@ export function FocusModeControl() {
           </div>
         )}
 
-        {!on && preflight && (
-          <div className="mt-5 rounded-[16px] border border-[var(--color-accent)]/25 bg-[var(--color-accent-soft)] p-4">
-            <div className="flex items-start gap-3">
-              <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-accent)]" />
-              <div>
-                <p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{preflight.title}</p>
-                <p className="mt-1 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">{preflight.detail}</p>
-                <p className="mt-2 text-[16px] text-[var(--color-text-tertiary)]">{preflight.changes.slice(0, 4).join(" · ")}</p>
-              </div>
-            </div>
-            <Button className="mt-4" onClick={() => void startWithPreflight()}>Use setup and start</Button>
-          </div>
-        )}
 
-        <ol className="mt-5 grid gap-2 text-[16px] text-[var(--color-text-secondary)] sm:grid-cols-3">
-          <li className="rounded-[var(--radius-md)] bg-[var(--color-surface-sunken)] p-3"><span className="font-semibold text-[var(--color-text-primary)]">1. Set up</span><br />Look at the screen normally for 12 seconds.</li>
-          <li className="rounded-[var(--radius-md)] bg-[var(--color-surface-sunken)] p-3"><span className="font-semibold text-[var(--color-text-primary)]">2. Keep reading</span><br />A quick movement never triggers a change.</li>
-          <li className="rounded-[var(--radius-md)] bg-[var(--color-surface-sunken)] p-3"><span className="font-semibold text-[var(--color-text-primary)]">3. Stay in control</span><br />Apply, undo, pause, or ignore a suggestion.</li>
-        </ol>
+        <div className="mt-5 rounded-[var(--radius-md)] bg-[var(--color-surface-sunken)] p-4 text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
+          <span className="font-semibold text-[var(--color-text-primary)]">How it works:</span> after a short local calibration, keep using the app normally. Focus only reacts to sustained patterns, and you can undo any adaptation.
+        </div>
 
         {status === "calibrating" && (
           <div className="mt-5 rounded-[var(--radius-md)] border border-[var(--color-border)] p-4">
@@ -112,8 +89,8 @@ export function FocusModeControl() {
 
         {status === "active" && (
           <div className="mt-5 rounded-[var(--radius-md)] border border-[var(--color-positive)]/30 bg-[var(--color-positive)]/5 p-4 text-[16px]">
-            <p className="font-semibold text-[var(--color-text-primary)]">Watching for sustained reading difficulty</p>
-            <p className="mt-1 text-[var(--color-text-secondary)]">{trackingQualityPercent < 65 ? "Face tracking is limited—adjust lighting or position." : estimate?.band === "elevated" ? "A sustained reading change is being checked." : estimate?.band === "possible" ? "A few small changes were noticed." : "Reading looks steady right now."}</p>
+            <p className="font-semibold text-[var(--color-text-primary)]">Watching for sustained screen difficulty</p>
+            <p className="mt-1 text-[var(--color-text-secondary)]">{trackingQualityPercent < 65 ? "Face tracking is limited—adjust lighting or position." : estimate?.band === "elevated" ? "A sustained visual-use change is being checked." : estimate?.band === "possible" ? "A few small changes were noticed." : "Screen use looks steady right now."}</p>
           </div>
         )}
 
@@ -124,9 +101,8 @@ export function FocusModeControl() {
           <Switch checked={settings.autoAdapt} onCheckedChange={(autoAdapt) => setSettings({ ...settings, autoAdapt, updatedAt: new Date().toISOString() })} aria-label="Automatically apply matching reading support" />
         </div>
 
-        <div className="mt-5 flex flex-wrap gap-2">
-          {on ? <Button variant="destructive" onClick={() => { stopMonitoring(); setOpen(false); }}>Turn off Focus Mode</Button> : <Button variant={preflight ? "secondary" : "default"} onClick={() => void start()}>{preflight ? "Start with symptom setup" : "Turn on Focus Mode"}</Button>}
-          <Button variant="ghost" asChild><Link to="/app/neuro-adaptive" onClick={() => setOpen(false)}>Open reading lab</Link></Button>
+        <div className="mt-5">
+          {on ? <Button variant="destructive" onClick={() => { turnOffFocus(); setOpen(false); }}>Turn off & restore original</Button> : <Button onClick={() => void start()}>Turn on Focus Mode</Button>}
         </div>
       </DialogContent>
     </Dialog>

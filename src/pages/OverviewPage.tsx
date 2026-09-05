@@ -7,8 +7,6 @@ import {
   FileText,
   MessagesSquare,
   Mic,
-  Play,
-  RotateCcw,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
@@ -30,19 +28,7 @@ export function OverviewPage() {
   const hasData = isDemo || evidence.measuredCount > 0;
   const today = new Date();
 
-  function resetDemo() {
-    try {
-      const keys: string[] = [];
-      for (let index = 0; index < localStorage.length; index += 1) {
-        const key = localStorage.key(index);
-        if (key?.startsWith("somatosync.demo.")) keys.push(key);
-      }
-      keys.forEach((key) => localStorage.removeItem(key));
-    } catch {
-      // Reloading still restores the built-in sample journey.
-    }
-    window.location.assign("/app");
-  }
+
 
   return (
     <div className="space-y-9">
@@ -97,32 +83,12 @@ export function OverviewPage() {
       <section aria-labelledby="continue-heading">
         <h2 id="continue-heading" className="mb-3 text-[20px] font-semibold text-[var(--color-text-primary)]">Continue</h2>
         <Card className="divide-y divide-[var(--color-border)] overflow-hidden">
-          <ActionRow icon={BrainCog} title="Focus" detail="Adaptive reading support" href="/app/neuro-adaptive" />
+          <ActionRow icon={BrainCog} title="Focus" detail="Adaptive interface support" href="/app/neuro-adaptive" />
           <ActionRow icon={MessagesSquare} title="Assistant" detail="Evidence-backed answers" href="/app/research" />
           <ActionRow icon={FileText} title="Reports" detail="Shareable recovery summary" href="/app/reports" />
         </Card>
       </section>
 
-      {isDemo && (
-        <details className="rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-5">
-          <summary className="cursor-pointer list-none">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3"><Play className="h-5 w-5 text-[var(--color-accent)]" /><div><p className="text-[18px] font-semibold text-[var(--color-text-primary)]">Judge demo path</p><p className="mt-0.5 text-[16px] text-[var(--color-text-secondary)]">Four key moments.</p></div></div>
-              <ChevronRight className="h-5 w-5 text-[var(--color-text-tertiary)]" />
-            </div>
-          </summary>
-          <div className="mt-5 divide-y divide-[var(--color-border)] border-t border-[var(--color-border)] pt-2">
-            {demoPath.map((step, index) => (
-              <Link key={step.title} to={step.href} className="group flex items-start gap-4 py-4">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-[16px] font-bold text-[var(--color-accent)]">{index + 1}</span>
-                <div className="min-w-0 flex-1"><p className="text-[16px] font-semibold text-[var(--color-text-primary)]">{step.title}</p><p className="mt-1 text-[16px] leading-6 text-[var(--color-text-secondary)]">{step.detail}</p></div>
-                <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-[var(--color-text-tertiary)]" />
-              </Link>
-            ))}
-          </div>
-          <Button variant="ghost" size="sm" onClick={resetDemo} className="mt-2"><RotateCcw />Reset demo</Button>
-        </details>
-      )}
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-border)] pt-5 text-[16px] text-[var(--color-text-secondary)]">
         <span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-[var(--color-positive)]" />Private by default. You choose what to share.</span>
@@ -141,10 +107,3 @@ function ActionRow({ icon: Icon, title, detail, href }: { icon: typeof BrainCog;
     </Link>
   );
 }
-
-const demoPath = [
-  { title: "Natural voice check-in", detail: "Speak naturally and review what was captured.", href: "/app/assessments/voice-check-in" },
-  { title: "Adaptive reading", detail: "Show the reading environment adapt.", href: "/app/neuro-adaptive" },
-  { title: "Learning across sessions", detail: "Show what seems to help over time.", href: "/app/recovery" },
-  { title: "Carry and share support", detail: "Carry support to the web and share it.", href: "/app/neuro-adaptive" },
-];

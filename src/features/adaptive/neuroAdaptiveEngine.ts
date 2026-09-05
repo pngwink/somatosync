@@ -148,7 +148,7 @@ export function estimateStrain(
   // Multi-signal, persistence, quality, grace-period, and cooldown gates still control alerts.
   const closeSquintPair = values.faceScale >= 0.55 && values.browTension >= 0.55;
   const rawScore = Math.round(clamp(weighted * 0.65 + strongestAverage * 0.35 + symptomSensitivity / 100) * 100);
-  // A deliberate close-viewing + squint pattern is the judge-demo path: two independent
+  // A deliberate close-viewing + squint pattern can qualify through two independent
   // visual signals sustained over the short visual window can qualify without requiring
   // an unrelated third behavior such as blinking, scrolling, or head movement.
   const score = closeSquintPair ? Math.max(rawScore, 52) : rawScore;

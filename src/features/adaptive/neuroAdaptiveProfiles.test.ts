@@ -52,7 +52,7 @@ describe("symptom-matched Focus Mode adaptations", () => {
   });
 });
 
-describe("fast close-viewing + squint demo path", () => {
+describe("fast close-viewing + squint path", () => {
   it("treats sustained close viewing plus squint tension as enough independent evidence", async () => {
     const { estimateStrain } = await import("./neuroAdaptiveEngine");
     const reference = {

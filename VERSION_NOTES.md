@@ -1,16 +1,17 @@
-# Version Notes — Version 4: Research-Informed Focus Refinement
+# Version Notes — Version 5: Focus UX Simplification
 
-Building on Version 3, this version recalibrates Focus Mode so symptom-to-interface changes more closely match the project's evidence and safety boundaries.
+Building on Version 4, this version simplifies how people enter, use, and leave Focus Mode without changing its core symptom-informed adaptation logic.
 
 ## Changes in this version
 
-- Reworked light-sensitivity support around reduced luminance, calmer media, and readable contrast instead of prescribing one universal color treatment.
-- Moderated reading typography and spacing so stronger visual difficulty can increase text size and line spacing without creating excessive scrolling.
-- Reserved the optional reading ruler for repeated rereading or combined visual-strain patterns instead of triggering it from fatigue alone.
-- Refined motion/media responses so stronger motion discomfort or sustained instability can reduce movement without unnecessarily changing text.
-- Recomputes the symptom-seeded presentation at the start of a Focus session so an older high-intensity setup does not automatically carry into a new symptom state.
-- Updated Shield to carry the same refined visual profile onto approved external sites while preserving per-site consent and reversibility.
+- Made Focus a single sitewide accessibility mode: turn it on once, then continue using SomatoSync normally.
+- Removed the separate guided-reading workflow, reading-lab/reset controls, and demo-only page flow.
+- Added a clear starting-setup preview showing the supports matched from the latest confirmed symptoms before activation.
+- Turning Focus off now stops camera monitoring and restores the standard interface in one action.
+- Simplified adaptation prompts and controls to reduce decision load during use.
+- Kept Shield as the external-site extension of the same Focus accessibility setup, with site approval required before changes are applied.
+- Updated the Overview label to describe Focus as adaptive interface support rather than a separate reading task.
 
 ## Safety / scope
 
-Camera-derived interaction patterns remain non-diagnostic accessibility cues. Focus and Shield modify presentation only; they do not diagnose concussion, determine recovery, or provide medical clearance.
+Focus remains reversible and user-controlled. Local camera signals can refine accessibility supports only after sustained patterns; they are not interpreted as concussion biomarkers or medical findings.
